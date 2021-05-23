@@ -16,7 +16,5 @@ npm link
 ## Licenza
 [WFTPL](./LICENSE)
 
-
 ## Documentazione
-
 [Consulta la sezione docs/ per dettagli implementativi](./docs/MAIN.md)
