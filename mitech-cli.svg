@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg8"
+   inkscape:export-filename="C:\Users\Ivan\bitmap.png"
+   inkscape:export-xdpi="72"
+   inkscape:export-ydpi="72"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="mitown-cli.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="370.85033"
+     inkscape:cy="432.39303"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Livello 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4650"
+       width="56.885414"
+       height="129.45685"
+       x="195.03572"
+       y="30.526785" />
+    <path
+       style="opacity:1;fill:#007838;fill-opacity:1;stroke:none;stroke-width:5.29400015;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 121.2867,115.22909 -36.474236,21.05815 v 42.1168 l 36.474236,21.05815 0.003,-0.002 v -84.23 z"
+       id="path4531-4-7-4"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="72.068321"
+       inkscape:export-ydpi="72.068321" />
+    <path
+       inkscape:connector-curvature="0"
+       style="opacity:1;fill:#19854b;fill-opacity:1;stroke:none;stroke-width:5.29400015;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 121.2897,115.23019 36.47424,21.05815 v 42.11681 l -36.47424,21.05815 -0.003,-0.002 v -84.22996 z"
+       id="path4531-4-7-4-3"
+       inkscape:export-xdpi="72.068321"
+       inkscape:export-ydpi="72.068321" />
+    <path
+       sodipodi:type="star"
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#2a2828;stroke-width:5.29400015;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4531-4-0"
+       sodipodi:sides="6"
+       sodipodi:cx="121.28668"
+       sodipodi:cy="157.34563"
+       sodipodi:r1="42.116791"
+       sodipodi:r2="36.474213"
+       sodipodi:arg1="0.52359878"
+       sodipodi:arg2="1.0471976"
+       inkscape:flatsided="true"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 157.76089,178.40402 -36.47421,21.0584 -36.474209,-21.0584 0,-42.11679 36.474209,-21.05839 36.47421,21.05839 z"
+       inkscape:transform-center-y="-2.0379416e-006"
+       inkscape:export-xdpi="72.068321"
+       inkscape:export-ydpi="72.068321" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:9.37799168px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#2a2828;fill-opacity:1;stroke:none;stroke-width:0.23444977"
+       x="103.87399"
+       y="162.3701"
+       id="text4535-2"
+       transform="scale(0.92953969,1.0758013)"
+       inkscape:export-xdpi="72.068321"
+       inkscape:export-ydpi="72.068321"><tspan
+         sodipodi:role="line"
+         id="tspan4533-5"
+         x="103.87399"
+         y="162.3701"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:45.01436234px;font-family:'Arial Narrow';-inkscape-font-specification:'Arial Narrow Bold';fill:#2a2828;fill-opacity:1;stroke-width:0.23444977">M&gt;</tspan></text>
+  </g>
+</svg>
