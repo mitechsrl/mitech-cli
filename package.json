@@ -7,7 +7,7 @@
     "mitech": "bin/cli.js"
   },
   "author": "Mitech Srl.",
-  "license": "ISC",
+  "license": "WTFPL",
   "dependencies": {
     "colors": "^1.4.0",
     "ignore": "^5.1.8",
