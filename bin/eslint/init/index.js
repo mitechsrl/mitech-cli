@@ -23,15 +23,15 @@ module.exports.help = [
 module.exports.cmd = async function (basepath, params, logger) {
     const npmParams = [
         'install',
-        '--save-dev',
+        '-D',
         'eslint',
-        'babel-eslint',
-        'eslint-config-standard',
-        'eslint-plugin-import',
-        'eslint-plugin-node',
-        'eslint-plugin-promise',
-        'eslint-plugin-react',
-        'eslint-plugin-standard'
+        '@babel/core@latest',
+        '@babel/eslint-parser@latest',
+        'eslint-config-standard@latest',
+        'eslint-plugin-import@latest',
+        'eslint-plugin-node@latest',
+        'eslint-plugin-promise@latest',
+        'eslint-plugin-react@latest'
     ];
     logger.log('Eseguo npm ' + npmParams.join(' '));
     const npm = spawn(npmUtils.npmExecutable, npmParams, { stdio: 'inherit' });
@@ -44,10 +44,10 @@ module.exports.cmd = async function (basepath, params, logger) {
         if (code === 0) {
             logger.info('Installazione dipendenze completata.');
 
-            const eslintRc = fs.readFileSync(path.join(__dirname, '.eslintrc.json'));
-            fs.writeFileSync('.eslintrc.json', eslintRc);
+            const eslintRc = fs.readFileSync(path.join(__dirname, '.eslintrc.js'));
+            fs.writeFileSync('.eslintrc.js', eslintRc);
 
-            logger.info('file .eslintrc.json creato');
+            logger.info('file .eslintrc.js creato');
             logger.info("Installa l'estensione Eslint (dbaeumer.vscode-eslint) per vscode");
         } else {
             logger.log('');
