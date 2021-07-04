@@ -11,17 +11,18 @@
  * TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION:
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
-const { spawn } = require('child_process');
+
 const npmUtils = require('../../npm/utils');
 const fs = require('fs');
 const path = require('path');
+const spawn = require('../../../lib/spawn');
 
 module.exports.info = 'Installa dipendenze eslint nel sistema';
 module.exports.help = [
 ];
 
 module.exports.cmd = async function (basepath, params, logger) {
-    const npmParams = [
+    let npmParams = [
         'install',
         '-D',
         'eslint',
@@ -34,24 +35,21 @@ module.exports.cmd = async function (basepath, params, logger) {
         'eslint-plugin-react@latest'
     ];
     logger.log('Eseguo npm ' + npmParams.join(' '));
-    const npm = spawn(npmUtils.npmExecutable, npmParams, { stdio: 'inherit' });
+    await spawn(npmUtils.npmExecutable, npmParams);
 
-    npm.on('error', (data) => {
-        console.log(`error: ${data}`);
-    });
+    npmParams = [
+        'uninstall',
+        'babel-eslint',
+        'eslint-plugin-standard'
+    ];
+    logger.log('Eseguo npm ' + npmParams.join(' '));
+    await spawn(npmUtils.npmExecutable, npmParams, { stdio: 'inherit' });
 
-    npm.on('exit', (code) => {
-        if (code === 0) {
-            logger.info('Installazione dipendenze completata.');
+    logger.info('Installazione dipendenze completata.');
 
-            const eslintRc = fs.readFileSync(path.join(__dirname, '.eslintrc.js'));
-            fs.writeFileSync('.eslintrc.js', eslintRc);
+    const eslintRc = fs.readFileSync(path.join(__dirname, '.eslintrc.js'));
+    fs.writeFileSync('.eslintrc.js', eslintRc);
 
-            logger.info('file .eslintrc.js creato');
-            logger.info("Installa l'estensione Eslint (dbaeumer.vscode-eslint) per vscode");
-        } else {
-            logger.log('');
-            logger.error('installazione fallita: exit code = ' + code);
-        }
-    });
+    logger.info('file .eslintrc.js creato');
+    logger.info("Installa l'estensione Eslint (dbaeumer.vscode-eslint) per vscode");
 };
