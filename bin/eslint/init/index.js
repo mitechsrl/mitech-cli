@@ -32,7 +32,9 @@ module.exports.cmd = async function (basepath, params, logger) {
         'eslint-plugin-import@latest',
         'eslint-plugin-node@latest',
         'eslint-plugin-promise@latest',
-        'eslint-plugin-react@latest'
+        'eslint-plugin-react@latest',
+        '@babel/preset-react@latest',
+        '@babel/preset-env@latest'
     ];
     logger.log('Eseguo npm ' + npmParams.join(' '));
     await spawn(npmUtils.npmExecutable, npmParams);

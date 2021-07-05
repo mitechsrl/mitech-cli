@@ -50,11 +50,16 @@ module.exports = {
         },
         plugins: ['react'],
         parser: '@babel/eslint-parser',
-        parserOptions: {
-            ecmaVersion: 2018,
-            ecmaFeatures: {
-                jsx: true
-            }
+        requireConfigFile: false,
+        babelOptions: {
+            presets: [
+                '@babel/preset-react', // https://babeljs.io/docs/en/babel-preset-react
+                '@babel/preset-env' // https://babeljs.io/docs/en/babel-preset-react
+            ]
+        },
+        ecmaVersion: 2018,
+        ecmaFeatures: {
+            jsx: true
         },
         settings: {
             react: {
