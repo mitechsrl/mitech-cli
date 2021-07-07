@@ -1,3 +1,4 @@
+/* eslint-disable no-process-exit */
 const os = require('os');
 const path = require('path');
 const fs = require('fs');
@@ -99,6 +100,7 @@ const rmTmp = async () => {
  * Utility per upload files arbitrario
  */
 const deployFiles = async () => {
+    // eslint-disable-next-line node/no-missing-require
     const fse = require('fs-extra');
 
     const tar = require('tar');
@@ -434,5 +436,6 @@ default: console.error('Mmmh.. What did you mean by <-o ' + operation + '>?'); b
 }
 
 promise
+    // eslint-disable-next-line no-process-exit
     .then(() => process.exit(0))
     .catch(error => { console.error(error); process.exit(-1); });

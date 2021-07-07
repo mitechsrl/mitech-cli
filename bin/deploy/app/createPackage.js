@@ -49,7 +49,7 @@ module.exports = async () => {
         file: tmpFile.path,
         filter: filter
     }, ['./']);
-    var stats = fs.statSync(tmpFile.path);
+    const stats = fs.statSync(tmpFile.path);
     logger.info('File: ' + tmpFile.path);
     logger.info('Filesize: ' + (stats.size / 1024).toFixed(1) + 'Kb');
     return tmpFile;
