@@ -28,11 +28,12 @@ if (process.argv.length === 3 && process.argv[2] === '-v') {
         try {
             await command.command(__dirname, process.argv.slice(2));
         } catch (e) {
-            logger.error(e.message);
             if (verbose) {
-                logger.log(e);
+                logger.error(e);
                 logger.log('Stack trace:');
                 logger.log(e.stack);
+            } else {
+                logger.error(typeof e === 'string' ? e : e.message);
             }
         }
     })();
