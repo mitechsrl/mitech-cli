@@ -17,7 +17,7 @@ const target = require('../../lib/target');
 module.exports.info = 'Utility gestione VM';
 module.exports.help = [];
 
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     const t = await target.get();
     target.print(t);
 };

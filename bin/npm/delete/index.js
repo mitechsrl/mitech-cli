@@ -16,6 +16,7 @@ const { spawn } = require('child_process');
 const inquirer = require('inquirer');
 const npmUtils = require('../utils');
 const fs = require('fs');
+const logger = require('../../../lib/logger');
 
 const scope = '@mitech';
 
@@ -23,8 +24,8 @@ module.exports.info = 'Rimuove un pacchetto dal registry NPM Mitech';
 module.exports.help = [
     ['-p', 'Nome del pacchetto da rimuovere']
 ];
-module.exports.cmd = async function (basepath, params, logger) {
-    const packageNameIndex = params.findIndex(p => p == '-p');
+module.exports.cmd = async function (basepath, params) {
+    const packageNameIndex = params.findIndex(p => p === '-p');
     if (packageNameIndex < 0) {
         return logger.error('Specifica il pacchetto da rimuovere con "-p packageName"');
     }
@@ -64,7 +65,7 @@ module.exports.cmd = async function (basepath, params, logger) {
     npm.on('exit', (code) => {
         try {
             // rimuovo il file .npmrc. Non serve oltre l'operazione npm
-            //fs.unlinkSync('.npmrc');
+            // fs.unlinkSync('.npmrc');
         } catch (e) { }
 
         if (code === 0) {

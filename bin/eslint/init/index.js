@@ -16,12 +16,13 @@ const npmUtils = require('../../npm/utils');
 const fs = require('fs');
 const path = require('path');
 const spawn = require('../../../lib/spawn');
+const logger = require('../../../lib/logger');
 
 module.exports.info = 'Installa dipendenze eslint nel sistema';
 module.exports.help = [
 ];
 
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     let npmParams = [
         'install',
         '-D',
@@ -49,7 +50,7 @@ module.exports.cmd = async function (basepath, params, logger) {
 
     logger.info('Installazione dipendenze completata.');
 
-    const eslintRc = fs.readFileSync(path.join(__dirname, '.eslintrc.js'));
+    const eslintRc = fs.readFileSync(path.join(__dirname, '.eslintrcsource.js'));
     fs.writeFileSync('.eslintrc.js', eslintRc);
 
     logger.info('file .eslintrc.js creato');

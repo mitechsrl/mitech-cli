@@ -19,6 +19,7 @@ const uuid = require('uuid');
 const ssh = require('../../../lib/ssh');
 const inquirer = require('inquirer');
 const createPackage = require('./createPackage');
+const logger = require('../../../lib/logger');
 
 module.exports.info = [
     'Utility deploy Files su VM',
@@ -31,7 +32,7 @@ module.exports.help = [
 
 const appsContainer = '/apps/';
 
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     const target = await _target.get();
     _target.print(target);
     if (!target) return;

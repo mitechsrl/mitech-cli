@@ -16,12 +16,13 @@ const inquirer = require('inquirer');
 const uuid = require('uuid');
 const fs = require('fs');
 const crypto = require('../../../../lib/crypto');
+const logger = require('../../../../lib/logger');
 
 module.exports.info = 'Aggiunge target remoto per ssh';
 module.exports.help = [];
 
-module.exports.cmd = async function (basepath, params, logger) {
-    var questions = [
+module.exports.cmd = async function (basepath, params) {
+    const questions = [
         {
             type: 'input',
             name: 'name',

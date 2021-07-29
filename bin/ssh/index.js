@@ -12,9 +12,11 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
+const logger = require('../../lib/logger');
+
 module.exports.info = 'Utility gestione target remoti pm2';
 module.exports.help = [];
 
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     logger.warn('Nulla da fare qui, digita -h per info');
 };

@@ -16,6 +16,7 @@ const fs = require('fs');
 const { spawn } = require('child_process');
 const inquirer = require('inquirer');
 const npmUtils = require('../utils');
+const logger = require('../../../lib/logger');
 
 const scope = '@mitech';
 
@@ -24,7 +25,7 @@ module.exports.help = [
     ['-y', 'Accetta automaticamente le richieste di conferma'],
     ['-r ID', 'Usa per default il registry identificato da id']
 ];
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     /* step 1 ************************************************************************/
     logger.debug('Directory corrente: ' + process.cwd());
     const registryIdParam = params.get('-r');

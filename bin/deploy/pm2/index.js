@@ -16,6 +16,7 @@ const _target = require('../../../lib/target');
 const path = require('path');
 const fs = require('fs');
 const ssh = require('../../../lib/ssh');
+const logger = require('../../../lib/logger');
 
 module.exports.info = 'Utility deploy ecosystem.config.json su VM';
 module.exports.help = [
@@ -25,7 +26,7 @@ module.exports.help = [
 
 const appsContainer = '/apps/';
 
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     const target = await _target.get();
     _target.print(target);
 
@@ -42,7 +43,7 @@ module.exports.cmd = async function (basepath, params, logger) {
 
     // just check json syntax
     try {
-        const _discard = JSON.parse(fs.readFileSync(ecosystemConfigJsonPath).toString());
+        JSON.parse(fs.readFileSync(ecosystemConfigJsonPath).toString());
     } catch (error) {
         logger.error('Errore di sintassi nel file ' + filename);
         throw error;

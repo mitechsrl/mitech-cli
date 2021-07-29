@@ -14,18 +14,16 @@
 
 const target = require('../../../lib/target');
 const ssh = require('../../../lib/ssh');
+const logger = require('../../../lib/logger');
 
 module.exports.info = 'Utility setup ssl VM';
 module.exports.help = [];
 
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     const t = await target.get();
     target.print(t);
-
-    console.log('');
-
+    logger.log('');
     const session = await ssh.createSshSession(t);
-
     await session.command(['uptime']);
     session.disconnect();
 };

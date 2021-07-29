@@ -13,13 +13,14 @@
  */
 
 const fs = require('fs');
+const logger = require('../../../lib/logger');
 const npmUtils = require('../utils');
 
 const scope = '@mitech';
 
 module.exports.info = "Crea nella directory corrente un file .npmrc che permette l'accesso al registry NPM Mitech in fase di install";
 module.exports.help = [];
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     logger.debug('Directory corrente: ' + process.cwd());
 
     /* step 2 ************************************************************************/

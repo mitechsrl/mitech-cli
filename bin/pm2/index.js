@@ -14,11 +14,12 @@
 
 const _target = require('../../lib/target');
 const ssh = require('../../lib/ssh');
+const logger = require('../../lib/logger');
 
 module.exports.info = 'Utility gestione pm2';
 module.exports.help = [['<pm2 param>', 'Un qualsiasi comando di pm2 da eseguire sul server remoto']];
 module.exports.catchUnimplementedParams = true;
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     const target = await _target.get();
     _target.print(target);
 

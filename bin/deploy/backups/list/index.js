@@ -15,6 +15,7 @@
 const _target = require('../../../../lib/target');
 const path = require('path');
 const ssh = require('../../../../lib/ssh');
+const logger = require('../../../../lib/logger');
 
 module.exports.info = [
     'Utility listing backup deploy app'
@@ -24,7 +25,7 @@ module.exports.help = [
 
 const appsContainer = '/apps/';
 
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     const target = await _target.get();
     _target.print(target);
     if (!target) return;

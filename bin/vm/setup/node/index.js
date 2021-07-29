@@ -14,18 +14,18 @@
 const ssh = require('../../../../lib/ssh');
 const _target = require('../../../../lib/target');
 const inquirer = require('inquirer');
-const linuxCmds = require('./linux/commands');
+const runLinux = require('./lib/runLinux');
+const logger = require('../../../../lib/logger');
 
 module.exports.info = 'Utility setup environment nodejs su VM';
 module.exports.help = [];
-
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     const target = await _target.get();
     _target.print(target);
 
     if (!target) return;
 
-    var beforeStart = [
+    const beforeStart = [
         {
             type: 'confirm',
             name: 'confirm',
@@ -40,7 +40,7 @@ module.exports.cmd = async function (basepath, params, logger) {
     logger.log('');
     logger.info("Questo script installerà l'ambiente nodejs sul server target selezionato");
     logger.log('');
-    var questions = [
+    const questions = [
         {
             type: 'input',
             name: 'MITECH_HOSTNAME',
@@ -55,7 +55,7 @@ module.exports.cmd = async function (basepath, params, logger) {
                 .then(_session => {
                     session = _session;
                     if (session.os.linux) {
-                        return linuxCmds(session, logger, answers);
+                        return runLinux(session, answers);
                     }
                     return Promise.reject(new Error('Setup script non disponibile per la piattaforma ' + JSON.stringify(session.os)));
                 })

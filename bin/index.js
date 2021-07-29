@@ -17,7 +17,9 @@ const { printHelp } = require('../lib/command.js');
 module.exports = {
     info: '',
     help: [
-        ['-v', 'Stampa la versione della CLI']
+        ['-v', 'Stampa la versione della CLI'],
+        ['-vv', 'Sii più verboso negli errori']
+
     ],
     cmd: (basepath, parameters) => {
         printHelp(basepath);

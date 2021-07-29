@@ -1,5 +1,6 @@
+const logger = require("../../../lib/logger");
 
-module.exports = (session, logger) => {
+module.exports = (session) => {
     logger.log('Verifico usabilità sudo...');
     return session.command('sudo ls; echo $?', false)
         .then(result => {

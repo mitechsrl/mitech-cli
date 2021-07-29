@@ -34,12 +34,10 @@ module.exports.help = [
     ['-h', "Descrizione comando, stampa con formattazione uniforme in due colonne"]
 ]
 module.exports.catchUnimplementedParams = boolean; // se true, i comandi non trovati sottoforma di dir vengono gestiti da questo script
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
    // basepath: path di questo script
    // params: parametri passati dalla CLI
-   // logger: oggetto per log su console (alternativo a console.log per avere anche i colori)
-   
-   
+
    // esegui js del comando
 }
 
@@ -71,7 +69,7 @@ La lista dei targets usabili può essere visualizzata con **mitech ssh targets**
 
 Per aggiungere un target oppure creare un file ex-novo, usa **mitech ssh targets add**
 
-# Comandi disponibili (v0.0.5)
+# Comandi disponibili
 
 #### deploy
 Utility deploy su VM

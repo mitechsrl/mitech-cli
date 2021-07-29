@@ -12,12 +12,13 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
+const logger = require('../../../lib/logger');
 const target = require('../../../lib/target');
 
 module.exports.info = 'Utility setup VM';
 module.exports.help = [];
 
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     const t = await target.get();
     target.print(t);
 

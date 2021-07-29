@@ -14,11 +14,12 @@
 
 const targets = require('../../../lib/target');
 const _ = require('lodash');
+const logger = require('../../../lib/logger');
 
 module.exports.info = 'Utility gestione target remoti ssh';
 module.exports.help = [];
 
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     const list = targets.list();
     if (!list) return logger.error('Nessuna lista target disponibile in questa posizione');
 

@@ -1,8 +1,9 @@
 const path = require('path');
 const tmp = require('tmp');
 const fs = require('fs');
+const logger = require('../../../../../lib/logger');
 
-module.exports = (session, logger, answers) => {
+module.exports = (session, answers) => {
     let tmpobj = null;
 
     logger.debug('Update packages...');

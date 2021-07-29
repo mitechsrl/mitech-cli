@@ -12,11 +12,12 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
+const logger = require('../../../lib/logger');
 const persistent = require('../../../lib/persistent');
 
 module.exports.info = 'Gestione configurazione registry npm';
 module.exports.help = [];
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     const npmInfo = persistent.get('npm');
 
     logger.log('');

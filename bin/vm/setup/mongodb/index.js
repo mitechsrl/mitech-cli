@@ -14,13 +14,14 @@
 const ssh = require('../../../../lib/ssh');
 const _target = require('../../../../lib/target');
 const inquirer = require('inquirer');
-const fs = require('fs');
+
 const path = require('path');
+const logger = require('../../../../lib/logger');
 
 module.exports.info = 'Utility setup mongodb su VM';
 module.exports.help = [];
 
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     const target = await _target.get();
     _target.print(target);
 
@@ -32,7 +33,7 @@ module.exports.cmd = async function (basepath, params, logger) {
     logger.log('');
     logger.info('Questo script installerà mongodb sul server target selezionato');
     logger.log('');
-    var questions = [
+    const questions = [
         {
             type: 'list',
             name: 'mode',
@@ -95,7 +96,7 @@ module.exports.cmd = async function (basepath, params, logger) {
         .then(_session => {
             session = _session;
             const script = require(path.join(__dirname, mode.dir, 'index.js'));
-            return script(session, logger, answers);
+            return script(session, answers);
         })
         .catch(error => {
             logger.error(error);

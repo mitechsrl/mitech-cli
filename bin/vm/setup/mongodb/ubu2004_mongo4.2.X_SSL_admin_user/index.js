@@ -1,8 +1,9 @@
 const path = require('path');
 
 const fs = require('fs');
+const logger = require('../../../../../lib/logger');
 
-module.exports = (session, logger, answers) => {
+module.exports = (session, answers) => {
     const jsFileContant = `
     use admin;
     db.createUser({

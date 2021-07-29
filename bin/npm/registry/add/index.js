@@ -14,13 +14,14 @@
 
 const persistent = require('../../../../lib/persistent');
 const inquirer = require('inquirer');
+const logger = require('../../../../lib/logger');
 
 module.exports.info = 'Gestione configurazione registry npm';
 module.exports.help = [];
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     const npmInfo = persistent.get('npm');
 
-    var questions = [
+    const questions = [
         {
             type: 'input',
             name: 'id',

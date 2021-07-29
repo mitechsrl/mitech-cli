@@ -19,11 +19,12 @@ const inquirer = require('inquirer');
 const fs = require('fs');
 const tmp = require('tmp-promise');
 var NginxConfFile = require('nginx-conf').NginxConfFile;
+const logger = require('../../../lib/logger');
 
 module.exports.info = 'Utility setup ssl VM';
 module.exports.help = [];
 
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     const t = await target.get();
     target.print(t);
 

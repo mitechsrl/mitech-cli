@@ -11,6 +11,7 @@
  * TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION:
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
+const logger = require('../../../lib/logger');
 const ssh = require('../../../lib/ssh');
 const _target = require('../../../lib/target');
 const linuxCmds = require('./linux');
@@ -18,7 +19,7 @@ const linuxCmds = require('./linux');
 module.exports.info = 'Vm pre-setup checks utility';
 module.exports.help = [];
 
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     const target = await _target.get();
     _target.print(target);
 
@@ -33,7 +34,7 @@ module.exports.cmd = async function (basepath, params, logger) {
         .then(_session => {
             session = _session;
             if (session.os.linux) {
-                return linuxCmds(session, logger);
+                return linuxCmds(session);
             }
             return Promise.reject(new Error('Pre-setup script non disponibile per la piattaforma ' + JSON.stringify(session.os)));
         })

@@ -14,11 +14,12 @@
 
 const target = require('../../../lib/target');
 const ssh = require('../../../lib/ssh');
+const logger = require('../../../lib/logger');
 
 module.exports.info = 'Utility detect OS vm';
 module.exports.help = [];
 
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     const t = await target.get();
     target.print(t);
 

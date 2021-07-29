@@ -14,11 +14,12 @@
 
 const npmUtils = require('../../utils');
 const persistent = require('../../../../lib/persistent');
+const logger = require('../../../../lib/logger');
 
 module.exports.info = 'Utility rimozione registry NPM';
 module.exports.help = [];
 
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     logger.log('Seleziona il registry da eliminare');
     const registry = await npmUtils.getRegistry(null, null, false);
     if (!registry) return;

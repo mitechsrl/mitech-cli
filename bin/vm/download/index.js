@@ -16,6 +16,7 @@ const _target = require('../../../lib/target');
 const path = require('path');
 const ssh = require('../../../lib/ssh');
 const fs = require('fs');
+const logger = require('../../../lib/logger');
 
 module.exports.info = [
     'Utility fle download'
@@ -25,7 +26,7 @@ module.exports.help = [
     ['-d', 'Destination file, path dove scaricare il file sul dispositivo locale. Usa cwd se omesso']
 ];
 
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     const remoteFile = params.get('-s');
     const destinationfile = params.get('-d');
     if (!remoteFile.found) {

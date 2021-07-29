@@ -17,7 +17,7 @@ const ssh = require('../../../lib/ssh');
 module.exports.info = 'Avvia client interattivo ssh (win->putty, linux da implementare)';
 module.exports.help = [];
 
-module.exports.cmd = async function (basepath, params, logger) {
+module.exports.cmd = async function (basepath, params) {
     const target = await _target.get();
     _target.print(target);
 

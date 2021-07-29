@@ -1,4 +1,5 @@
-#! /usr/bin/env node
+#!/usr/bin/env node
+/* eslint-disable node/shebang */
 
 /**
  * DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
@@ -17,21 +18,22 @@
 const logger = require('../lib/logger');
 const command = require('../lib/command');
 const header = require('../lib/header');
+const verbose = require('../lib/verbose');
 
 // mostra versione globale CLI
 if (process.argv.length === 3 && process.argv[2] === '-v') {
     header();
-    process.exit(0);
+} else {
+    (async () => {
+        try {
+            await command.command(__dirname, process.argv.slice(2));
+        } catch (e) {
+            logger.error(e.message);
+            if (verbose) {
+                logger.log(e);
+                logger.log('Stack trace:');
+                logger.log(e.stack);
+            }
+        }
+    })();
 }
-
-(async () => {
-    try {
-        await command.command(__dirname, process.argv.slice(2));
-    } catch (e) {
-        // console.log(e);
-        logger.error(e.message || e);
-        logger.log('');
-        logger.log('Stack trace:');
-        logger.log(e.stack);
-    }
-})();
