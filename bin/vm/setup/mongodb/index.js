@@ -14,9 +14,9 @@
 const ssh = require('../../../../lib/ssh');
 const _target = require('../../../../lib/target');
 const inquirer = require('inquirer');
-
 const path = require('path');
 const logger = require('../../../../lib/logger');
+const directoryConfigsScanner = require('../../../../lib/directoryConfigsScanner');
 
 module.exports.info = 'Utility setup mongodb su VM';
 module.exports.help = [];
@@ -33,47 +33,15 @@ module.exports.cmd = async function (basepath, params) {
     logger.log('');
     logger.info('Questo script installerà mongodb sul server target selezionato');
     logger.log('');
-    const questions = [
-        {
-            type: 'list',
-            name: 'mode',
-            message: 'Modalità di setup',
-            choices: [
-                {
-                    name: 'Ubuntu 20.04, MongoDb 4.2.X, ssl/tls self signed, auth admin, auth user)',
-                    value: {
-                        questions: [
-                            {
-                                type: 'password',
-                                name: 'adminPassword',
-                                message: 'Password utente admin'
-                            },
-                            {
-                                type: 'password',
-                                name: 'adminPasswordConfirm',
-                                message: 'Conferma password utente admin'
-                            },
-                            {
-                                type: 'input',
-                                name: 'userUsername',
-                                message: 'Username utente per app'
-                            },
-                            {
-                                type: 'password',
-                                name: 'userPassword',
-                                message: 'Password utente app'
-                            },
-                            {
-                                type: 'password',
-                                name: 'userPasswordConfirm',
-                                message: 'Conferma password utente app'
-                            }
-                        ],
-                        dir: 'ubu2004_mongo4.2.X_SSL_admin_user'
-                    }
-                }]
-        }
-    ];
+
+    const configs = await directoryConfigsScanner(path.join(__dirname, '_configs'));
+
+    const questions = [{
+        type: 'list',
+        name: 'mode',
+        message: 'Modalità di setup',
+        choices: configs
+    }];
 
     let mode = null;
     let session = null;

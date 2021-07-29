@@ -1,7 +1,7 @@
 const path = require('path');
 
 const fs = require('fs');
-const logger = require('../../../../../lib/logger');
+const logger = require('../../../../../../lib/logger');
 
 module.exports = (session, answers) => {
     const jsFileContant = `
