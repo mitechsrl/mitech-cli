@@ -12,19 +12,25 @@ fi
 ######## install nginx, node and deps
 # installo curl. Dovrebbe essere gia' installato ma non si sa mai
 apt install -y curl
+
 # vado nella mia home e setto i repository di node(default v14, per altre versioni cambiare _14.x con _16.x)
 cd ~
 curl -sL https://deb.nodesource.com/setup_14.x -o nodesource_setup.sh
 chmod +x nodesource_setup.sh
 ./nodesource_setup.sh
-# install di tutto
-apt install -y nodejs gcc g++ make nginx
+
+# install di pacchetti vari (tra cui gcc e python per poter compilare le dipendenze node)
+apt install -y nodejs gcc g++ make nginx python3
+apt autoremove -y
 
 # setup servizio nginx come attivo al boot
 systemctl enable nginx.service
 
+#install node-gyp (per compilazione pacchetti nativi node)
+npm install -g node-gyp
+
 # install pm2
-npm install pm2@4.4.1 -g
+npm install pm2@5.1.0 -g
 
 ######## setup nginx
 # sposto il file di config precedentemente caricato nella sua destinazione finale
@@ -40,7 +46,9 @@ useradd -m $NODEUSER -s /usr/bin/bash
 mkdir /home/$NODEUSER/apps
 chown $NODEUSER:$NODEUSER /home/$NODEUSER/apps
 chmod 755 /home/$NODEUSER/apps
+
 # setto pm2 attivo all'avvio come utente node
 pm2 startup -u $NODEUSER --hp /home/$NODEUSER
+
 # spawn pm2 da user node
 su $NODEUSER -c "cd /home/$NODEUSER; pm2 status"

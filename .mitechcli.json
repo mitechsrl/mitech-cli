@@ -1,0 +1,18 @@
+{
+    "targets": [
+        {
+            "name": "vm local",
+            "host": "192.168.0.112",
+            "port": 22,
+            "username": "ivan",
+            "accessType": "password",
+            "password": {
+                "algo": "aes-256-cbc",
+                "iv": "190c77fae224b4d9cb4bc53504c904cc",
+                "encryptedData": "308016f2c86742f59e6c7b581e5a3ced"
+            },
+            "nodeUser": "onit",
+            "id": "a45f0204-43cc-46d5-b4ef-aa1fd316efff"
+        }
+    ]
+}

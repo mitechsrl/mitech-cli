@@ -1,28 +1,23 @@
 const inquirer = require('inquirer');
 const path = require('path');
+const directoryConfigsScanner = require('../../../../../lib/directoryConfigsScanner');
 
-module.exports = (session, answers) => {
+module.exports = async (session, answers) => {
+    // get the list of available configurations
+    const configs = await directoryConfigsScanner(path.join(__dirname, '../_configs/linux'));
     const questions = [
         {
             type: 'list',
             name: 'mode',
             message: 'Modalità di setup',
-            choices: [
-                {
-                    name: 'Ubuntu 20.04, Node 12.X, Nginx, pm2, nodemon',
-                    value: 'ubuntu2004_node12'
-                },
-                {
-                    name: 'Ubuntu 20.04, Node 14.X, Nginx, pm2, nodemon',
-                    value: 'ubuntu2004_node14'
-                }
-            ]
+            choices: configs
         }
     ];
 
+    // ask the user for the configuration to be used, the run it
     return inquirer.prompt(questions)
         .then(_answers => {
-            const linuxCmds = require(path.join(__dirname, '../' + _answers.mode + '/commands.js'));
+            const linuxCmds = require(path.join(_answers.mode.dir + '/commands.js'));
             return linuxCmds(session, answers);
         });
 };

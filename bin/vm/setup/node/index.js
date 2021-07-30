@@ -44,7 +44,7 @@ module.exports.cmd = async function (basepath, params) {
         {
             type: 'input',
             name: 'MITECH_HOSTNAME',
-            message: 'FQDN hostname (no http(s)://)'
+            message: 'FQDN hostname (solo ip/dns senza http(s)://)'
         }
     ];
 

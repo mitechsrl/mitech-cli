@@ -1,6 +1,6 @@
 // the config of this directory is an item for inquirer list
 module.exports = {
-    name: 'Ubuntu 20.04, MongoDb 4.2.X, ssl/tls self signed, auth admin, auth user)',
+    name: 'Ubuntu 20.04, MongoDb 4.2.X (con ssl/tls self signed, auth admin, auth user)',
     value: {
         questions: [
             {
@@ -21,7 +21,7 @@ module.exports = {
             {
                 type: 'password',
                 name: 'userPassword',
-                message: 'Password utente app'
+                message: 'Password utente per app'
             },
             {
                 type: 'password',
