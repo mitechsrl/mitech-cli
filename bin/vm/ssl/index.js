@@ -21,7 +21,7 @@ const tmp = require('tmp-promise');
 var NginxConfFile = require('nginx-conf').NginxConfFile;
 const logger = require('../../../lib/logger');
 
-module.exports.info = 'Utility setup ssl VM';
+module.exports.info = 'Utility setup ssl VM. Installa un certificato certbot gratuito.';
 module.exports.help = [];
 
 module.exports.cmd = async function (basepath, params) {

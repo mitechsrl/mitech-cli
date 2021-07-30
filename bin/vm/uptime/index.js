@@ -16,7 +16,7 @@ const target = require('../../../lib/target');
 const ssh = require('../../../lib/ssh');
 const logger = require('../../../lib/logger');
 
-module.exports.info = 'Utility setup ssl VM';
+module.exports.info = 'Comando veloce per uptime VM';
 module.exports.help = [];
 
 module.exports.cmd = async function (basepath, params) {
