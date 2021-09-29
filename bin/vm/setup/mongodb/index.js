@@ -63,7 +63,7 @@ module.exports.cmd = async function (basepath, params) {
         })
         .then(_session => {
             session = _session;
-            const script = require(path.join(__dirname, mode.dir, 'index.js'));
+            const script = require(path.join(mode.dir, 'index.js'));
             return script(session, answers);
         })
         .catch(error => {
