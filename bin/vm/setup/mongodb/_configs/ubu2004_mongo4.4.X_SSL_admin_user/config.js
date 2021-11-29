@@ -1,7 +1,7 @@
 // the config of this directory is an item for inquirer list
 
 module.exports = {
-    name: 'Ubuntu 20.04, MongoDb 4.4.X (con ssl/tls self signed, auth admin, auth user)',
+    name: 'Ubuntu 20.04, MongoDb 4.4.X (ssl/tls self signed, auth admin, auth user, support to onit-next/LB4 )',
     value: {
         questions: [
             {

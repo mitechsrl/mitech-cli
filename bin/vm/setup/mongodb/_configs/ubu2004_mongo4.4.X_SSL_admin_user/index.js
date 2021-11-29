@@ -16,7 +16,7 @@ module.exports = (session, answers) => {
     db.createUser({
         user: "` + answers.userUsername + `",
         pwd: "` + answers.userPassword + `",
-        roles: [{ role: "readWrite", db: "` + answers.userUsername + `" }]
+        roles: [{ role: "readWriteAnyDatabase", db: "admin" }]
     });`;
 
     logger.debug('Upload install_mongo.sh...');
