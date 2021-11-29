@@ -147,7 +147,7 @@ Utility gestione VM.
 
 - carica sul server il sudddetto file e lo applica a nginx
 
-**mitech vm setup mongodb** Esegue il setup di mongodb sul server remoto (versione 4.2.X). Esegue:
+**mitech vm setup mongodb** Esegue il setup di mongodb sul server remoto. Esegue:
 
 - richiesta e set password admin
 
@@ -156,6 +156,8 @@ Utility gestione VM.
 - creazone account per app esterne con permessi su un db dedicato(db name = username in questo caso)
 
 - creazione certificato ssl self-signed per connessione ssl/tls e setup ssl/tls in mongodb-server 
+
+NOTA: onit-next (Versione basata su LB4) richiede una configurazione specifica dei permessi degli utenti- Utilizzare una versione compatibile tra quelle proposte.
 
 **mitech vm os** mostra info su OS vm remota
 
