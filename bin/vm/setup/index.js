@@ -13,15 +13,11 @@
  */
 
 const logger = require('../../../lib/logger');
-const target = require('../../../lib/target');
 
 module.exports.info = 'Utility setup VM';
 module.exports.help = [];
 
 module.exports.cmd = async function (basepath, params) {
-    const t = await target.get();
-    target.print(t);
-
     logger.warn('Niente da fare qui. Vedi comandi disponibili con -h');
 };
 
