@@ -4,6 +4,7 @@ const fs = require('fs');
 const logger = require('../../../../../../lib/logger');
 
 module.exports = (session, answers) => {
+
     const jsFileContant = `
     use admin;
     db.createUser({
@@ -45,7 +46,11 @@ module.exports = (session, answers) => {
         .then(() => session.command('sudo chmod +x /tmp/install_mongo.sh'))
         .then(() => {
             logger.debug('Avvio setup...');
-            return session.command('sudo /tmp/install_mongo.sh');
+
+            // escape for bash
+            const mongoPath = (answers.mongoPath || 'default').replace(/([^a-zA-Z0-9])/g, '\\' + '$1');
+
+            return session.command('sudo /tmp/install_mongo.sh "' + mongoPath + '"');
         })
         .then(() => {
             logger.info('Setup completo!');

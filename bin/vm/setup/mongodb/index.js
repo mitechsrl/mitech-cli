@@ -55,9 +55,12 @@ module.exports.cmd = async function (basepath, params) {
             return {};
         })
         .then(_answers => {
-            if (_answers.adminPassword !== _answers.adminPasswordConfirm) throw (new Error('Password utente e conferma non corrispondono'));
-            if (_answers.userPassword !== _answers.userPasswordConfirm) throw (new Error('Password admin e conferma non corrispondono'));
-
+            if (_answers.adminPassword !== _answers.adminPasswordConfirm) {
+                throw (new Error('Password utente e conferma non corrispondono'));
+            }
+            if (_answers.userPassword !== _answers.userPasswordConfirm) {
+                throw (new Error('Password admin e conferma non corrispondono'));
+            }
             answers = _answers;
             return ssh.createSshSession(target);
         })

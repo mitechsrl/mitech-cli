@@ -1,6 +1,13 @@
 #!/bin/bash
 
 PWD=`pwd`
+# first param is mongo path. Must be set always, use default in case you don0t want to change the path
+if [[ $1 = "default" ]]
+then
+  MONGOPATH="is default"
+else
+  MONGOPATH=$1
+fi
 
 #Remove all old stuff
 #apt-get remove --purge mongodb* -y;
@@ -42,6 +49,14 @@ if [[ $HAVESSL -eq 0 ]]
 then
 # add ssl config
 sed -i "s/^net\:$/net:\n  ssl:\n    mode: requireSSL\n    PEMKeyFile: \/etc\/mongodb\/mongodb.pem/" /etc/mongod.conf
+fi
+
+if [[ $MONGOPATH = "default" ]]
+then
+echo "Mongo path is default"
+else
+echo "Mongo path is $MONGOPATH";
+sed -i "s/dbPath:.*/dbPath: $MONGOPATH/g" /etc/mongod.conf
 fi
 
 # launch service

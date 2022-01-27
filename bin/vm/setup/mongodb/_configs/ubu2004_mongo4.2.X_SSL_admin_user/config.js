@@ -27,6 +27,12 @@ module.exports = {
                 type: 'password',
                 name: 'userPasswordConfirm',
                 message: 'Conferma password utente app'
+            },
+            {
+                type: 'input',
+                name: 'mongoPath',
+                default: 'default',
+                message: 'Path storage (se disco aggiuntivo deve già essere montato, lassciare vuoto per default)?'
             }
         ]
     }
