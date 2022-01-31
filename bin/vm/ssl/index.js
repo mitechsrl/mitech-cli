@@ -18,7 +18,7 @@ const path = require('path');
 const inquirer = require('inquirer');
 const fs = require('fs');
 const tmp = require('tmp-promise');
-var NginxConfFile = require('nginx-conf').NginxConfFile;
+const NginxConfFile = require('nginx-conf').NginxConfFile;
 const logger = require('../../../lib/logger');
 
 module.exports.info = 'Utility setup ssl VM. Installa un certificato certbot gratuito.';

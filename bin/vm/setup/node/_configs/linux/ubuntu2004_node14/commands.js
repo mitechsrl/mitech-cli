@@ -14,7 +14,7 @@ module.exports = (session, answers) => {
         })
         .then(() => {
             // install dos2unix per evitare problemi di \r\n su server quando si caricano i files creati da windows
-            logger.debug('Installo dos2unix...'); ;
+            logger.debug('Installo dos2unix...');;
             return session.command('sudo apt install dos2unix');
         })
         .then(() => {
@@ -34,6 +34,9 @@ module.exports = (session, answers) => {
 
             return session.uploadFile(tmpobj.name, '/tmp/nginx.conf');
         })
+        .then(() => session.command('mkdir -p /etc/nginx'))
+        .then(() => session.command('touch /etc/nginx/geo_dyn.conf'))
+        .then(() => session.command('chmod 755 /etc/nginx/geo_dyn.conf'))
         .then(() => {
             if (tmpobj) tmpobj.removeCallback();
             return session.command('dos2unix /tmp/nginx.conf');
