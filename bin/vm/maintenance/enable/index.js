@@ -37,7 +37,7 @@ module.exports.cmd = async function (basepath, params) {
     if (!validateIPaddress(body)) {
         console.warn('Impossibile settare indirizzo ip locale come abilitato. Il portale è visibile solo tramite vpn mitech');
     } else {
-        logger.log('Setto l\'ip locale ' + body + ' tra gli indirizzi ammessi al web service...')
+        logger.log('Setto l\'ip locale ' + body + ' tra gli indirizzi ammessi al web service...');
         const tmpFile = await tmp.file({ discardDescriptor: true, postfix: '.conf' });
         await session.downloadFile('/etc/nginx/geo_dyn.conf', tmpFile.path);
         await fs.appendFile(tmpFile.path, '\n' + body + ' allowed;\n');
@@ -47,7 +47,7 @@ module.exports.cmd = async function (basepath, params) {
         await session.command('sudo systemctl reload nginx.service');
     }
 
-    // il portale viene ricaricato ogni volta, in modo da avere sempre la versione aggiornata 
+    // il portale viene ricaricato ogni volta, in modo da avere sempre la versione aggiornata
     logger.log('Carico il portale di maintenance...');
     const tarFile = await tmp.file({ discardDescriptor: true, postfix: '.tgz' });
     await tar.c({
@@ -66,7 +66,7 @@ module.exports.cmd = async function (basepath, params) {
     await session.command('tar -xf /home/azureuser/maintenance.tar.gz -C /home/azureuser/maintenance'); // spacchetto
     await session.command('sudo cp /home/azureuser/maintenance/* /var/www/maintenance'); // copio files nella directory destinazione
     await session.command('sudo chown -R www-data:www-data /var/www/maintenance'); // fix owner files
-    await session.command('sudo chmod -R 755 /var/www/maintenance'); // fix permessi files 
+    await session.command('sudo chmod -R 755 /var/www/maintenance'); // fix permessi files
 
     // set the nginx config
     logger.log('Creo file lock di maintenance mode...');
