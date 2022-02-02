@@ -49,8 +49,8 @@ module.exports.cmd = async function (basepath, params) {
         let fileContentLines = fileContent.split('\n');
         fileContentLines = fileContentLines.filter(l => l.indexOf(ip) < 0);
         await fs.writeFile(tmpFile.path, fileContentLines.join('\n'));
-        await session.uploadFile(tmpFile.path, '/home/azureuser/geo_dyn.conf');
-        await session.command('sudo mv /home/azureuser/geo_dyn.conf /etc/nginx/geo_dyn.conf');
+        await session.uploadFile(tmpFile.path, '/tmp/geo_dyn.conf');
+        await session.command('sudo mv /tmp/geo_dyn.conf /etc/nginx/geo_dyn.conf');
         tmpFile.cleanup();
         await session.command('sudo systemctl reload nginx.service');
     }

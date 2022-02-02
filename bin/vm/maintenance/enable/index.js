@@ -41,8 +41,8 @@ module.exports.cmd = async function (basepath, params) {
         const tmpFile = await tmp.file({ discardDescriptor: true, postfix: '.conf' });
         await session.downloadFile('/etc/nginx/geo_dyn.conf', tmpFile.path);
         await fs.appendFile(tmpFile.path, '\n' + body + ' allowed;\n');
-        await session.uploadFile(tmpFile.path, '/home/azureuser/geo_dyn.conf');
-        await session.command('sudo mv /home/azureuser/geo_dyn.conf /etc/nginx/geo_dyn.conf');
+        await session.uploadFile(tmpFile.path, '/tmp/geo_dyn.conf');
+        await session.command('sudo mv /tmp/geo_dyn.conf /etc/nginx/geo_dyn.conf');
         tmpFile.cleanup();
         await session.command('sudo systemctl reload nginx.service');
     }
@@ -58,13 +58,13 @@ module.exports.cmd = async function (basepath, params) {
 
     // creo directory temporanee, carico il file, lo estraggo e lo copio dentro alla directory
     // finale di nginx
-    await session.command('mkdir -p /home/azureuser/maintenance'); // crea path upload. Non fa nulla se esiste
-    await session.command('rm -rf /home/azureuser/maintenance/*'); // rimuove i contenuti
+    await session.command('mkdir -p /tmp/maintenance'); // crea path upload. Non fa nulla se esiste
+    await session.command('rm -rf /tmp/maintenance/*'); // rimuove i contenuti
     await session.command('sudo mkdir -p /var/www/maintenance'); // creo path per portale di maintenance
     await session.command('sudo rm -rf /var/www/maintenance/*'); // svuoto il portale di maintenance
-    await session.uploadFile(tarFile.path, '/home/azureuser/maintenance.tar.gz'); // carico l'archivio dei files
-    await session.command('tar -xf /home/azureuser/maintenance.tar.gz -C /home/azureuser/maintenance'); // spacchetto
-    await session.command('sudo cp /home/azureuser/maintenance/* /var/www/maintenance'); // copio files nella directory destinazione
+    await session.uploadFile(tarFile.path, '/tmp/maintenance.tar.gz'); // carico l'archivio dei files
+    await session.command('tar -xf /tmp/maintenance.tar.gz -C /tmp/maintenance'); // spacchetto
+    await session.command('sudo cp /tmp/maintenance/* /var/www/maintenance'); // copio files nella directory destinazione
     await session.command('sudo chown -R www-data:www-data /var/www/maintenance'); // fix owner files
     await session.command('sudo chmod -R 755 /var/www/maintenance'); // fix permessi files 
 
