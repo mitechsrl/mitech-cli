@@ -171,6 +171,10 @@ NOTA: onit-next (Versione basata su LB4) richiede una configurazione specifica d
 
 **mitech vm ssl** DA COMPLETARE IMPLEMENTAZIONE: installa certificato ssl sulla macchina remota
 
+**mitech vm maintenance enable** Abilita modalità maintenance. Richiede previa configurazione corretta di nginx, non necessaria su nuove instllazioni. Il sistema remoto sarà raggiungibile solo dall'ip che ha richiesto il maintenance mode oppure da vpn mitech.
+
+**mitech vm maintenance disable** Disabilita modalità maintenance.
+
 # Encrypt locale password
 La cli memorizza le password in modo criptato all'interno dei file .mitechcli, ma la password per il crypt/decrypt viene gestita tramite vaiabili di ambiente, in modo da facilitare l'utente nell'esecuzione dei comandi.
 

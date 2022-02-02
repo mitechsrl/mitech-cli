@@ -15,22 +15,16 @@
 const target = require('../../../../lib/target');
 const ssh = require('../../../../lib/ssh');
 const NginxConfFile = require('nginx-conf').NginxConfFile;
-const path = require('path');
 const tmp = require('tmp-promise');
 const logger = require('../../../../lib/logger');
-const util = require('util');
-const NginxConfFileCreatePromise = util.promisify(NginxConfFile.create);
-const tar = require('tar');
 const { validateIPaddress } = require('../enable/validateIpAddress');
 const fetch = require('node-fetch');
 const fs = require('fs').promises;
 
-
-module.exports.info = 'Disabilita modalità maintenance. Solo connessioni in arrivo da vpn mitech sono autorizzate';
+module.exports.info = 'Disabilita modalità maintenance.';
 module.exports.help = [];
 
 module.exports.cmd = async function (basepath, params) {
-
     const t = await target.get();
     target.print(t);
 
@@ -42,7 +36,7 @@ module.exports.cmd = async function (basepath, params) {
     if (!validateIPaddress(ip)) {
         console.warn('Impossibile rimuovere l\'indirizzo ip locale da /etc/nginx/geo_dyn.conf');
     } else {
-        console.warn('Rimuovo ip locale '+ip+' da /etc/nginx/geo_dyn.conf');
+        console.warn('Rimuovo ip locale ' + ip + ' da /etc/nginx/geo_dyn.conf');
         const tmpFile = await tmp.file({ discardDescriptor: true, postfix: '.conf' });
         await session.downloadFile('/etc/nginx/geo_dyn.conf', tmpFile.path);
         const fileContent = (await fs.readFile(tmpFile.path)).toString();
