@@ -56,6 +56,8 @@ then
 echo "Mongo path is default"
 else
 echo "Mongo path is $MONGOPATH";
+mkdir $MONGOPATH
+chmod 777 $MONGOPATH
 sed -i "s/dbPath:.*/dbPath: $MONGOPATH/g" /etc/mongod.conf
 fi
 
@@ -75,6 +77,15 @@ sed -i "s/#security\:/security:\n  authorization: \"enabled\"/" /etc/mongod.conf
 
 #restart the service to apply all the confsudo igs
 systemctl restart mongod.service
+
+if [[ $MONGOPATH = "default" ]]
+then
+echo "Mongo path is default. No permission change"
+else
+echo "Fix permissions to $MONGOPATH";
+chown mongodb:mongodb $MONGOPATH
+chmod 700 $MONGOPATH
+fi
 
 # survive to reboots
 systemctl enable mongod

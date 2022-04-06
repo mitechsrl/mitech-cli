@@ -34,9 +34,6 @@ module.exports = (session, answers) => {
 
             return session.uploadFile(tmpobj.name, '/tmp/nginx.conf');
         })
-        .then(() => session.command('mkdir -p /etc/nginx'))
-        .then(() => session.command('touch /etc/nginx/geo_dyn.conf'))
-        .then(() => session.command('chmod 755 /etc/nginx/geo_dyn.conf'))
         .then(() => {
             if (tmpobj) tmpobj.removeCallback();
             return session.command('dos2unix /tmp/nginx.conf');

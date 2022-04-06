@@ -33,6 +33,10 @@ npm install -g node-gyp
 npm install pm2@5.1.0 -g
 
 ######## setup nginx
+# per prima cosa creo il file geo_dyn che serve per la modalità maintenance
+touch /etc/nginx/geo_dyn.conf
+chown www-data:www-data /etc/nginx/geo_dyn.conf
+chmod 755 /etc/nginx/geo_dyn.conf
 # sposto il file di config precedentemente caricato nella sua destinazione finale
 mv /tmp/nginx.conf /etc/nginx/sites-available/default
 # setta index.html vuoto (servito su richieste con hostname errato)
