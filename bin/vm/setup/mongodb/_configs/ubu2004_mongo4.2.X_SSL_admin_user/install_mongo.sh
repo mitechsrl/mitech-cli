@@ -1,10 +1,10 @@
 #!/bin/bash
 
 PWD=`pwd`
-# first param is mongo path. Must be set always, use default in case you don0t want to change the path
+# first param is mongo path. Must be set always, use default in case you don't want to change the path
 if [[ $1 = "default" ]]
 then
-  MONGOPATH="is default"
+  MONGOPATH="default"
 else
   MONGOPATH=$1
 fi
