@@ -9,6 +9,8 @@ else
 	NODEUSER=$1
 fi
 
+timedatectl set-timezone Europe/Rome
+
 ######## install nginx, node and deps
 # installo curl. Dovrebbe essere gia' installato ma non si sa mai
 apt install -y curl
