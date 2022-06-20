@@ -157,7 +157,25 @@ Utility gestione VM.
 
 - creazione certificato ssl self-signed per connessione ssl/tls e setup ssl/tls in mongodb-server 
 
-NOTA: onit-next (Versione basata su LB4) richiede una configurazione specifica dei permessi degli utenti- Utilizzare una versione compatibile tra quelle proposte.
+
+**mitech vm setup crowdsec** Utility installazione crowdsec: https://docs.crowdsec.net/. Esegue:
+
+- caricamento script setup 
+
+- esecuzione script setup con fix porte (alcune vanno in overlap con node)
+
+- Abilitazione servizio all'avvio.
+  
+Comandi utili (da eseguire via ssh)
+
+- sudo cscli decisions list: mostra lista blocchi (https://docs.crowdsec.net/docs/cscli/cscli_decisions_list)
+
+- sudo cscli decisions add --ip 1.2.3.4: Blocca ip (https://docs.crowdsec.net/docs/cscli/cscli_decisions_add)
+
+- sudo cscli decisions delete --ip 1.2.3.4: Sblocca ip (https://docs.crowdsec.net/docs/cscli/cscli_decisions_delete)
+ 
+
+
 
 **mitech vm os** mostra info su OS vm remota
 
@@ -204,6 +222,7 @@ Digitare quindi i seguenti comandi per installare l'ambiente node ed eseguire il
 mitech ssh targets add // aggiungi target rispondendo alle domande del cli
 mitech vm pre-setup // verifica eventuali problemi da risolvere manualmente prima di eseguire il setup 
 mitech vm setup node // installa ambiente node su server. Seguire le domande a prompt
+mitech vm setup crowdsec // installa crowdsec sul server. 
 mitech vm setup mongodb // installa mongodb su server. Seguire le domande a prompt
 mitech deploy pm2 // carica il file ecosystem.config.js senza fare nient'altro
 cd hello-world-app

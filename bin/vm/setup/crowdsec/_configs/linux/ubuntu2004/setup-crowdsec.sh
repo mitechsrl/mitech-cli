@@ -19,7 +19,7 @@ echo "    - \"51.137.115.69\"" >> /etc/crowdsec/parsers/s02-enrich/mitechwhiteli
 systemctl restart crowdsec	
 
 # install bouncer iptables
-apt install crowdsec-firewall-bouncer-iptables
+apt install -y crowdsec-firewall-bouncer-iptables
 
 # install configurazione per processare logs nginx
 cscli collections install crowdsecurity/nginx
