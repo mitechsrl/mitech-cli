@@ -26,3 +26,4 @@ cscli collections install crowdsecurity/nginx
 
 # reload finale. Da qui in poi crowdsec è attivo
 systemctl reload crowdsec
+

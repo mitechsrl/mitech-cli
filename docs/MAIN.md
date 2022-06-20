@@ -168,13 +168,17 @@ Utility gestione VM.
   
 Comandi utili (da eseguire via ssh)
 
-- sudo cscli decisions list: mostra lista blocchi (https://docs.crowdsec.net/docs/cscli/cscli_decisions_list)
+- sudo cscli decisions list: mostra lista blocchi (https://docs.crowdsec.net/docs/cscli/cscli_decisions)
 
-- sudo cscli decisions add --ip 1.2.3.4: Blocca ip (https://docs.crowdsec.net/docs/cscli/cscli_decisions_add)
+- sudo cscli decisions add --ip 1.2.3.4: Blocca ip (https://docs.crowdsec.net/docs/cscli/cscli_decisions)
 
-- sudo cscli decisions delete --ip 1.2.3.4: Sblocca ip (https://docs.crowdsec.net/docs/cscli/cscli_decisions_delete)
+- sudo cscli decisions delete --ip 1.2.3.4: Sblocca ip (https://docs.crowdsec.net/docs/cscli/cscli_decisions)
  
+- sudo cscli hub list: info generiche
 
+- sudo cscli alerts list: lista di alerts (https://docs.crowdsec.net/docs/cscli/cscli_alerts)
+
+- sudo cscli metrics: Metriche (https://docs.crowdsec.net/docs/cscli/cscli_metrics)
 
 
 **mitech vm os** mostra info su OS vm remota
