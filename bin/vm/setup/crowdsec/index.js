@@ -13,8 +13,7 @@
  */
 const ssh = require('../../../../lib/ssh');
 const _target = require('../../../../lib/target');
-const inquirer = require('inquirer');
-const runLinux = require('./lib/runLinux');
+const runLinux = require('./_lib/runLinux');
 const logger = require('../../../../lib/logger');
 
 module.exports.info = 'Utility setup crowdsec su VM';
