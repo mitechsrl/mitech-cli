@@ -13,7 +13,6 @@
  */
 
 const _target = require('../../../../lib/target');
-const path = require('path');
 const ssh = require('../../../../lib/ssh');
 const logger = require('../../../../lib/logger');
 const { uploadAndInstallDeployScript } = require('../../_lib/uploadAndInstallDeployScript');
