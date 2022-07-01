@@ -29,18 +29,13 @@ module.exports.cmd = async function (basepath, params) {
     }
 
     let session = null;
-
-    ssh.createSshSession(target)
-        .then(async _session => {
-            session = _session;
-            const nodeUser = target.nodeUser || 'node';
-            const pm2 = session.os.windows ? 'pm2.cmd' : 'pm2';
-            return session.commandAs(nodeUser, [pm2, ...params]);
-        })
-        .catch(error => {
-            logger.error(error);
-        })
-        .then(() => {
-            session.disconnect();
-        });
+    try {
+        session = await ssh.createSshSession(target);
+        const nodeUser = target.nodeUser || 'node';
+        const pm2 = session.os.windows ? 'pm2.cmd' : 'pm2';
+        await session.commandAs(nodeUser, [pm2, ...params]);
+    } catch (error) {
+        logger.error(error);
+    }
+    session.disconnect();
 };

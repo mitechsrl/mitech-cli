@@ -2,6 +2,7 @@ const path = require('path');
 const tmp = require('tmp');
 const fs = require('fs');
 const logger = require('../../../../../../../lib/logger');
+const { replaceNginxVars } = require('../../../_lib/replaceNginxVars');
 
 module.exports = (session, answers) => {
     let tmpobj = null;
@@ -21,16 +22,11 @@ module.exports = (session, answers) => {
             // preprocesso il file di nginx per sostituire alcuni valori poi lo carico sul server.
 
             logger.debug('Upload file configurazione nginx...');
-            const nginxFile = path.join(__dirname, 'nginx-default.conf');
-
-            let file = fs.readFileSync(nginxFile).toString();
-            Object.keys(answers).forEach(key => {
-                file = file.replace(new RegExp('\\$' + key + '\\$', 'gm'), answers[key]);
-            });
-
+            const nginxFilePath = path.join(__dirname, 'nginx-default.conf');
+            const fileContent = replaceNginxVars(nginxFilePath, answers);
             // mi appoggio ad un file temporaneo, poi lo butto via
             tmpobj = tmp.fileSync();
-            fs.writeSync(tmpobj.fd, file);
+            fs.writeSync(tmpobj.fd, fileContent);
 
             return session.uploadFile(tmpobj.name, '/tmp/nginx.conf');
         })

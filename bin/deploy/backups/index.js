@@ -12,7 +12,7 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
-const logger = require("../../../lib/logger");
+const logger = require('../../../lib/logger');
 
 module.exports.info = [
     'Utility gestione backup deploy app'

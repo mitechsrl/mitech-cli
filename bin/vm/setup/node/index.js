@@ -14,8 +14,9 @@
 const ssh = require('../../../../lib/ssh');
 const _target = require('../../../../lib/target');
 const inquirer = require('inquirer');
-const runLinux = require('./lib/runLinux');
+const path = require('path');
 const logger = require('../../../../lib/logger');
+const { runTargetConfiguration } = require('../../../../lib/runTargetConfiguration');
 
 module.exports.info = 'Utility setup environment nodejs su VM';
 module.exports.help = [];
@@ -25,45 +26,19 @@ module.exports.cmd = async function (basepath, params) {
 
     if (!target) return;
 
-    const beforeStart = [
-        {
-            type: 'confirm',
-            name: 'confirm',
-            message: 'Hai verificato la compatibilità del setup con <mitech vm pre-setup>?'
-        }
-    ];
-    const answers = await inquirer.prompt(beforeStart);
+    const answers = await inquirer.prompt([{
+        type: 'confirm',
+        name: 'confirm',
+        message: 'Hai verificato la compatibilità del setup con <mitech vm pre-setup>?'
+    }]);
     if (answers.confirm !== true) {
         logger.error('Verifica prima la compatibilità.');
         return;
     }
+
     logger.log('');
     logger.info("Questo script installerà l'ambiente nodejs sul server target selezionato");
     logger.log('');
-    const questions = [
-        {
-            type: 'input',
-            name: 'MITECH_HOSTNAME',
-            message: 'FQDN hostname (solo ip/dns senza http(s)://)'
-        }
-    ];
 
-    inquirer.prompt(questions)
-        .then(answers => {
-            let session = null;
-            ssh.createSshSession(target)
-                .then(_session => {
-                    session = _session;
-                    if (session.os.linux) {
-                        return runLinux(session, answers);
-                    }
-                    return Promise.reject(new Error('Setup script non disponibile per la piattaforma ' + JSON.stringify(session.os)));
-                })
-                .catch(error => {
-                    logger.error(error);
-                })
-                .then(() => {
-                    if (session) session.disconnect();
-                });
-        });
+    await runTargetConfiguration(target, path.join(__dirname, './_configs'));
 };

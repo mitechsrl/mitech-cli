@@ -16,6 +16,7 @@ const _target = require('../../../../lib/target');
 const path = require('path');
 const ssh = require('../../../../lib/ssh');
 const logger = require('../../../../lib/logger');
+const { uploadAndInstallDeployScript } = require('../../_lib/uploadAndInstallDeployScript');
 
 module.exports.info = [
     'Utility listing backup deploy app'
@@ -38,33 +39,16 @@ module.exports.cmd = async function (basepath, params) {
     logger.info('Check environment...');
 
     // get destination paths from the remote target
-    const _remoteTempFile = await session.getRemoteTmpDir(nodeUser);
+    const remoteTempDir = await session.getRemoteTmpDir(nodeUser);
     const remoteDeployBasePath = await session.getRemoteHomeDir(nodeUser, '.' + appsContainer);
     const remoteDeployInstructionsFile = remoteDeployBasePath + 'deploy-instructions.js';
-    const remoteDeployInstructionsPackageJson = remoteDeployBasePath + 'package.json';
 
-    logger.info('Upload: deploy-instructions.js');
-    if (session.os.linux) {
-        // on linux upload will store the files into tmp then copy them in their final position with the appropriate user.
-        // this is to avoid permission problems between the uploading user and the target directory user.
-        let _f = _remoteTempFile.trim() + 'deploy-package.json';
-        await session.uploadFile(path.join(__dirname, '../../_instructions/deploy-package.json'), _f);
-        await session.commandAs(nodeUser, ['cp', _f, remoteDeployInstructionsPackageJson]);
-        await session.command(['rm', _f]);
-
-        _f = _remoteTempFile.trim() + 'deploy-instructions.js';
-        await session.uploadFile(path.join(__dirname, '../../_instructions/deploy-instructions.js'), _f);
-        await session.commandAs(nodeUser, ['cp', _f, remoteDeployInstructionsFile]);
-        await session.command(['rm', _f]);
-    } else {
-        // on other platforms (read as: windows) the upload store the files directly in their final position
-        await session.uploadFile(path.join(__dirname, '../../_instructions/deploy-package.json'), remoteDeployInstructionsPackageJson);
-        await session.uploadFile(path.join(__dirname, '../../_instructions/deploy-instructions.js'), remoteDeployInstructionsFile);
-    }
-
-    // run the server deploy utility
-    logger.info('Run deploy-instructions.js');
-    await session.commandAs(nodeUser, ['node', remoteDeployInstructionsFile, '-o', 'install']);
+    // upload script deploy
+    await uploadAndInstallDeployScript(session,
+        remoteTempDir,
+        nodeUser,
+        remoteDeployBasePath,
+        remoteDeployInstructionsFile);
 
     logger.log('Eseguo listing directory backups');
     await session.commandAs(nodeUser, ['node', remoteDeployInstructionsFile, '-o', 'lsBackups']);

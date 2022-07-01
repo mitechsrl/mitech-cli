@@ -18,9 +18,9 @@ const logger = require('../../lib/logger');
 
 module.exports.info = 'Utility gestione crowdsec (cscli). Vedi https://docs.crowdsec.net/docs/cscli/cscli/ per info';
 module.exports.help = [
-    "Proxy esecuzione comandi cscli su server remoto. \"Mitech cscli <any command>\" esegue \"cscli <any command>\" su server remoto",
-    "Vedi https://docs.crowdsec.net/docs/cscli/cscli/ per info.",
-    "",
+    'Proxy esecuzione comandi cscli su server remoto. "Mitech cscli <any command>" esegue "cscli <any command>" su server remoto',
+    'Vedi https://docs.crowdsec.net/docs/cscli/cscli/ per info.',
+    '',
     ['<cscli param>', 'Un qualsiasi comando cscli da eseguire sul server remoto']
 ];
 module.exports.catchUnimplementedParams = true;
@@ -34,19 +34,16 @@ module.exports.cmd = async function (basepath, params) {
     }
 
     let session = null;
-
-    ssh.createSshSession(target)
-        .then(async _session => {
-            session = _session;
-            if (session.os.linux) {
-                return session.command(['sudo', 'cscli', ...params]);
-            }
+    try {
+        session = await ssh.createSshSession(target);
+        if (session.os.linux) {
+            await session.command(['sudo', 'cscli', ...params]);
+        } else {
             throw new Error('cscli non implementata per os su vm');
-        })
-        .catch(error => {
-            logger.error(error);
-        })
-        .then(() => {
-            session.disconnect();
-        });
+        }
+    } catch (e) {
+        console.error(e);
+    }
+
+    session.disconnect();
 };

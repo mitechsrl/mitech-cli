@@ -20,6 +20,7 @@ const ssh = require('../../../lib/ssh');
 const inquirer = require('inquirer');
 const createPackage = require('./createPackage');
 const logger = require('../../../lib/logger');
+const { uploadAndInstallDeployScript } = require('../_lib/uploadAndInstallDeployScript');
 
 module.exports.info = [
     'Utility deploy App su VM',
@@ -73,40 +74,26 @@ module.exports.cmd = async function (basepath, params) {
     logger.info('Check environment...');
 
     // get destination paths from the remote target
-    const _remoteTempFile = await session.getRemoteTmpDir(nodeUser);
-    const remoteTempFile = _remoteTempFile.trim() + uuid.v4() + '.tgz';
+    const remoteTempDir = await session.getRemoteTmpDir(nodeUser);
+    const remoteTempFile = remoteTempDir.trim() + uuid.v4() + '.tgz';
     const remoteDeployBasePath = await session.getRemoteHomeDir(nodeUser, '.' + appsContainer);
     const remoteDeployInstructionsFile = remoteDeployBasePath + 'deploy-instructions.js';
-    const remoteDeployInstructionsPackageJson = remoteDeployBasePath + 'package.json';
 
     // upload files
     logger.info('Upload: ' + packageName + '.tgz');
     await session.uploadFile(projectTar.path, remoteTempFile);
-    logger.info('Upload: deploy-instructions.js');
-    if (session.os.linux) {
-        // on linux upload will store the files into tmp then copy them in their final position with the appropriate user.
-        // this is to avoid permission problems between the uploading user and the target directory user.
-        let _f = _remoteTempFile.trim() + 'deploy-package.json';
-        await session.uploadFile(path.join(__dirname, '../_instructions/deploy-package.json'), _f);
-        await session.commandAs(nodeUser, ['cp', _f, remoteDeployInstructionsPackageJson]);
-        await session.command(['rm', _f]);
+    await session.command(['sudo', 'chown', nodeUser + ':' + nodeUser, remoteTempFile]);
 
-        _f = _remoteTempFile.trim() + 'deploy-instructions.js';
-        await session.uploadFile(path.join(__dirname, '../_instructions/deploy-instructions.js'), _f);
-        await session.commandAs(nodeUser, ['cp', _f, remoteDeployInstructionsFile]);
-        await session.command(['rm', _f]);
-
-        // set as owned by nodeUser so he can delete it later
-        await session.command(['sudo', 'chown', nodeUser + ':' + nodeUser, remoteTempFile]);
-    } else {
-        // on other platforms (read as: windows) the upload store the files directly in their final position
-        await session.uploadFile(path.join(__dirname, '../_instructions/deploy-package.json'), remoteDeployInstructionsPackageJson);
-        await session.uploadFile(path.join(__dirname, '../_instructions/deploy-instructions.js'), remoteDeployInstructionsFile);
-    }
+    // upload script deploy
+    await uploadAndInstallDeployScript(session,
+        remoteTempDir,
+        nodeUser,
+        remoteDeployBasePath,
+        remoteDeployInstructionsFile);
 
     // run the server deploy utility
-    logger.info('Run deploy-instructions.js');
-    await session.commandAs(nodeUser, ['node', remoteDeployInstructionsFile, '-o', 'install']);
+    logger.info('Eseguo deploy app...');
+
     const parts = ['node', remoteDeployInstructionsFile, '-o', 'deploy', '-p', packageName, '-a', '"' + remoteTempFile + '"'];
     const result = await session.commandAs(nodeUser, parts);
 
