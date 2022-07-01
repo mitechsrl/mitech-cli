@@ -1,7 +1,7 @@
 const path = require('path');
 
 const fs = require('fs');
-const logger = require('../../../../../../lib/logger');
+const logger = require('../../../../../../../lib/logger');
 
 module.exports = (session, answers) => {
 
@@ -17,7 +17,7 @@ module.exports = (session, answers) => {
     db.createUser({
         user: "` + answers.userUsername + `",
         pwd: "` + answers.userPassword + `",
-        roles: [{ role: "readWriteAnyDatabase", db: "admin" }]
+        roles: [{ role: "readWrite", db: "` + answers.userUsername + `" }]
     });`;
 
     logger.debug('Upload install_mongo.sh...');

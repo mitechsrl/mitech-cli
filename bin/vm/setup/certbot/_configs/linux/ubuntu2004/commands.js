@@ -18,12 +18,12 @@ const { uploadAndRunShFile } = require('../../../../../../../lib/uploadShFile');
 
 module.exports = async (session, answers) => {
     // carico il file setup-redis.sh che contiene tutti i comandi bash da eseguire sul server
-    logger.debug('Upload e avvio setup-redis.sh...');
+    logger.debug('Upload e avvio setup-certbot.sh...');
     await uploadAndRunShFile(
         session,
-        path.join(__dirname, './setup-redis.sh'),
-        '/tmp/setup-redis.sh',
-        [answers.password]);
+        path.join(__dirname, './setup-certbot.sh'),
+        '/tmp/setup-certbot.sh',
+        [answers.hostname, answers.email]);
 
     logger.info('Setup completo!');
 };

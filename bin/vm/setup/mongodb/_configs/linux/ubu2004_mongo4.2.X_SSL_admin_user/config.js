@@ -34,6 +34,15 @@ module.exports = {
                 default: 'default',
                 message: 'Path storage (se disco aggiuntivo deve già essere montato, lassciare vuoto per default)?'
             }
-        ]
+        ],
+
+        validateAnswers: (answers) => {
+            if (answers.adminPassword !== answers.adminPasswordConfirm) {
+                throw new Error('Password utente e conferma non corrispondono');
+            }
+            if (answers.userPassword !== answers.userPasswordConfirm) {
+                throw new Error('Password admin e conferma non corrispondono');
+            }
+        }
     }
 };

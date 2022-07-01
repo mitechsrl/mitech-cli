@@ -12,11 +12,20 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
-const logger = require("../../lib/logger");
-
-module.exports.info = 'Utility gestione eslint';
-module.exports.help = [];
-
-module.exports.cmd = async function (basepath, params) {
-    logger.warn('Niente da fare qui. Vedi comandi disponibili con -h');
+module.exports = {
+    name: 'Ubuntu 20.04',
+    value: {
+        questions: [
+            {
+                type: 'input',
+                name: 'hostname',
+                message: 'Hostname/dominio server (no http://, no porta, quello inserito in nginx \'server_name\')'
+            },
+            {
+                type: 'input',
+                name: 'email',
+                message: 'Email per notifica scadenza certificato'
+            }
+        ]
+    }
 };

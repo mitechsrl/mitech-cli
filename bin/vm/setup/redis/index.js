@@ -11,10 +11,13 @@
  * TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION:
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
+
 const ssh = require('../../../../lib/ssh');
 const _target = require('../../../../lib/target');
-const runLinux = require('./_lib/runLinux');
+const runLinuxConfiguration = require('../../../../lib/runLinuxConfiguration');
 const logger = require('../../../../lib/logger');
+const path = require('path');
+const { runTargetConfiguration } = require('../../../../lib/runTargetConfiguration');
 
 module.exports.info = 'Utility setup redis su VM';
 module.exports.help = [];
@@ -28,19 +31,5 @@ module.exports.cmd = async function (basepath, params) {
     logger.info('Questo script installerà redis sul server target selezionato');
     logger.log('');
 
-    let session = null;
-    ssh.createSshSession(target)
-        .then(_session => {
-            session = _session;
-            if (session.os.linux) {
-                return runLinux(session);
-            }
-            return Promise.reject(new Error('Setup script non disponibile per la piattaforma ' + JSON.stringify(session.os)));
-        })
-        .catch(error => {
-            logger.error(error);
-        })
-        .then(() => {
-            if (session) session.disconnect();
-        });
+    await runTargetConfiguration(target, path.join(__dirname, './_configs'));
 };

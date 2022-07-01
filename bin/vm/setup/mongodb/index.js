@@ -13,10 +13,9 @@
  */
 const ssh = require('../../../../lib/ssh');
 const _target = require('../../../../lib/target');
-const inquirer = require('inquirer');
 const path = require('path');
 const logger = require('../../../../lib/logger');
-const directoryConfigsScanner = require('../../../../lib/directoryConfigsScanner');
+const runLinuxConfiguration = require('../../../../lib/runLinuxConfiguration');
 
 module.exports.info = 'Utility setup mongodb su VM';
 module.exports.help = [];
@@ -34,45 +33,17 @@ module.exports.cmd = async function (basepath, params) {
     logger.info('Questo script installerà mongodb sul server target selezionato');
     logger.log('');
 
-    const configs = await directoryConfigsScanner(path.join(__dirname, '_configs'));
-
-    const questions = [{
-        type: 'list',
-        name: 'mode',
-        message: 'Modalità di setup',
-        choices: configs
-    }];
-
-    let mode = null;
     let session = null;
-    let answers = null;
-    inquirer.prompt(questions)
-        .then(answers => {
-            mode = answers.mode;
-            if (mode.questions) {
-                return inquirer.prompt(mode.questions);
-            }
-            return {};
-        })
-        .then(_answers => {
-            if (_answers.adminPassword !== _answers.adminPasswordConfirm) {
-                throw (new Error('Password utente e conferma non corrispondono'));
-            }
-            if (_answers.userPassword !== _answers.userPasswordConfirm) {
-                throw (new Error('Password admin e conferma non corrispondono'));
-            }
-            answers = _answers;
-            return ssh.createSshSession(target);
-        })
-        .then(_session => {
-            session = _session;
-            const script = require(path.join(mode.dir, 'index.js'));
-            return script(session, answers);
-        })
-        .catch(error => {
-            logger.error(error);
-        })
-        .then(() => {
-            if (session) session.disconnect();
-        });
+    try {
+        session = await ssh.createSshSession(target);
+        if (session.os.linux) {
+            await runLinuxConfiguration(session, path.join(__dirname, './_configs/linux'));
+        } else {
+            throw new Error('Setup script non disponibile per la piattaforma ' + JSON.stringify(session.os));
+        }
+    } catch (error) {
+        logger.error(error);
+    }
+
+    if (session) session.disconnect();
 };
