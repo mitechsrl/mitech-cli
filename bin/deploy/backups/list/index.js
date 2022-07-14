@@ -15,15 +15,13 @@
 const _target = require('../../../../lib/target');
 const ssh = require('../../../../lib/ssh');
 const logger = require('../../../../lib/logger');
-const { uploadAndInstallDeployScript } = require('../../_lib/uploadAndInstallDeployScript');
+const { uploadAndInstallDeployScript } = require('../../_lib/deployScript');
 
 module.exports.info = [
     'Utility listing backup deploy app'
 ];
 module.exports.help = [
 ];
-
-const appsContainer = '/apps/';
 
 module.exports.cmd = async function (basepath, params) {
     const target = await _target.get();
@@ -37,20 +35,11 @@ module.exports.cmd = async function (basepath, params) {
 
     logger.info('Check environment...');
 
-    // get destination paths from the remote target
-    const remoteTempDir = await session.getRemoteTmpDir(nodeUser);
-    const remoteDeployBasePath = await session.getRemoteHomeDir(nodeUser, '.' + appsContainer);
-    const remoteDeployInstructionsFile = remoteDeployBasePath + 'deploy-instructions.js';
-
     // upload script deploy
-    await uploadAndInstallDeployScript(session,
-        remoteTempDir,
-        nodeUser,
-        remoteDeployBasePath,
-        remoteDeployInstructionsFile);
+    const deployScript = await uploadAndInstallDeployScript(session, nodeUser);
 
     logger.log('Eseguo listing directory backups');
-    await session.commandAs(nodeUser, ['node', remoteDeployInstructionsFile, '-o', 'lsBackups']);
-
+    const backups = await deployScript.call(['-o', 'lsBackups'], false);
+    console.log(backups);
     session.disconnect();
 };

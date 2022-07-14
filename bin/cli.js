@@ -35,6 +35,9 @@ if (process.argv.length === 3 && process.argv[2] === '-v') {
             } else {
                 logger.error(typeof e === 'string' ? e : e.message);
             }
+
+            // eslint-disable-next-line no-process-exit
+            process.exit(-1);
         }
     })();
 }

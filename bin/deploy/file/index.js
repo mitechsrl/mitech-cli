@@ -20,7 +20,7 @@ const ssh = require('../../../lib/ssh');
 const inquirer = require('inquirer');
 const createPackage = require('./createPackage');
 const logger = require('../../../lib/logger');
-const { uploadAndInstallDeployScript } = require('../_lib/uploadAndInstallDeployScript');
+const { uploadAndInstallDeployScript } = require('../_lib/deployScript');
 
 module.exports.info = [
     'Utility deploy Files su VM',
@@ -30,8 +30,6 @@ module.exports.help = [
     ['-s', 'File o directory sorgente, rappresenta il file o il path da caricare'],
     ['-d', 'Directory remota in cui copiare i files. Per default parte dalla directory di deploy delle apps']
 ];
-
-const appsContainer = '/apps/';
 
 module.exports.cmd = async function (basepath, params) {
     const target = await _target.get();
@@ -81,30 +79,23 @@ module.exports.cmd = async function (basepath, params) {
     // connect to ssh remote target
     const session = await ssh.createSshSession(target);
 
-    logger.info('Check environment...');
 
     // get destination paths from the remote target
     const remoteTempDir = await session.getRemoteTmpDir(nodeUser);
     const remoteTempFile = remoteTempDir.trim() + uuid.v4() + '.tgz';
-    const remoteDeployBasePath = await session.getRemoteHomeDir(nodeUser, '.' + appsContainer);
-    const remoteDeployInstructionsFile = remoteDeployBasePath + 'deploy-instructions.js';
 
     // upload files
     logger.info('Upload: ' + toUpload + '.tgz');
     await session.uploadFile(projectTar.path, remoteTempFile);
     await session.command(['sudo', 'chown', nodeUser + ':' + nodeUser, remoteTempFile]);
     // upload script deploy
-    await uploadAndInstallDeployScript(session,
-        remoteTempDir,
-        nodeUser,
-        remoteDeployBasePath,
-        remoteDeployInstructionsFile);
+    const deployScript = await uploadAndInstallDeployScript(session, nodeUser);
 
-    logger.info('Upload: deploy-instructions.js');
 
     // run the server deploy utility
     logger.info('Copia files');
-    await session.commandAs(nodeUser, ['node', remoteDeployInstructionsFile, '-o', 'files', '-e', remoteErase, '-d', destination, '-a', '"' + remoteTempFile + '"']);
+    await deployScript.call(['-o', 'files', '-e', remoteErase, '-d', destination, '-a', '"' + remoteTempFile + '"'], true);
+    await session.commandAs(nodeUser);
 
     logger.log('Deploy files terminato');
     session.disconnect();

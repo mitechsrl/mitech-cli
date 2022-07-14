@@ -13,35 +13,20 @@
  */
 
 const _target = require('../../../../lib/target');
-const path = require('path');
 const ssh = require('../../../../lib/ssh');
 const logger = require('../../../../lib/logger');
-const { uploadAndInstallDeployScript } = require('../../_lib/uploadAndInstallDeployScript');
+const { uploadAndInstallDeployScript } = require('../../_lib/deployScript');
+const inquirer = require('inquirer');
 
 module.exports.info = [
-    'Utility listing backup deploy app'
+    'Utility restore deploy backup'
 ];
 module.exports.help = [
-    '-p', 'Project name, nome del progetto (app pm2) sul server remoto',
-    '-a', "Archive, archivio di backup da ripristinare. Attenzione. Nessuna assunzione viene fatta sull'archivio, assicurarsi che sia quello corretto."
 
 ];
-
-const appsContainer = '/apps/';
 
 module.exports.cmd = async function (basepath, params) {
     const projectName = params.get('-p');
-    const archivePath = params.get('-a');
-
-    if (!projectName.found) {
-        logger.error('Nome progetto non definito. Usa <-p name>');
-        return;
-    }
-
-    if (!archivePath.found) {
-        logger.error('Archivio progetto non definito. Usa <-a path>');
-        return;
-    }
 
     const target = await _target.get();
     _target.print(target);
@@ -52,22 +37,36 @@ module.exports.cmd = async function (basepath, params) {
     // connect to ssh remote target
     const session = await ssh.createSshSession(target);
 
-    logger.info('Check environment...');
-
-    // get destination paths from the remote target
-    const remoteTempDir = await session.getRemoteTmpDir(nodeUser);
-    const remoteDeployBasePath = await session.getRemoteHomeDir(nodeUser, '.' + appsContainer);
-    const remoteDeployInstructionsFile = remoteDeployBasePath + 'deploy-instructions.js';
-
     // upload script deploy
-    await uploadAndInstallDeployScript(session,
-        remoteTempDir,
-        nodeUser,
-        remoteDeployBasePath,
-        remoteDeployInstructionsFile);
+    const deployScript = await uploadAndInstallDeployScript(session, nodeUser);
 
-    logger.log('Eseguo restore..');
-    await session.commandAs(nodeUser, ['node', remoteDeployInstructionsFile, '-o', 'restoreBackup', '-a', archivePath.value, '-p', projectName.value]);
+    const apps = JSON.parse(await deployScript.call(['-o', 'lsApps']));
 
+    const appSelection = await inquirer.prompt([
+        {
+            type: 'list',
+            name: 'app',
+            message: 'App da ripristinare',
+            choices: apps
+        }
+    ]);
+
+    const backups = JSON.parse(await deployScript.call(['-o', 'lsBackups', '-a', appSelection.app]));
+
+    if (backups.length === 0) {
+        console.error("Nessun backup da ripristinare per l'app " + appSelection.app);
+    } else {
+        const selection = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'archive',
+                message: 'Seleziona archivio da ripristinare. Attenzione. Nessuna assunzione viene fatta sull\'archivio, assicurarsi che sia quello corretto.',
+                choices: backups.map(b => b.path)
+            }
+        ]);
+
+        logger.warn('Ripristino ' + selection.archive + ' come app ' + projectName.value);
+        await deployScript.call(['-o', 'restoreBackup', '-a', selection.archive, '-p', appSelection.app], true);
+    }
     session.disconnect();
 };

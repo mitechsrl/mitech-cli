@@ -20,19 +20,20 @@ const ssh = require('../../../lib/ssh');
 const inquirer = require('inquirer');
 const createPackage = require('./createPackage');
 const logger = require('../../../lib/logger');
-const { uploadAndInstallDeployScript } = require('../_lib/uploadAndInstallDeployScript');
+const { uploadAndInstallDeployScript } = require('../_lib/deployScript');
+const { downloadBackupFile } = require('../_lib/backupFile');
+const { throwOnFatalError } = require('../_lib/fatalError');
 
 module.exports.info = [
-    'Utility deploy App su VM',
-    'Esegue un deploy su una VM con ambiente nodejs: carica il progetto locale, esegue npm install e pm2 restart.',
-    'I files caricati possono essere controllati tramite il file .mitechcliignore, avente sintassi identica a .gitIgnore.',
-    'Per default, vengono escluse le directory node_modules e .git'
+    'Utility deploy App su VM'
 ];
 module.exports.help = [
+    'Esegue un deploy su una VM con ambiente nodejs: carica il progetto locale, esegue npm install e pm2 restart.',
+    'I files caricati possono essere controllati tramite il file .mitechcliignore, avente sintassi identica a .gitIgnore.',
+    'Per default, vengono escluse le directory node_modules e .git',
+    '',
     ['-d', 'Esegui il download del backup dell\'app remota']
 ];
-
-const appsContainer = '/apps/';
 
 module.exports.cmd = async function (basepath, params) {
     const target = await _target.get();
@@ -71,13 +72,9 @@ module.exports.cmd = async function (basepath, params) {
     // connect to ssh remote target
     const session = await ssh.createSshSession(target);
 
-    logger.info('Check environment...');
-
     // get destination paths from the remote target
     const remoteTempDir = await session.getRemoteTmpDir(nodeUser);
     const remoteTempFile = remoteTempDir.trim() + uuid.v4() + '.tgz';
-    const remoteDeployBasePath = await session.getRemoteHomeDir(nodeUser, '.' + appsContainer);
-    const remoteDeployInstructionsFile = remoteDeployBasePath + 'deploy-instructions.js';
 
     // upload files
     logger.info('Upload: ' + packageName + '.tgz');
@@ -85,31 +82,29 @@ module.exports.cmd = async function (basepath, params) {
     await session.command(['sudo', 'chown', nodeUser + ':' + nodeUser, remoteTempFile]);
 
     // upload script deploy
-    await uploadAndInstallDeployScript(session,
-        remoteTempDir,
-        nodeUser,
-        remoteDeployBasePath,
-        remoteDeployInstructionsFile);
+    const deployScript = await uploadAndInstallDeployScript(session, nodeUser);
 
     // run the server deploy utility
     logger.info('Eseguo deploy app...');
-
-    const parts = ['node', remoteDeployInstructionsFile, '-o', 'deploy', '-p', packageName, '-a', '"' + remoteTempFile + '"'];
-    const result = await session.commandAs(nodeUser, parts);
+    const result = await deployScript.call(['-o', 'deploy', '-p', packageName, '-a', '"' + remoteTempFile + '"'], true);
 
     // check if we have a backup file and download it
-    const matchStr = '[BACKUP-FILE]:';
-    let backupFileLine = result.split('\n').find(line => line.indexOf(matchStr) >= 0);
-    if (downloadBackup && backupFileLine) {
-        backupFileLine = backupFileLine.substr(matchStr.length).trim();
-        let file = backupFileLine.split(/[\/\\]/g).pop();
-        const filePath = path.join(process.cwd(), './deploy-backups/');
-        fs.mkdirSync(filePath, { recursive: true });
-        file = path.join(filePath, file);
-        logger.log('Download backup file: ' + file);
-        await session.downloadFile(backupFileLine, file);
+    if (downloadBackup) {
+        downloadBackupFile(session, result);
     }
 
+    // search and match the deploy error tag
+    const deployErrorMatch = '[DEPLOY-ERROR]:';
+    let deployErrorLine = result.split('\n').find(line => line.indexOf(deployErrorMatch) >= 0);
+    if (deployErrorLine) {
+        deployErrorLine = deployErrorLine.substr(deployErrorMatch.length).trim();
+        throw new Error('Deploy fallito: ' + deployErrorLine);
+    }
+
+    // search and match the generic fatal error tag error tag
+    throwOnFatalError(result);
+
     logger.log('Deploy terminato');
+
     session.disconnect();
 };

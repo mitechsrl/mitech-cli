@@ -32,6 +32,38 @@ const argvParam = (name) => {
 
 /**
  *
+ * @param {*} projectName
+ * @returns
+ */
+const readStatus = async (projectName) => {
+    const status = await spawn(pm2, ['jlist'], { cwd: appsContainer, silent: true });
+    const statusJson = JSON.parse(status.data.toString().trim());
+    let error = null;
+
+    const date = new Date().toISOString().substring(11);
+    statusJson.forEach(app => {
+        if (app.name === projectName) {
+            if (app.pm2_env.status === 'errored') {
+                error = 'pm2 status errored';
+            }
+            console.log(date + ' PM_ID=' + app.pm_id + ', PID=' + app.pid + ', STATUS=' + app.pm2_env.status);
+        }
+    });
+
+    return error;
+};
+
+/**
+ * Read the ecosystem config file to get the list of apps
+ */
+const lsApps = async () => {
+    const pm2File = path.join(appsContainer, './ecosystem.config.json');
+    const pm2EcosystemFile = JSON.parse(fs.readFileSync(pm2File).toString());
+    return pm2EcosystemFile.apps.map(a => a.name);
+};
+
+/**
+ * rProxy function to node spawn
  * @param {*} cmd
  * @param {*} params
  * @param {*} options
@@ -58,13 +90,9 @@ const spawn = (cmd, params, options) => {
             if (!silent) process.stdout.write(data.toString());
         });
 
-        proc.on('close', (code) => {
-            return resolve({ code: code, data: _data });
-        });
+        proc.on('close', (code) => resolve({ code: code, data: _data }));
 
-        proc.on('error', (err) => {
-            return reject(err);
-        });
+        proc.on('error', (err) => reject(err));
     });
 };
 
@@ -148,7 +176,7 @@ const lsBackups = async () => {
                 arrayOfFiles = scanDirRecoursive(dirPath + '/' + file, arrayOfFiles);
             } else {
                 const filePath = path.join(dirPath, '/', file);
-                var stats = fs.statSync(filePath);
+                const stats = fs.statSync(filePath);
                 arrayOfFiles.push({ path: filePath, size: (stats.size / (1024 * 1024)).toFixed(3) + 'Mb', ctime: stats.ctime });
             }
         });
@@ -156,8 +184,13 @@ const lsBackups = async () => {
         return arrayOfFiles;
     };
 
-    if (fs.existsSync(backupDir)) {
-        return scanDirRecoursive(backupDir);
+    let dir = backupDir;
+    const app = argvParam('-a');
+    if (app) {
+        dir = path.join(dir, app);
+    }
+    if (fs.existsSync(dir)) {
+        return scanDirRecoursive(dir);
     }
 
     return [];
@@ -171,7 +204,7 @@ const cleanBackups = async (projectName = null) => {
 
     const projects = {};
     files.forEach(file => {
-        var fullFilePath = file.path;
+        const fullFilePath = file.path;
         const project = path.basename(path.dirname(fullFilePath));
 
         projects[project] = projects[project] || [];
@@ -216,7 +249,7 @@ const restoreBackup = async () => {
     }
 
     const destinationProjectDir = path.join(appsContainer, projectName);
-    const destinationProjectDirOld = destinationProjectDir + '_OLD';
+    const destinationProjectDirOld = destinationProjectDir + '_OLD-' + (new Date().toISOString().replace(/[:.]/g, '-'));
 
     console.log('Eseguo restore backup progetto');
     console.log('Stop app ' + projectName + '...');
@@ -236,16 +269,27 @@ const restoreBackup = async () => {
         cwd: '/'
     });
 
+    // lanci polling stato app
+    const interval = setInterval(async () => {
+        await readStatus(projectName);
+    }, 2000);
+
     // rilancio l'app
     console.log('Archivio scompattato, lancio app...');
     const pm2EcosystemFile = path.join(appsContainer, pm2EcosystemFileName);
     const r = await spawn(pm2, ['restart', pm2EcosystemFile, '--only', projectName, '--update-env'], { cwd: appsContainer });
+
+    clearInterval(interval);
+
     // NOTE: recoursive needs node >12.10
     console.log('Remove ' + destinationProjectDirOld);
     fs.rmdirSync(destinationProjectDirOld, { recursive: true });
 
-    if (r.code !== 0) throw new Error('Restart fallito');
-    console.log('Restore completato.');
+    if (r.code !== 0) {
+        console.log('Restart fallito');
+    } else {
+        console.log('Restore completato.');
+    }
 };
 
 /**
@@ -267,6 +311,11 @@ const deploy = async () => {
         process.exit(-1);
     }
 
+    // helper internal fn
+    const cleanOnExit = () => {
+        fs.unlinkSync(archivePath);
+    };
+
     const destinationProjectDir = path.join(appsContainer, projectName);
 
     let destinationBackupFile = null;
@@ -283,14 +332,6 @@ const deploy = async () => {
     if (appFound && fs.existsSync(destinationProjectDir)) {
         if (doBackup) {
             console.log('App trovata. Eseguo backup. Questa operazione potrebbe impiegare qualche decina di secondi...');
-            /* const filter = (_path, entry) => {
-                const _p = path.relative(process.cwd(), _path);
-                // main folder
-                if (_p === '') return true;
-
-                return _p.indexOf('node_modules') <= 0;
-            }; */
-
             backupDir = path.join(backupDir, projectName);
             destinationBackupFile = path.join(backupDir, (new Date().toISOString().replace(/:/g, '_')) + '.tgz');
             fs.mkdirSync(backupDir, { recursive: true });
@@ -304,19 +345,13 @@ const deploy = async () => {
 
             // WARN!! keep string as '[BACKUP-FILE]:' so the cli can detect the filename
             console.log('[BACKUP-FILE]: ' + destinationBackupFile);
-            var stats = fs.statSync(destinationBackupFile);
+            const stats = fs.statSync(destinationBackupFile);
             console.log('Filesize: ' + (stats.size / 1024).toFixed(1) + 'Kb');
         } else {
             console.log('App trovata.');
         }
 
         console.log('Eseguo deploy e ricarico');
-        /*
-        await session.commandAs(nodeUser, ['cd ' + remoteUnpackDirectory + ';', 'tar -czf ', backupFilename, '--exclude=node_modules', './']);
-        fs.mkdirSync(path.join(process.cwd(), './deploy-backup'), { recursive: true });
-        await session.downloadFile(remoteUnpackDirectory + '/' + backupFilename, path.join(process.cwd(), './deploy-backup', backupFilename));
-        await session.commandAs(nodeUser, ['rm', remoteUnpackDirectory + '/' + backupFilename]);
-        logger.info('Backup in ' + backupFilename + ' eseguito'); */
     } else {
         console.log('App non trovata. Eseguo deploy e avvio');
     }
@@ -332,7 +367,9 @@ const deploy = async () => {
     console.log('Eseguo npm install...');
     const installResult = await spawn(npm, ['install', '--production'], { cwd: destinationProjectDir });
     if (installResult.code !== 0) {
-        throw new Error('Install fallito');
+        console.log('[DEPLOY-ERROR]: Install fallito');
+        cleanOnExit();
+        return;
     }
 
     // Avvio app
@@ -341,19 +378,10 @@ const deploy = async () => {
     let message = null;
     let interval = null;
 
-    async function readStatus () {
-        const status = await spawn(pm2, ['jlist'], { cwd: appsContainer, silent: true });
-        const statusJson = JSON.parse(status.data.toString().trim());
-        statusJson.forEach(app => {
-            if (app.name === projectName) {
-                console.log(new Date().toISOString().substr(11, 8) + ' PM2_ID:' + app.pm_id + ', STATUS:' + app.pm2_env.status + ', PID:' + app.pid);
-            }
-        });
-    }
     function intervalStatus () {
         interval = setInterval(async () => {
-            readStatus();
-        }, 5000);
+            await readStatus(projectName);
+        }, 2000);
     }
 
     if (!appFound) {
@@ -378,13 +406,18 @@ const deploy = async () => {
     } else {
         intervalStatus();
         const r = await spawn(pm2, ['restart', pm2EcosystemFileName, '--only', projectName, '--update-env'], { cwd: appsContainer });
-        if (r.code !== 0) error = 'Restart fallito';
-
-        message = 'Restart completo';
+        if (r.code !== 0) {
+            error = 'Restart fallito';
+        } else {
+            message = 'Restart completo';
+        }
     }
 
     if (interval) clearInterval(interval);
-    readStatus();
+
+    if (!error) {
+        error = await readStatus(projectName);
+    }
 
     // pm2 start do not signal on errors. Check it manually
     if (!error) {
@@ -414,11 +447,12 @@ const deploy = async () => {
         console.log(error);
         console.log('Deploy interrotto');
         console.log('');
-        console.log('Puoi tentare un ripristino con il comando <mitech deploy backups restore -p ' + projectName + ' -a ' + destinationBackupFile + '>');
+        console.log('Puoi tentare un ripristino con il comando <mitech deploy backups restore>');
         console.log('');
+        console.log('[DEPLOY-ERROR]: ' + error);
     }
 
-    fs.unlinkSync(archivePath);
+    cleanOnExit();
 };
 
 /** *******************  flags swicth section *******************/
@@ -430,6 +464,7 @@ case 'deploy': promise = deploy(); break;
 case 'restoreBackup': promise = restoreBackup(); break;
 case 'files': promise = deployFiles(); break;
 case 'rm': promise = rmTmp(); break;
+case 'lsApps': promise = lsApps().then(apps => console.log(JSON.stringify(apps, null, 4))); break;
 case 'lsBackups': promise = lsBackups().then(files => console.log(JSON.stringify(files, null, 4))); break;
 case 'cleanBackups': promise = cleanBackups(); break;
 default: console.error('Mmmh.. What did you mean by <-o ' + operation + '>?'); break;
@@ -438,4 +473,8 @@ default: console.error('Mmmh.. What did you mean by <-o ' + operation + '>?'); b
 promise
     // eslint-disable-next-line no-process-exit
     .then(() => process.exit(0))
-    .catch(error => { console.error(error); process.exit(-1); });
+    .catch(error => {
+        console.error(error);
+        console.log('[FATAL-ERROR]');
+        process.exit(-1);
+    });
