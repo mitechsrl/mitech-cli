@@ -12,7 +12,7 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
-const targets = require('../../../lib/target');
+const targets = require('../../../lib/targets');
 const _ = require('lodash');
 const logger = require('../../../lib/logger');
 

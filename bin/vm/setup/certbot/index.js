@@ -12,7 +12,7 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
-const targetSelector = require('../../../../lib/target');
+const targetSelector = require('../../../../lib/targets');
 const logger = require('../../../../lib/logger');
 const path = require('path');
 const { runTargetConfiguration } = require('../../../../lib/runTargetConfiguration');

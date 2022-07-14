@@ -11,7 +11,7 @@
  * TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION:
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
-const _target = require('../../../../lib/target');
+const targets = require('../../../../lib/targets');
 const path = require('path');
 const logger = require('../../../../lib/logger');
 const { runTargetConfiguration } = require('../../../../lib/runTargetConfiguration');
@@ -20,8 +20,8 @@ module.exports.info = 'Utility setup mongodb su VM';
 module.exports.help = [];
 
 module.exports.cmd = async function (basepath, params) {
-    const target = await _target.get();
-    _target.print(target);
+    const target = await targets.get();
+    targets.print(target);
 
     if (!target) {
         logger.error('Nessun target selezionato');

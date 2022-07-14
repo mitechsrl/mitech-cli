@@ -12,7 +12,7 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
-const target = require('../../lib/target');
+const target = require('../../lib/targets');
 
 module.exports.info = 'Utility gestione VM';
 module.exports.help = [];

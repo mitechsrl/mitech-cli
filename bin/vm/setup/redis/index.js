@@ -13,7 +13,7 @@
  */
 
 const ssh = require('../../../../lib/ssh');
-const _target = require('../../../../lib/target');
+const targets = require('../../../../lib/targets');
 const runLinuxConfiguration = require('../../../../lib/runLinuxConfiguration');
 const logger = require('../../../../lib/logger');
 const path = require('path');
@@ -22,8 +22,8 @@ const { runTargetConfiguration } = require('../../../../lib/runTargetConfigurati
 module.exports.info = 'Utility setup redis su VM';
 module.exports.help = [];
 module.exports.cmd = async function (basepath, params) {
-    const target = await _target.get();
-    _target.print(target);
+    const target = await targets.get();
+    targets.print(target);
 
     if (!target) return;
 

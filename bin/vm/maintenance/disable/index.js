@@ -12,7 +12,7 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
-const target = require('../../../../lib/target');
+const target = require('../../../../lib/targets');
 const ssh = require('../../../../lib/ssh');
 const NginxConfFile = require('nginx-conf').NginxConfFile;
 const tmp = require('tmp-promise');

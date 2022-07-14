@@ -12,7 +12,7 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
-const _target = require('../../../lib/target');
+const targets = require('../../../lib/targets');
 const path = require('path');
 const ssh = require('../../../lib/ssh');
 const fs = require('fs');
@@ -32,8 +32,8 @@ module.exports.cmd = async function (basepath, params) {
     if (!remoteFile.found) {
         logger.error('Nessun file specificato. Usa -s per specificare il path del file sul sistema remoto');
     } else {
-        const target = await _target.get();
-        _target.print(target);
+        const target = await targets.get();
+        targets.print(target);
         if (!target) return;
 
         // connect to ssh remote target

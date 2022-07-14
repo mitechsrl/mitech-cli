@@ -12,7 +12,7 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
-const _target = require('../../lib/target');
+const targets = require('../../lib/targets');
 const ssh = require('../../lib/ssh');
 const logger = require('../../lib/logger');
 
@@ -25,8 +25,8 @@ module.exports.help = [
 ];
 module.exports.catchUnimplementedParams = true;
 module.exports.cmd = async function (basepath, params) {
-    const target = await _target.get();
-    _target.print(target);
+    const target = await targets.get();
+    targets.print(target);
 
     if (params.length === 0) {
         logger.warn('Nessun comando eseguito. Digita <mitech cscli -h>  per info');

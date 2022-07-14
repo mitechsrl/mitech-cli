@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const ignore = require('ignore');
 const tmp = require('tmp-promise');
-const logger = require('../../../lib/logger');
+const logger = require('../../../../lib/logger');
 
 /**
  * Create a tar archive of the process.cwd() directory

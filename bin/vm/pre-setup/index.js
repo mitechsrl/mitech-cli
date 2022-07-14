@@ -13,15 +13,15 @@
  */
 const logger = require('../../../lib/logger');
 const ssh = require('../../../lib/ssh');
-const _target = require('../../../lib/target');
+const targets = require('../../../lib/targets');
 const linuxCmds = require('./linux');
 
 module.exports.info = 'Vm pre-setup checks utility';
 module.exports.help = [];
 
 module.exports.cmd = async function (basepath, params) {
-    const target = await _target.get();
-    _target.print(target);
+    const target = await targets.get();
+    targets.print(target);
 
     if (!target) return;
 

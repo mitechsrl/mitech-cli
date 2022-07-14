@@ -12,7 +12,7 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
-const _target = require('../../../../lib/target');
+const targets = require('../../../../lib/targets');
 const ssh = require('../../../../lib/ssh');
 const logger = require('../../../../lib/logger');
 const { uploadAndInstallDeployScript } = require('../../_lib/deployScript');
@@ -28,8 +28,8 @@ module.exports.help = [
 module.exports.cmd = async function (basepath, params) {
     const projectName = params.get('-p');
 
-    const target = await _target.get();
-    _target.print(target);
+    const target = await targets.get();
+    targets.print(target);
     if (!target) return;
 
     const nodeUser = target.nodeUser || 'node';

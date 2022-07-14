@@ -12,7 +12,7 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
-const _target = require('../../../lib/target');
+const targets = require('../../../lib/targets');
 const path = require('path');
 const fs = require('fs');
 const ssh = require('../../../lib/ssh');
@@ -27,8 +27,8 @@ module.exports.help = [
 const appsContainer = '/apps/';
 
 module.exports.cmd = async function (basepath, params) {
-    const target = await _target.get();
-    _target.print(target);
+    const target = await targets.get();
+    targets.print(target);
 
     if (!target) return;
 

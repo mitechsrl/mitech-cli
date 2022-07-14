@@ -12,7 +12,7 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 const ssh = require('../../../../lib/ssh');
-const _target = require('../../../../lib/target');
+const targets = require('../../../../lib/targets');
 const inquirer = require('inquirer');
 const path = require('path');
 const logger = require('../../../../lib/logger');
@@ -21,8 +21,8 @@ const { runTargetConfiguration } = require('../../../../lib/runTargetConfigurati
 module.exports.info = 'Utility setup environment nodejs su VM';
 module.exports.help = [];
 module.exports.cmd = async function (basepath, params) {
-    const target = await _target.get();
-    _target.print(target);
+    const target = await targets.get();
+    targets.print(target);
 
     if (!target) return;
 

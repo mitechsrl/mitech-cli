@@ -11,15 +11,15 @@
  * TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION:
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
-const _target = require('../../../lib/target');
+const targets = require('../../../lib/targets');
 
 const ssh = require('../../../lib/ssh');
 module.exports.info = 'Avvia client interattivo ssh (win->putty, linux da implementare)';
 module.exports.help = [];
 
 module.exports.cmd = async function (basepath, params) {
-    const target = await _target.get();
-    _target.print(target);
+    const target = await targets.get();
+    targets.print(target);
 
     ssh.interativeClient(target, params);
 };
