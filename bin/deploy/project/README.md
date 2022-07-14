@@ -20,10 +20,10 @@ module.exports = {
             // l'ordine è quello in cui compaiono qui
             "deployments": {
                 "dab": {
-                    // id del target in .mitechCli.
-                    // NOTA: siccome questo file è committato, cambiare l'id nel proprio .mitechcli in modo da
-                    // non continuare a cambiare e committare onig volta che qualcuno deve fare deploy
-                    "targetId": "b97937f4-c703-47f1-af4d-4eeb27cc46af",
+                    // nome del target in .mitechCli.
+                    // NOTA: siccome questo file è committato, cambiare il valore nel proprio .mitechcli in modo da
+                    // non continuare a cambiare e committare ogni volta che qualcuno deve fare deploy
+                    "target": "vm local",
                     "dependencies": {
                         // dipendenze specifiche opzionali. Queste vengono aggiunte al package.json "./dab/onit-next/package.json"
                         "debug": "4.3.4"
@@ -32,7 +32,7 @@ module.exports = {
                     "path": "./dab/onit-next"
                 },
                 "zpc": {
-                    "targetId": "b97937f4-c703-47f1-af4d-4eeb27cc46af",
+                    "targetId": "vm local",,
                     "path": "./dab/onit-next"
                 }
             }

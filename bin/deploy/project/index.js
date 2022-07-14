@@ -102,7 +102,7 @@ module.exports.cmd = async function (basepath, params) {
             const deploymentCwd = path.join(process.cwd(), deployment.path);
 
             // autoselect the target based on the provided id
-            let target = mitechCliFile.content.targets.find(t => t.id === deployment.targetId);
+            let target = mitechCliFile.content.targets.find(t => t.name === deployment.target);
             target = targets.decodeTarget(target);
 
             // print some info stuff
