@@ -19,6 +19,6 @@ module.exports.checkDeployment = (basePath, mitechCliFileContent, deployment) =>
     }
 
     if (!mitechCliFileContent.targets.find(t => t.name === deployment.target)) {
-        throw new Error(`Target ${deployment.target} does not exist. Please change your id in .mitechcli file`);
+        throw new Error(`Target ${deployment.target} does not exist. Please change target name in .mitechcli file`);
     }
 };

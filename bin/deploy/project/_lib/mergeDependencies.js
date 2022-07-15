@@ -31,10 +31,16 @@ module.exports.mergeDependencies = (basePath, deployment, commonDependencies, wr
 
         if (!deps[depName]) {
             deps[depName] = depVersion;
-        } else if (semver.lte(deps[depName], depVersion)) {
-            deps[depName] = depVersion;
         } else {
-            throw new Error(`Errore: il file ${packageJsonPath} dichiara la dipendenza ${depName} a versione maggiore rispetto quella delle dipendenze comuni.\nDipendenza comune: ${depVersion}, package.json: ${deps[depName]}`);
+            // ok only if the version specified by destination package.json is less or equal the version specified in
+            // the common dependencies
+            const satisfies = semver.gte(semver.minVersion(depVersion), semver.minVersion(deps[depName]));
+
+            if (satisfies) {
+                deps[depName] = depVersion;
+            } else {
+                throw new Error(`Errore: il file ${packageJsonPath} dichiara la dipendenza ${depName} a versione maggiore rispetto quella delle dipendenze comuni.\nDipendenza comune: ${depVersion}, package.json: ${deps[depName]}`);
+            }
         }
     });
 
