@@ -20,13 +20,14 @@ const { checkDeployment } = require('./_lib/checkDeployment');
 const { mergeDependencies } = require('./_lib/mergeDependencies');
 const { deploy } = require('../app/_lib/deploy');
 const targets = require('../../../lib/targets');
+const { deployParams } = require('../app');
 
 module.exports.info = [
     'Utility deploy progetto multiserver'
 ];
 module.exports.help = [
     'Esegue il deploy di un progetto su piu VM con ambiente nodejs',
-    ['-y', 'Risposta automatica <yes> su conferma deploy']
+    ...deployParams
 ];
 
 module.exports.cmd = async function (basepath, params) {
@@ -46,7 +47,6 @@ module.exports.cmd = async function (basepath, params) {
             message: 'Progetto',
             choices: projects.map((p, index) => ({ name: p.name, value: index }))
         }]);
-        logger.log(response);
         project = projects[response.project];
     }
     logger.log('Progetto selezionato: ' + project.name);
@@ -77,6 +77,9 @@ module.exports.cmd = async function (basepath, params) {
         });
     }
 
+    if (executeDeployments.length === 0) {
+        throw new Error('No deployment selected');
+    }
     // check if deployment ave all the needed data
     const basePath = path.join(mitechCliFile.file, '../');
     executeDeployments.forEach(d => {

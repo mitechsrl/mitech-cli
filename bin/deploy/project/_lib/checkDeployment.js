@@ -15,7 +15,7 @@ module.exports.checkDeployment = (basePath, mitechCliFileContent, deployment) =>
     JSON.parse(fs.readFileSync(packageJsonPath).toString());
 
     if (!deployment.target) {
-        throw new Error(`No targetId defined for deployment ${deployment.name}.`);
+        throw new Error(`No target defined for deployment ${deployment.name}.`);
     }
 
     if (!mitechCliFileContent.targets.find(t => t.name === deployment.target)) {

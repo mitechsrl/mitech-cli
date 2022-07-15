@@ -22,6 +22,8 @@ const logger = require('../../../../lib/logger');
 const { uploadAndInstallDeployScript } = require('../../_lib/deployScript');
 const { downloadBackupFile } = require('../../_lib/backupFile');
 const { throwOnFatalError } = require('../../_lib/fatalError');
+const { throwOnDeployErrorError } = require('./deployError');
+const { listUptimeChecks } = require('./listUptimeChecks');
 
 /**
  * deploy the app at the proces.cwd() path to the remote target
@@ -44,8 +46,24 @@ module.exports.deploy = async function (target, params) {
     if (!fs.existsSync(packageJsonPath)) {
         throw new Error('Nessun package.json trovato in questa directory');
     }
-    const packajeJson = JSON.parse(fs.readFileSync(packageJsonPath).toString());
-    let packageName = packajeJson.name;
+
+    // verify validity of uptimecheck
+    const uptimeCheck = params.get('--uptime-check');
+    let uptimeCheckFn = null;
+    if (uptimeCheck.found) {
+        if (!uptimeCheck.value) {
+            throw new Error('Uptime check parameter requires a value');
+        }
+        try {
+            uptimeCheckFn = require(path.join(__dirname, './uptimeChecks', uptimeCheck.value + '.js'));
+        } catch (e) {
+            const checks = listUptimeChecks();
+            throw new Error(`Unknown uptime check '${uptimeCheck.value}'. Available: ${checks}`);
+        }
+    }
+
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath).toString());
+    let packageName = packageJson.name;
     if (packageName.split('/').length > 1) { packageName = packageName.split('/')[1]; }
 
     const autoYes = params.get('-y');
@@ -54,7 +72,7 @@ module.exports.deploy = async function (target, params) {
         const response = await inquirer.prompt({
             type: 'confirm',
             name: 'yes',
-            message: packajeJson.name + ' verrà deployato sul target selezionato. Continuare?'
+            message: packageJson.name + ' verrà deployato sul target selezionato. Continuare?'
         });
 
         if (!response.yes) {
@@ -93,16 +111,15 @@ module.exports.deploy = async function (target, params) {
     }
 
     // search and match the deploy error tag
-    const deployErrorMatch = '[DEPLOY-ERROR]:';
-    let deployErrorLine = result.split('\n').find(line => line.indexOf(deployErrorMatch) >= 0);
-    if (deployErrorLine) {
-        deployErrorLine = deployErrorLine.substr(deployErrorMatch.length).trim();
-        throw new Error('Deploy fallito: ' + deployErrorLine);
-    }
+    throwOnDeployErrorError(result);
 
     // search and match the generic fatal error tag error tag
     throwOnFatalError(result);
 
+    if (uptimeCheck.found && uptimeCheckFn) {
+        logger.log('Eseguo check uptime ' + uptimeCheck.value);
+        await uptimeCheckFn(session, packageJson, result, target);
+    }
     session.disconnect();
 
     returnValue.complete = true;

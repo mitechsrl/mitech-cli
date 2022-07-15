@@ -441,11 +441,8 @@ const deploy = async () => {
 
         console.log('Pulisco backup obsoleti');
         await cleanBackups(projectName);
-
-        console.log('Deploy completato');
     } else {
         console.log(error);
-        console.log('Deploy interrotto');
         console.log('');
         console.log('Puoi tentare un ripristino con il comando <mitech deploy backups restore>');
         console.log('');

@@ -15,17 +15,24 @@
 const logger = require('../../../lib/logger');
 const targets = require('../../../lib/targets');
 const { deploy } = require('./_lib/deploy');
+const { listUptimeChecks } = require('./_lib/listUptimeChecks');
 
 module.exports.info = [
     'Utility deploy App su VM'
 ];
+
+const deployParams = [
+    ['-d', 'Esegui il download del backup dell\'app remota'],
+    ['-y', 'Risposta automatica <yes> su conferma deploy'],
+    ['--uptime-check <check-name>', 'Esegue check di uptime app dopo deploy. Disponibili: ' + listUptimeChecks()]
+];
+module.exports.deployParams = deployParams;
 module.exports.help = [
     'Esegue un deploy su una VM con ambiente nodejs: carica il progetto locale, esegue npm install e pm2 restart.',
     'I files caricati possono essere controllati tramite il file .mitechcliignore, avente sintassi identica a .gitIgnore.',
     'Per default, vengono escluse le directory node_modules e .git',
     '',
-    ['-d', 'Esegui il download del backup dell\'app remota'],
-    ['-y', 'Risposta automatica <yes> su conferma deploy']
+    ...deployParams
 ];
 
 module.exports.cmd = async function (basepath, params) {
