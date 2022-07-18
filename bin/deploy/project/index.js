@@ -26,8 +26,9 @@ module.exports.info = [
     'Utility deploy progetto multiserver'
 ];
 module.exports.help = [
-    'Esegue il deploy di un progetto su piu VM con ambiente nodejs',
-    ...deployParams
+    'Esegue il deploy di un progetto su più VM con ambiente nodejs',
+    ...deployParams,
+    ['-fd', 'Forza il set delle dipendenze. Non applicare controlli.']
 ];
 
 module.exports.cmd = async function (basepath, params) {
@@ -50,6 +51,11 @@ module.exports.cmd = async function (basepath, params) {
         project = projects[response.project];
     }
     logger.log('Progetto selezionato: ' + project.name);
+
+    // Fake the presence of a parameter if uptimeCheck is defined
+    if (project.uptimeCheck) {
+        params.push('--uptime-check', project.uptimeCheck);
+    }
 
     const deployments = project.deployments;
     if (!deployments) throw new Error('Nessun deployment definito nel progetto selezionato');
@@ -86,15 +92,19 @@ module.exports.cmd = async function (basepath, params) {
         checkDeployment(basePath, mitechCliFile.content, d);
     });
 
+    const forceDependencies = params.get('-fd').found;
     // first pass with false flag, to detect dependencies merge errors.
     // False makes the function not to write the destination package.json.
-    executeDeployments.forEach(d => {
-        mergeDependencies(basePath, d, project.commonDependencies, false);
-    });
+    if (!forceDependencies) {
+        executeDeployments.forEach(d => {
+            mergeDependencies(basePath, d, project.commonDependencies, false, false);
+        });
+    }
+
     // second pass with false true, to also write out the files data.
     // getting here means no errors were detected for any merge in previous steps, so we can write all
     executeDeployments.forEach(d => {
-        mergeDependencies(basePath, d, project.commonDependencies, true);
+        mergeDependencies(basePath, d, project.commonDependencies, true, forceDependencies.found);
     });
 
     // iterate over all deployments.

@@ -68,7 +68,7 @@ module.exports.deploy = async function (target, params) {
 
     const autoYes = params.get('-y');
     if (!autoYes.found) {
-    // Conferma per essere sicuri
+        // Conferma per essere sicuri
         const response = await inquirer.prompt({
             type: 'confirm',
             name: 'yes',
