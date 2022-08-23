@@ -32,13 +32,13 @@ module.exports.cmd = async function (basepath, params) {
         },
         {
             type: 'input',
-            name: 'scope (@somename)',
-            message: 'scope'
+            name: 'scope',
+            message: 'scope (@somename)'
         },
         {
             type: 'input',
             name: 'registry',
-            message: 'Url registry (con https://)'
+            message: 'Url registry (con https:// e / finale)'
         },
         {
             type: 'input',
