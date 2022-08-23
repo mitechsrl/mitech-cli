@@ -21,6 +21,9 @@ const persistent = require('../../lib/persistent');
 const getRegistry = async function (scope, defaultRegistryId = null, defaultIfSingle = true) {
     try {
         let registries = persistent.get('npm');
+        if (!Array.isArray(registries) && Object.keys(registries).length === 0) {
+            registries = [];
+        }
 
         if (scope) {
             registries = registries.filter(r => r.scope === scope);

@@ -19,7 +19,10 @@ const logger = require('../../../../lib/logger');
 module.exports.info = 'Gestione configurazione registry npm';
 module.exports.help = [];
 module.exports.cmd = async function (basepath, params) {
-    const npmInfo = persistent.get('npm');
+    let npmInfo = persistent.get('npm');
+    if (!Array.isArray(npmInfo) && Object.keys(npmInfo).length === 0) {
+        npmInfo = [];
+    }
 
     const questions = [
         {
@@ -29,13 +32,13 @@ module.exports.cmd = async function (basepath, params) {
         },
         {
             type: 'input',
-            name: 'scope',
+            name: 'scope (@somename)',
             message: 'scope'
         },
         {
             type: 'input',
             name: 'registry',
-            message: 'Url registry'
+            message: 'Url registry (con https://)'
         },
         {
             type: 'input',
