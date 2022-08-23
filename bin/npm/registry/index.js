@@ -18,10 +18,13 @@ const persistent = require('../../../lib/persistent');
 module.exports.info = 'Gestione configurazione registry npm';
 module.exports.help = [];
 module.exports.cmd = async function (basepath, params) {
-    const npmInfo = persistent.get('npm');
+    let registries = persistent.get('npm');
+    if (!Array.isArray(registries) && Object.keys(registries).length === 0) {
+        registries = [];
+    }
 
     logger.log('');
-    npmInfo.forEach(element => {
+    registries.forEach(element => {
         logger.info('ID: ' + element.id);
         logger.log('  scope: ' + element.scope);
         logger.log('  registry: ' + element.registry);
