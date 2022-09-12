@@ -15,9 +15,7 @@
 const logger = require('../../lib/logger');
 
 module.exports.info = 'Helpers git';
-module.exports.help = [
-    ['merged', 'Verifica merge commit']
-];
+module.exports.help = [];
 
 module.exports.cmd = async function (basepath, params) {
     logger.log('Nulla da fare qui. Aggiungi -h per info');
