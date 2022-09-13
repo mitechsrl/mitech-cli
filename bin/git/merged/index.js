@@ -59,6 +59,8 @@ module.exports.cmd = async function (basepath, params) {
         logger.error('La branch specificata non esiste');
         return;
     }
+    /* Non sembra funzionare
+
     if (merged && unmerged) {
         const count = await spawn('git', ['rev-list', '--count', branchName, '^HEAD'], false);
         logger.warn(`La branch è stata mergiata in precedenza, ma presenta ${count.data.trim()} commit recenti non mergiate.`);
@@ -67,15 +69,32 @@ module.exports.cmd = async function (basepath, params) {
 
         const commits = await spawn('git', ['log', '--no-merges', branchName, '^HEAD', '--pretty=format:"%h - %s - %ad"'], false);
         logger.log(commits.data);
-    } else if (merged) {
+    } else */if (merged) {
         const mergeHash = await spawn('git', ['merge-base', 'HEAD', branchName], false);
-        logger.info('La branch è stata mergiata in precedenza. Commit di merge: ' + mergeHash.data.trim());
+        logger.info('La branch è stata mergiata in precedenza ed è aggiornata, non devi fare nulla. Commit di merge: ' + mergeHash.data.trim());
         const log = await spawn('git', ['log', '-1', mergeHash.data.trim()], false);
         logger.log('');
         logger.log(log.data);
     } else if (unmerged) {
-        logger.error('La branch NON è stata mergiata');
+        // is unmerged now, but check if it was unmerged also in the past
+        const count = await spawn('git', ['rev-list', '--count', branchName, '^HEAD'], false);
+        try {
+            if (parseInt(count.data.trim()) >= 0) {
+                logger.warn(`La branch è stata mergiata in precedenza, ma presenta ${count.data.trim()} commit recenti non mergiate.`);
+                logger.log('');
+                logger.log('Commit non mergiate: ');
+                const commits = await spawn('git', ['log', '--no-merges', branchName, '^HEAD', '--pretty=format:"%h - %s - %ad"'], false);
+                logger.log(commits.data);
+            } else {
+                logger.error('La branch NON è stata mergiata');
+            }
+        } catch (e) {
+            logger.error('La branch NON è stata mergiata');
+            logger.log(e.message);
+        }
+    } else {
+        logger.warn(':confused: Mmm... la branch non è nè merged, nè unmerged... chiedi al cane, se abbaia due volte allora è merged.');
     }
 
-    console.log('');
+    logger.log('');
 };

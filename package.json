@@ -1,6 +1,6 @@
 {
     "name": "@mitech/mitech-cli",
-    "version": "0.1.2",
+    "version": "0.1.4",
     "description": "Mitech Srl Dev command line tool",
     "main": "index.js",
     "engines": {
