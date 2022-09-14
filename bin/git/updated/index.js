@@ -21,6 +21,15 @@ module.exports.help = [
 ];
 
 module.exports.cmd = async function (basepath, params) {
+    logger.log('Autofetch...');
+
+    // faccio fetch per avere info sulle commit in master
+    await spawn('git', ['fetch'], false);
+    const status = await spawn('git', ['status'], false);
+    if (status.data.indexOf('is behind') >= 0) {
+        logger.warn('Esistono commit non pullate sulla branch corrente. Fai git pull e riesegui il comando.');
+    }
+
     const lastTag = await spawn('git', ['describe', '--tags', '--abbrev=0'], false);
     if (!lastTag.data) {
         logger.error('Impossibile trovare un tag');
