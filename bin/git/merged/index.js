@@ -76,21 +76,13 @@ module.exports.cmd = async function (basepath, params) {
         logger.log('');
         logger.log(log.data);
     } else if (unmerged) {
+        logger.error('La branch NON è stata mergiata');
         // is unmerged now, but check if it was unmerged also in the past
         const count = await spawn('git', ['rev-list', '--count', branchName, '^HEAD'], false);
-        try {
-            if (parseInt(count.data.trim()) >= 0) {
-                logger.warn(`La branch è stata mergiata in precedenza, ma presenta ${count.data.trim()} commit recenti non mergiate.`);
-                logger.log('');
-                logger.log('Commit non mergiate: ');
-                const commits = await spawn('git', ['log', '--no-merges', branchName, '^HEAD', '--pretty=format:"%h - %s - %ad"'], false);
-                logger.log(commits.data);
-            } else {
-                logger.error('La branch NON è stata mergiata');
-            }
-        } catch (e) {
-            logger.error('La branch NON è stata mergiata');
-            logger.log(e.message);
+        if (parseInt(count.data.trim()) >= 0) {
+            logger.log('Commit pendenti non mergiate: ');
+            const commits = await spawn('git', ['log', '--no-merges', branchName, '^HEAD', '--pretty=format:"%h - %s - %ad"'], false);
+            logger.log(commits.data);
         }
     } else {
         logger.warn(':confused: Mmm... la branch non è nè merged, nè unmerged... chiedi al cane, se abbaia due volte allora è merged.');
