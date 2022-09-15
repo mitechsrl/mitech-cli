@@ -31,8 +31,8 @@ module.exports.cmd = async function (basepath, params) {
     }
 
     const lastTag = await spawn('git', ['describe', '--tags', '--abbrev=0'], false);
-    if (!lastTag.data) {
-        logger.error('Impossibile trovare un tag');
+    if ((lastTag.exitCode !== 0) || (!lastTag.data)) {
+        logger.error(':collision: Impossibile trovare un tag ');
         return;
     }
 
