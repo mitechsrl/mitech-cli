@@ -12,10 +12,9 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
-const inquirer = require('inquirer');
-const inquirerPrompt = require('inquirer-autocomplete-prompt');
 const logger = require('../../../lib/logger');
 const spawn = require('../../../lib/spawn');
+const { branchSelector } = require('../_lib/branchSelector');
 
 module.exports.info = 'Verifica merge branches';
 module.exports.help = [
@@ -24,30 +23,7 @@ module.exports.help = [
 ];
 
 module.exports.cmd = async function (basepath, params) {
-    const branchParam = params.get('-b');
-    let branchName = '';
-
-    if (branchParam.found) {
-        branchName = branchParam.value;
-    } else {
-        const _branches = await spawn('git', ['branch', '-a'], false);
-        const branches = _branches.data.split('\n').map(l => {
-            l = l.trim().replace(/^\* /, '');
-            return l;
-        }).filter(l => !!l);
-
-        inquirer.registerPrompt('autocomplete', inquirerPrompt);
-        const answers = await inquirer.prompt([{
-            type: 'autocomplete',
-            name: 'branchName',
-            message: 'Seleziona nome branch da verificare',
-            source: (answers, input = '') => {
-                return branches.filter(b => b.indexOf(input) >= 0);
-            }
-        }]);
-
-        branchName = answers.branchName;
-    }
+    const branchName = await branchSelector(params);
 
     const mergedBranchList = await spawn('git', ['branch', '-a', '--merged'], false);
     const unmergedBranchList = await spawn('git', ['branch', '-a', '--no-merged'], false);
