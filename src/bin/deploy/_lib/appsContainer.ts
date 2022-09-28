@@ -1,0 +1,1 @@
+export const appsContainer = '/apps/';
