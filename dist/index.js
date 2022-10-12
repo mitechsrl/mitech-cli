@@ -27,6 +27,9 @@ function recourseRegisterCommand(parentYargs, commandConfig) {
         commandConfig.children.forEach(child => {
             recourseRegisterCommand(_yargs, child);
         });
+        // se strict, lancia errore per sottocomandi non conosciuti
+        // Se non strict, chiama l'ultimo padre riconosciuto e passagli i restanti parametri
+        // https://yargs.js.org/docs/#api-reference-strictcommandsenabledtrue
         _yargs.strictCommands(command.strictCommands !== false);
     }, (argv) => {
         // funzione chiamata sull'esecuzione del comando

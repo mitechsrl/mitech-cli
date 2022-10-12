@@ -51,6 +51,11 @@
         "file": "bin\\git\\commandConfig.js",
         "children": [
             {
+                "cmd": "merged",
+                "file": "bin\\git\\merged\\commandConfig.js",
+                "children": []
+            },
+            {
                 "cmd": "unmerged",
                 "file": "bin\\git\\unmerged\\commandConfig.js",
                 "children": []
