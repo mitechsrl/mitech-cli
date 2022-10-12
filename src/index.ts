@@ -29,6 +29,8 @@ function recourseRegisterCommand(parentYargs: yargs.Argv, commandConfig: ScanCom
             recourseRegisterCommand(_yargs, child);
         });
 
+        // se strict, lancia errore per sottocomandi non conosciuti
+        // Se non strict, chiama l'ultimo padre riconosciuto e passagli i restanti parametri
         // https://yargs.js.org/docs/#api-reference-strictcommandsenabledtrue
         _yargs.strictCommands(command.strictCommands !== false);
 
