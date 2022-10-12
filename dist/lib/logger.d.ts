@@ -12,7 +12,7 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 declare const logger: {
-    rawLog: (message: any) => void;
+    rawLog: (message: any) => boolean;
     log: (message: string) => void;
     error: (message: any) => void;
     warn: (message: string) => void;

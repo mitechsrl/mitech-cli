@@ -29,7 +29,7 @@ function recourseRegisterCommand(parentYargs: yargs.Argv, commandConfig: ScanCom
             recourseRegisterCommand(_yargs, child);
         });
 
-        console.log(commandConfig.cmd, command.strictCommands)
+        // https://yargs.js.org/docs/#api-reference-strictcommandsenabledtrue
         _yargs.strictCommands(command.strictCommands !== false);
 
     }, (argv) => {

@@ -18,7 +18,7 @@ const verbose = process.argv.find(c => c ==='--verbose');
 // list of emojis: https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
 const logger = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rawLog: (message: any) => console.log(message),
+    rawLog: (message: any) => process.stdout.write(message),
     log: (message: string) => console.log(emojify(message)),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     error: (message: any) => console.log(emojify(red(message))),
