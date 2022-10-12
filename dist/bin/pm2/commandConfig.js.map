@@ -1,1 +1,1 @@
-{"version":3,"file":"commandConfig.js","sourceRoot":"","sources":["../../../src/bin/pm2/commandConfig.ts"],"names":[],"mappings":";;AAGA,MAAM,MAAM,GAAY;IACpB,WAAW,EAAE,sBAAsB;IACnC,IAAI,EAAE,QAAQ;IACd,MAAM,EAAE,EAAE;CACb,CAAC;AAEF,kBAAe,MAAM,CAAC"}
+{"version":3,"file":"commandConfig.js","sourceRoot":"","sources":["../../../src/bin/pm2/commandConfig.ts"],"names":[],"mappings":";;AAEA,MAAM,MAAM,GAAY;IACpB,WAAW,EAAE,sBAAsB;IACnC,IAAI,EAAE,QAAQ;IACd,MAAM,EAAE,EAAE;IACV,cAAc,EAAE,KAAK;CACxB,CAAC;AAEF,kBAAe,MAAM,CAAC"}

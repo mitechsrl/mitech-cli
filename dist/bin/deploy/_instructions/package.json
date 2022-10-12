@@ -1,0 +1,11 @@
+{
+    "name": "deploy-insteller",
+    "version": "0.0.1",
+    "license": "ISC",
+    "repository": "-",
+    "description": "deploy project",
+    "dependencies": {
+        "tar": "^6.0.5",
+        "fs-extra": "^9.0.1"
+    }
+}

@@ -25,7 +25,11 @@ async function uploadAndInstallDeployScript(session, nodeUser) {
     const remoteTempDir = await session.getRemoteTmpDir(nodeUser);
     const remoteDeployBasePath = await session.getRemoteHomeDir(nodeUser, '.' + appsContainer_1.appsContainer);
     const remoteDeployInstructionsFile = remoteDeployBasePath + 'deploy-instructions.js';
-    const files = await fs_1.default.promises.readdir(path_1.default.join(__dirname, '../_instructions/'));
+    let files = await fs_1.default.promises.readdir(path_1.default.join(__dirname, '../_instructions'));
+    files = files.filter(f => {
+        const skipExtensions = ['md'];
+        return !skipExtensions.find(ext => f.toLowerCase().endsWith(ext));
+    });
     if (session.os.linux) {
         // on linux upload will store the files into tmp then copy them in their final position with the appropriate user.
         // this is to avoid permission problems between the uploading user and the target directory user.
@@ -42,12 +46,10 @@ async function uploadAndInstallDeployScript(session, nodeUser) {
     // install the dependencies for the deploy script
     await session.commandAs(nodeUser, ['node', remoteDeployInstructionsFile, '-o', 'install'], false);
     return {
-        /**
-         * Run the remote deploy script
-         * @param {*} args un script parameters
-         * @param {*} print Print command output. False by default
-         * @returns A promise
-         */
+        // Run the remote deploy script
+        // @param {*} args un script parameters
+        // @param {*} print Print command output. False by default
+        // @returns A promise
         call: async (args, print = false) => {
             const parts = ['node', remoteDeployInstructionsFile, ...args];
             return session.commandAs(nodeUser, parts, print);

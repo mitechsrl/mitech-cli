@@ -10,11 +10,5 @@ import { SshSession } from '../../../lib/ssh';
  *        To know the parameters, see ./_instructions/deploy_instructions.js (at the end of file)
  */
 export declare function uploadAndInstallDeployScript(session: SshSession, nodeUser: string): Promise<{
-    /**
-     * Run the remote deploy script
-     * @param {*} args un script parameters
-     * @param {*} print Print command output. False by default
-     * @returns A promise
-     */
     call: (args: string[], print?: boolean) => Promise<import("../../../lib/ssh").SshCommandResult>;
 }>;

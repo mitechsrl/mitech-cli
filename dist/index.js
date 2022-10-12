@@ -27,6 +27,7 @@ function recourseRegisterCommand(parentYargs, commandConfig) {
         commandConfig.children.forEach(child => {
             recourseRegisterCommand(_yargs, child);
         });
+        console.log(commandConfig.cmd, command.strictCommands);
         _yargs.strictCommands(command.strictCommands !== false);
     }, (argv) => {
         // funzione chiamata sull'esecuzione del comando
