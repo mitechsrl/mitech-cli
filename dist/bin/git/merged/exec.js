@@ -12,32 +12,15 @@
  * TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION:
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const inquirer_1 = __importDefault(require("inquirer"));
 const logger_1 = require("../../../lib/logger");
 const spawn_1 = require("../../../lib/spawn");
-const inquirer_autocomplete_prompt_1 = __importDefault(require("inquirer-autocomplete-prompt"));
+const branchSelector_1 = require("../_lib/branchSelector");
 const exec = async (argv) => {
     let branchName = argv.b;
+    // chiedi il nome branch nel caso non sia stata passata 
     if (!branchName) {
-        const _branches = await (0, spawn_1.spawn)('git', ['branch', '-a'], false);
-        const branches = _branches.output.split('\n').map(l => {
-            l = l.trim().replace(/^\* /, '');
-            return l;
-        }).filter(l => !!l);
-        inquirer_1.default.registerPrompt('autocomplete', inquirer_autocomplete_prompt_1.default);
-        const answers = await inquirer_1.default.prompt([{
-                type: 'autocomplete',
-                name: 'branchName',
-                message: 'Seleziona nome branch da verificare',
-                source: (answers, input = '') => {
-                    return branches.filter(b => b.indexOf(input) >= 0);
-                }
-            }]);
-        branchName = answers.branchName;
+        branchName = await (0, branchSelector_1.branchSelector)();
     }
     const mergedBranchList = await (0, spawn_1.spawn)('git', ['branch', '-a', '--merged'], false);
     const unmergedBranchList = await (0, spawn_1.spawn)('git', ['branch', '-a', '--no-merged'], false);
@@ -47,17 +30,7 @@ const exec = async (argv) => {
         logger_1.logger.error('La branch specificata non esiste');
         return;
     }
-    /* Non sembra funzionare
-
-    if (merged && unmerged) {
-        const count = await spawn('git', ['rev-list', '--count', branchName, '^HEAD'], false);
-        logger.warn(`La branch è stata mergiata in precedenza, ma presenta ${count.data.trim()} commit recenti non mergiate.`);
-        logger.log('');
-        logger.log('Commit non mergiate: ');
-
-        const commits = await spawn('git', ['log', '--no-merges', branchName, '^HEAD', '--pretty=format:"%h - %s - %ad"'], false);
-        logger.log(commits.data);
-    } else */ if (merged) {
+    if (merged) {
         const mergeHash = await (0, spawn_1.spawn)('git', ['merge-base', 'HEAD', branchName], false);
         logger_1.logger.info('La branch è stata mergiata in precedenza ed è aggiornata, non devi fare nulla. Commit di merge: ' + mergeHash.output.trim());
         const log = await (0, spawn_1.spawn)('git', ['log', '-1', mergeHash.output.trim()], false);

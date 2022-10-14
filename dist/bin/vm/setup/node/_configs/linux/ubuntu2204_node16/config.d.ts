@@ -11,20 +11,14 @@
  * TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION:
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
-
-import { StringError } from '../types';
-import { logger } from './logger';
-
-export function errorHandler(error: unknown) {
-
-    // Nel caso di StringError stampa solo il messaggio
-    if (error instanceof StringError) {
-        logger.error(error.message);
-        setTimeout(() => process.exit(-1), 500);
-        return;
-    }
-
-    // in tutti gli altri casi stampa tutto
-    logger.error(error);
-    setTimeout(() => process.exit(-1), 500);
-}
+declare const config: {
+    name: string;
+    value: {
+        questions: {
+            type: string;
+            name: string;
+            message: string;
+        }[];
+    };
+};
+export default config;

@@ -13,19 +13,15 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.errorHandler = void 0;
-const types_1 = require("../types");
-const logger_1 = require("./logger");
-function errorHandler(error) {
-    // Nel caso di StringError stampa solo il messaggio
-    if (error instanceof types_1.StringError) {
-        logger_1.logger.error(error.message);
-        setTimeout(() => process.exit(-1), 500);
-        return;
+const config = {
+    name: 'Ubuntu 22.04, Node 16.X, Nginx, pm2 5.1.2',
+    value: {
+        questions: [{
+                type: 'input',
+                name: 'MITECH_HOSTNAME',
+                message: 'FQDN hostname (solo ip/dns senza http(s)://)'
+            }]
     }
-    // in tutti gli altri casi stampa tutto
-    logger_1.logger.error(error);
-    setTimeout(() => process.exit(-1), 500);
-}
-exports.errorHandler = errorHandler;
-//# sourceMappingURL=errorHandler.js.map
+};
+exports.default = config;
+//# sourceMappingURL=config.js.map

@@ -12,19 +12,15 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
-import { StringError } from '../types';
-import { logger } from './logger';
-
-export function errorHandler(error: unknown) {
-
-    // Nel caso di StringError stampa solo il messaggio
-    if (error instanceof StringError) {
-        logger.error(error.message);
-        setTimeout(() => process.exit(-1), 500);
-        return;
+const config = {
+    name: 'Ubuntu 22.04, Node 16.X, Nginx, pm2 5.1.2',
+    value: {
+        questions: [{
+            type: 'input',
+            name: 'MITECH_HOSTNAME',
+            message: 'FQDN hostname (solo ip/dns senza http(s)://)'
+        }]
     }
+};
 
-    // in tutti gli altri casi stampa tutto
-    logger.error(error);
-    setTimeout(() => process.exit(-1), 500);
-}
+export default config;
