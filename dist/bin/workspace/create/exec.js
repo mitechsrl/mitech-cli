@@ -26,10 +26,15 @@ const npmConstants_1 = require("../../npm/npmConstants");
 const initGit_1 = require("./_lib/initGit");
 const packageJsonBuilder_1 = require("./_lib/packageJsonBuilder");
 const readmeBuilder_1 = require("./_lib/readmeBuilder");
+// prepopulated list of packages
 const subpackagesList = [
     { name: '@mitech/onit-next', dir: 'onit-next', git: 'https://github.com/mitechsrl/onit-next.git' },
     { name: '@mitech/onit-ui', dir: 'onit-ui', git: 'https://github.com/mitechsrl/onit-ui.git' },
-    { name: '@mitech/onit-ui-auth', dir: 'onit-ui-auth', git: 'https://github.com/mitechsrl/onit-ui-auth.git' }
+    { name: '@mitech/onit-ui-auth', dir: 'onit-ui-auth', git: 'https://github.com/mitechsrl/onit-ui-auth.git' },
+    { name: '@mitech/onit-things', dir: 'onit-things', git: 'https://github.com/mitechsrl/onit-things.git' },
+    { name: '@mitech/onit-industry', dir: 'onit-industry', git: 'https://github.com/mitechsrl/onit-industry.git' },
+    { name: '@mitech/onit-next-react-components', dir: 'onit-next-react-components', git: 'https://github.com/mitechsrl/onit-next-react-components.git' },
+    { name: '@mitech/onit-analytics', dir: 'onit-analytics', git: 'https://github.com/mitechsrl/onit-analytics.git' }
 ];
 function toInquirerList(list) {
     return list.map(item => {
