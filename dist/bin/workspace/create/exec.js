@@ -21,6 +21,7 @@ const inquirer_1 = __importDefault(require("inquirer"));
 const path_1 = require("path");
 const logger_1 = require("../../../lib/logger");
 const npm_1 = require("../../../lib/npm");
+const spawn_1 = require("../../../lib/spawn");
 const npmConstants_1 = require("../../npm/npmConstants");
 const initGit_1 = require("./_lib/initGit");
 const packageJsonBuilder_1 = require("./_lib/packageJsonBuilder");
@@ -83,6 +84,8 @@ const exec = async (argv) => {
     // setup git
     await (0, initGit_1.initGit)(answers);
     await (0, initGit_1.initGitSubmodules)(answers);
+    await (0, spawn_1.spawn)('git', ['add', '.']);
+    await (0, spawn_1.spawn)('git', ['commit', '-m', '"Workspace setup"']);
     logger_1.logger.success(':pizza: :beer: Workspace creato! :top: :top:');
     logger_1.logger.log('Setup workspace completo. Esegui');
     logger_1.logger.log('> cd ' + answers.name);

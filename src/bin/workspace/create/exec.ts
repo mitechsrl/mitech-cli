@@ -18,6 +18,7 @@ import { join } from 'path';
 import yargs, { choices } from 'yargs';
 import { logger } from '../../../lib/logger';
 import { buildNpmrc, getRegistry } from '../../../lib/npm';
+import { spawn } from '../../../lib/spawn';
 import { CommandExecFunction, GenericObject } from '../../../types';
 import { npmScope } from '../../npm/npmConstants';
 import { initGit, initGitSubmodules } from './_lib/initGit';
@@ -96,7 +97,9 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
     // setup git
     await initGit(answers);
     await initGitSubmodules(answers);
-
+    await spawn('git',['add','.']);
+    await spawn('git',['commit','-m','"Workspace setup"']);
+    
     logger.success(':pizza: :beer: Workspace creato! :top: :top:');
     logger.log('Setup workspace completo. Esegui');
     logger.log('> cd '+answers.name);
