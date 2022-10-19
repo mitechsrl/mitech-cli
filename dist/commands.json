@@ -218,5 +218,16 @@
                 "children": []
             }
         ]
+    },
+    {
+        "cmd": "workspace",
+        "file": "bin\\workspace\\commandConfig.js",
+        "children": [
+            {
+                "cmd": "create",
+                "file": "bin\\workspace\\create\\commandConfig.js",
+                "children": []
+            }
+        ]
     }
 ]

@@ -13,21 +13,11 @@
  */
 
 import yargs from 'yargs';
-import fs from 'fs';
-import { logger } from '../../../lib/logger';
-import { CommandExecFunction } from '../../../types';
-import { npmScope } from '../npmConstants';
-import { buildNpmrc, getRegistry } from '../../../lib/npm';
-
+import { logger } from '../../lib/logger';
+import { CommandExecFunction } from '../../types';
+ 
 const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => {
-    logger.log('Directory corrente: ' + process.cwd());
-    logger.log('Preparo .npmrc...');
-    logger.log('uso account  \'readonlyAccount\'');
-
-    // creo un .npmrc. Serve per far loggare npm in auto sul registry
-    const registry = await getRegistry(npmScope);
-    fs.writeFileSync('.npmrc', buildNpmrc(registry, 'readonlyAccount'));
-    logger.log('File .npmrc creato!');
+    logger.log('Niente da fare qui, aggiungi -h per info');
 };
 
 export default exec;
