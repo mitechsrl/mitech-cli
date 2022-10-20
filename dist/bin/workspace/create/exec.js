@@ -73,7 +73,7 @@ const exec = async (argv) => {
     ]);
     // some fixes to have valid names
     answers.name = answers.name.replace(/ /g, '-');
-    answers.name = answers.name.replace(/[^a-zA-Z0-9_/]/g, '');
+    answers.name = answers.name.replace(/[^a-zA-Z0-9_\-/]/g, '');
     const path = (0, path_1.join)(process.cwd(), './' + answers.name);
     const currentCwd = process.cwd();
     // create the dir and move into it

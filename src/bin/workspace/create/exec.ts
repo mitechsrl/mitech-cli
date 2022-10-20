@@ -81,7 +81,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
 
     // some fixes to have valid names
     answers.name = answers.name.replace(/ /g,'-');
-    answers.name = answers.name.replace(/[^a-zA-Z0-9_/]/g,'');
+    answers.name = answers.name.replace(/[^a-zA-Z0-9_\-/]/g,'');
     
     const path = join(process.cwd(), './'+answers.name);
     const currentCwd = process.cwd();
