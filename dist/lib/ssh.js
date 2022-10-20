@@ -284,9 +284,8 @@ exports.createSshSession = createSshSession;
  */
 function interativeClient(target, params) {
     const isWindows = (process.env.OS || '').toUpperCase().includes('WIN');
-    const finalCmd = [];
-    let sshExecutableName = 'ssh';
     if (isWindows) {
+        const finalCmd = [];
         // prepare putty command
         finalCmd.push(target.username + '@' + target.host);
         finalCmd.push('-P');
@@ -305,16 +304,27 @@ function interativeClient(target, params) {
             finalCmd.push('-i');
             finalCmd.push(ppkFile);
         }
-        sshExecutableName = path_1.default.join(__dirname, '../../putty/putty.exe');
         logger_1.logger.log('Avvio putty in corso... ');
+        // TODO: verificare pipe VS inherit
+        const ssh = (0, child_process_1.spawn)(path_1.default.join(__dirname, '../../putty/putty.exe'), finalCmd, { stdio: 'inherit', detached: true });
+        ssh.unref();
+        return;
     }
-    else {
-        // Mai usato su linux, non ho il comando pronto da usare!
-        throw new Error('Implementare client ssh per questa piattaforma!');
+    // con chiave ssh
+    // ssh username@host -p port -i ssh_cert
+    // con password: occorre sshpass
+    // sshpass -p  "Your_Server_Password" ssh user@host -p port
+    if (target.accessType === 'sshKey') {
+        logger_1.logger.warn('Per uscire, digita \'exit\'');
+        const finalCmd = [target.username + '@' + target.host, '-p', target.port.toString(), '-i', target.sshKey];
+        // TODO: verificare pipe VS inherit
+        const ssh = (0, child_process_1.spawn)('ssh', finalCmd, { stdio: 'inherit', detached: false });
+        ssh.on('close', () => {
+            process.exit();
+        });
+        return;
     }
-    // TODO: verificare pipe VS inherit
-    const ssh = (0, child_process_1.spawn)(sshExecutableName, finalCmd, { stdio: 'inherit', detached: isWindows });
-    ssh.unref();
+    throw new Error('Implementare client ssh per questa piattaforma!');
 }
 exports.interativeClient = interativeClient;
 //# sourceMappingURL=ssh.js.map

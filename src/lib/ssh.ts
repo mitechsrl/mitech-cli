@@ -319,18 +319,16 @@ export function interativeClient(target: SshTarget, params: string[]){
     
     const isWindows = (process.env.OS || '').toUpperCase().includes('WIN');
 
-    const finalCmd: string[] = [];
-
-    let sshExecutableName = 'ssh';
-
     if (isWindows) {
+        const finalCmd: string[] = [];
+        
         // prepare putty command
         finalCmd.push(target.username + '@' + target.host);
         finalCmd.push('-P');
         finalCmd.push(target.port.toString());
         finalCmd.push(...(params || []));
         if (target.accessType === 'password') {
-            finalCmd.push('-pw');
+            finalCmd.push('-pw'); 
             finalCmd.push(target.password!.toString());
         } else if (target.accessType === 'sshKey') {
             const ppkFile = target.sshKey + '.ppk';
@@ -341,15 +339,34 @@ export function interativeClient(target: SshTarget, params: string[]){
             finalCmd.push('-i');
             finalCmd.push(ppkFile);
         }
-        sshExecutableName = path.join(__dirname, '../../putty/putty.exe');
+  
         logger.log('Avvio putty in corso... ');
-    } else {
-        // Mai usato su linux, non ho il comando pronto da usare!
-        throw new Error('Implementare client ssh per questa piattaforma!');
+        // TODO: verificare pipe VS inherit
+        const ssh = spawn(
+            path.join(__dirname, '../../putty/putty.exe'), 
+            finalCmd, 
+            { stdio: 'inherit', detached: true }
+        );
+        ssh.unref();
+        return;
     }
 
-    // TODO: verificare pipe VS inherit
-    const ssh = spawn(sshExecutableName, finalCmd, { stdio: 'inherit', detached: isWindows });
-    ssh.unref();
+    // con chiave ssh
+    // ssh username@host -p port -i ssh_cert
+    // con password: occorre sshpass
+    // sshpass -p  "Your_Server_Password" ssh user@host -p port
+    if (target.accessType==='sshKey'){
+        logger.warn('Per uscire, digita \'exit\'');
+        const finalCmd: string[] = [target.username+'@'+target.host, '-p', target.port.toString(), '-i', target.sshKey!];
+        // TODO: verificare pipe VS inherit
+        const ssh = spawn( 'ssh', finalCmd, { stdio: 'inherit', detached: false } );
+        ssh.on('close', () => {
+            process.exit();
+        });
+        return;
+    }
+    
+    throw new Error('Implementare client ssh per questa piattaforma!');
+   
 }
 

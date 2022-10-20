@@ -39,6 +39,7 @@ module.exports = {
         'no-multi-spaces': ['error', { ignoreEOLComments: true }],
         // Cmplain about empty constructors
         'no-useless-constructor': 'off',
+        '@typescript-eslint/no-non-null-assertion': 'off',
         // These are our naming convension rules.
         // https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/naming-convention.md
         '@typescript-eslint/naming-convention': ['error',
