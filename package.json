@@ -6,7 +6,7 @@
     "scripts": {
         "lint": "eslint . --fix --ext .ts",
         "clean": "rimraf .tsbuildinfo  dist",
-        "copy-files": "copyfiles -u 1 src/**/*.js src/**/*.ejs src/**/*.conf src/**/*.sh src/**/*.md src/**/*.json dist/",
+        "copy-files": "copyfiles -u 1 src/**/*.js src/**/*.html src/**/*.ejs src/**/*.conf src/**/*.sh src/**/*.md src/**/*.json dist/",
         "scan-commands": "node ./dist/lib/generateScanResultFile.js",
         "tsc": "tsc",
         "build": "run-s clean tsc scan-commands copy-files",

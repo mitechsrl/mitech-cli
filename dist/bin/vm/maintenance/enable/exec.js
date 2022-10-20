@@ -72,6 +72,7 @@ const exec = async (argv) => {
     // Vedi E:\progetti\mitech-cli\bin\vm\setup\node\_configs\linux\ubuntu2004_node14\nginx-default.conf
     await session.command('sudo touch /var/www/maintmode');
     tarFile.cleanup();
+    logger_1.logger.success('Modalità maintenance attiva');
     session.disconnect();
 };
 exports.default = exec;

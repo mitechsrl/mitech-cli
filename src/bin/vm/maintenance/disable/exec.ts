@@ -51,6 +51,8 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
     logger.log('Rimuovo file lock di maintenance mode...');
     await session.command('sudo rm -rf /var/www/maintmode');
 
+    logger.success('Modalità maintenance disattivata');
+
     session.disconnect();
 };
 

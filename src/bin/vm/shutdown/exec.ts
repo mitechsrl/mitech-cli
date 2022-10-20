@@ -23,7 +23,9 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
     printTarget(t);
     logger.log('');
     const session = await createSshSession(t);
+    logger.log('Eseguo <sudo shutdown -h now>');
     await session.command('sudo shutdown -h now');
+    logger.success('shutdown lanciato');
     session.disconnect();
 };
 

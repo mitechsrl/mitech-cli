@@ -23,7 +23,9 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
     printTarget(t);
     logger.log('');
     const session = await createSshSession(t);
+    logger.log('Eseguo <sudo reboot -h now>');
     await session.command('sudo reboot -h now');
+    logger.success('Reboot lanciato');
     session.disconnect();
 };
 

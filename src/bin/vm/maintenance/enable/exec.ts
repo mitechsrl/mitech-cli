@@ -79,6 +79,8 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
     await session.command('sudo touch /var/www/maintmode');
     tarFile.cleanup();
 
+    logger.success('Modalità maintenance attiva');
+
     session.disconnect();
 };
 

@@ -48,6 +48,7 @@ const exec = async (argv) => {
     // set the nginx config
     logger_1.logger.log('Rimuovo file lock di maintenance mode...');
     await session.command('sudo rm -rf /var/www/maintmode');
+    logger_1.logger.success('Modalità maintenance disattivata');
     session.disconnect();
 };
 exports.default = exec;

@@ -94,11 +94,17 @@ class SshSession {
         try {
             const cmdResponse = await this.command('uname -a', false);
             if (cmdResponse.exitCode === 0) {
+                const lsbRelease = await this.command('lsb_release -a', false);
                 if (cmdResponse.output.toLowerCase().indexOf('linux') >= 0) {
                     this.os.linux = true;
                 }
                 if (cmdResponse.output.toLowerCase().indexOf('ubuntu') >= 0) {
                     this.os.name = 'ubuntu';
+                }
+                const regex = /Description:[^\w]+(.*)/gm;
+                const e = regex.exec(lsbRelease.output);
+                if (e && e[1]) {
+                    this.os.version = e[1];
                 }
                 return this.os;
             }

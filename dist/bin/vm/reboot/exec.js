@@ -21,7 +21,9 @@ const exec = async (argv) => {
     (0, targets_1.printTarget)(t);
     logger_1.logger.log('');
     const session = await (0, ssh_1.createSshSession)(t);
+    logger_1.logger.log('Eseguo <sudo reboot -h now>');
     await session.command('sudo reboot -h now');
+    logger_1.logger.success('Reboot lanciato');
     session.disconnect();
 };
 exports.default = exec;
