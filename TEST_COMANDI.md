@@ -34,7 +34,11 @@ COMPLETATO. NO altri comandi ssh
 COMPLETATO. NO altri comandi ssh
 
 
-[  ] mitech deploy
+[OK] mitech deploy
+[OK] mitech deploy pm2
+[OK] mitech deploy app
+[OK] mitech deploy file
+
 
 
 [OK] mitech npm
@@ -43,7 +47,7 @@ COMPLETATO. NO altri comandi ssh
 [OK] mitech npm registry delete
 [OK] mitech npm authorize
 [OK] mitech npm add-dep
-[  ] mitech npm publish
+[OK] mitech npm publish
 [OK] mitech npm delete
 COMPLETATO. NO altri comandi ssh
 

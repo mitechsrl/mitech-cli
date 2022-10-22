@@ -30,7 +30,7 @@ const exec = async (argv) => {
     const deployScript = await (0, deployScript_1.uploadAndInstallDeployScript)(session, nodeUser);
     logger_1.logger.log('Eseguo listing directory backups');
     const backups = await deployScript.call(['-o', 'lsBackups'], false);
-    console.log(backups);
+    console.log(backups.output);
     session.disconnect();
 };
 exports.default = exec;

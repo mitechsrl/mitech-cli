@@ -17,9 +17,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
 const logger_1 = require("../../../lib/logger");
 const types_1 = require("../../../types");
+const fs_1 = require("fs");
 const exec = async (argv) => {
     const packageJsonToBeUpdate = argv.p;
     const dependency = argv.d;
@@ -31,11 +31,11 @@ const exec = async (argv) => {
     if (!dependencyVersion)
         throw new types_1.StringError('Parametro <-dv> non specificato. Vedi <-h> per help');
     const file = path_1.default.resolve(process.cwd(), packageJsonToBeUpdate);
-    const fileContent = await fs_1.default.promises.readFile(file);
+    const fileContent = (0, fs_1.readFileSync)(file);
     const json = JSON.parse(fileContent.toString());
     json.dependencies = json.dependencies || {};
     json.dependencies[dependency] = dependencyVersion;
-    await fs_1.default.promises.writeFile(file, JSON.stringify(json, null, 4));
+    await (0, fs_1.writeFileSync)(file, JSON.stringify(json, null, 4));
     logger_1.logger.info('Update completato');
 };
 exports.default = exec;

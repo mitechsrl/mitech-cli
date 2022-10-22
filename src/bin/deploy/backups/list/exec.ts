@@ -37,7 +37,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
 
     logger.log('Eseguo listing directory backups');
     const backups = await deployScript.call(['-o', 'lsBackups'], false);
-    console.log(backups);
+    console.log(backups.output);
     session.disconnect();
 };
 

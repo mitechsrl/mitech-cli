@@ -81,10 +81,10 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
     // eseguo comando
     const result = await spawn(npmExecutable, ['publish', '--registry', registryUrl, '--access', 'restricted'], true);
 
-    try {
+    if (fs.existsSync('.npmrc')) {
         // rimuovo il file .npmrc. Non serve oltre l'operazione npm
         fs.unlinkSync('.npmrc');
-    } catch (e) {}
+    }
     if (fs.existsSync('.npmrc-BACKUP')) {
         fs.renameSync('.npmrc-BACKUP', '.npmrc');
     }

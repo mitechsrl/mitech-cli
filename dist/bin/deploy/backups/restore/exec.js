@@ -49,12 +49,15 @@ const exec = async (argv) => {
             {
                 type: 'list',
                 name: 'archive',
-                message: 'Seleziona archivio da ripristinare. Attenzione. Nessuna assunzione viene fatta sull\'archivio, assicurarsi che sia quello corretto.',
-                choices: backups.map((b) => b.path)
+                message: 'Seleziona archivio da ripristinare.\nAttenzione! Nessuna assunzione viene fatta sull\'archivio, assicurarsi che sia quello corretto.',
+                choices: backups.map((b) => ({
+                    name: `${b.path} (${b.size})`,
+                    value: b
+                }))
             }
         ]);
-        logger_1.logger.warn('Ripristino ' + selection.archive + ' come app ' + appSelection.app);
-        await deployScript.call(['-o', 'restoreBackup', '-a', selection.archive, '-p', appSelection.app], true);
+        logger_1.logger.warn('Ripristino ' + selection.archive.path + ' come app ' + appSelection.app);
+        await deployScript.call(['-o', 'restoreBackup', '-a', selection.archive.path, '-p', appSelection.app], true);
     }
     session.disconnect();
 };

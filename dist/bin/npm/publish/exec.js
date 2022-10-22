@@ -76,11 +76,10 @@ const exec = async (argv) => {
     /* step 3 ************************************************************************/
     // eseguo comando
     const result = await (0, spawn_1.spawn)(npm_1.npmExecutable, ['publish', '--registry', registryUrl, '--access', 'restricted'], true);
-    try {
+    if (fs_1.default.existsSync('.npmrc')) {
         // rimuovo il file .npmrc. Non serve oltre l'operazione npm
         fs_1.default.unlinkSync('.npmrc');
     }
-    catch (e) { }
     if (fs_1.default.existsSync('.npmrc-BACKUP')) {
         fs_1.default.renameSync('.npmrc-BACKUP', '.npmrc');
     }

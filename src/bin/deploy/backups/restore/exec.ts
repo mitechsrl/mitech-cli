@@ -54,13 +54,16 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
             {
                 type: 'list',
                 name: 'archive',
-                message: 'Seleziona archivio da ripristinare. Attenzione. Nessuna assunzione viene fatta sull\'archivio, assicurarsi che sia quello corretto.',
-                choices: backups.map((b: GenericObject) => b.path)
+                message: 'Seleziona archivio da ripristinare.\nAttenzione! Nessuna assunzione viene fatta sull\'archivio, assicurarsi che sia quello corretto.',
+                choices: backups.map((b: GenericObject) => ({
+                    name: `${b.path} (${b.size})`,
+                    value: b
+                }))
             }
         ]);
 
-        logger.warn('Ripristino ' + selection.archive + ' come app ' + appSelection.app);
-        await deployScript.call(['-o', 'restoreBackup', '-a', selection.archive, '-p', appSelection.app], true);
+        logger.warn('Ripristino ' + selection.archive.path + ' come app ' + appSelection.app);
+        await deployScript.call(['-o', 'restoreBackup', '-a', selection.archive.path, '-p', appSelection.app], true);
     }
     session.disconnect();
 };

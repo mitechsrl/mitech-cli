@@ -77,10 +77,13 @@ exports.getRegistry = getRegistry;
 function buildNpmrc(registry, account = 'managementAccount') {
     try {
         const hostname = new URL(registry.registry).hostname;
+        // NOTE: empty if not set
+        let port = new URL(registry.registry).port;
+        port = port ? (':' + port) : '';
         let npmrc = 'registry=https://registry.npmjs.org/\r\n';
         npmrc = npmrc + registry.scope + ':registry=' + registry.registry + '\r\n';
-        npmrc = npmrc + '//' + hostname + '/:username=' + registry[account].username + '\r\n';
-        npmrc = npmrc + '//' + hostname + '/:_password=' + Buffer.from(registry[account].password).toString('base64');
+        npmrc = npmrc + '//' + hostname + port + '/:username=' + registry[account].username + '\r\n';
+        npmrc = npmrc + '//' + hostname + port + '/:_password=' + Buffer.from(registry[account].password).toString('base64');
         return npmrc;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }

@@ -117,7 +117,7 @@ const rmTmp = async () => {
 
     const tmpdir = os.tmpdir();
     if (!filename.startsWith(tmpdir)) {
-        console.error('File ' + filename + "Non eliminato. E' possibile eliminare solo files di " + tmpdir);
+        console.error('File ' + filename + 'Non eliminato. E\' possibile eliminare solo files di ' + tmpdir);
         process.exit(-1);
     }
 
@@ -257,7 +257,9 @@ const restoreBackup = async () => {
 
     // sposto la cartella di destinazione da /home/onit/apps/projectName a /home/onit/apps/projectName_OLD
     // NOTE: recoursive needs node >12.10
-    fs.rmdirSync(destinationProjectDirOld, { recursive: true });
+    if (fs.existsSync(destinationProjectDirOld)){
+        fs.rmdirSync(destinationProjectDirOld, { recursive: true });
+    }
     console.log('Rename ' + destinationProjectDir + ' in ' + destinationProjectDirOld);
     fs.renameSync(destinationProjectDir, destinationProjectDirOld);
 
@@ -266,10 +268,15 @@ const restoreBackup = async () => {
     fs.mkdirSync(destinationProjectDir, { recursive: true });
     await tar.x({
         file: archivePath,
-        cwd: '/'
+        cwd: '/', 
+        strict: true,
+        preservePaths: true,
+        onwarn: (a,b,c) => {
+            console.log('WARN', a, b, c);
+        }
     });
 
-    // lanci polling stato app
+    // lancio polling stato app
     const interval = setInterval(async () => {
         await readStatus(projectName);
     }, 2000);
@@ -339,7 +346,8 @@ const deploy = async () => {
             await tar.c({
                 gzip: { level: 1 }, // this offer lower compression ratio but faster speed. Increase the number for lower speed & higher compression
                 file: destinationBackupFile,
-                cwd: destinationProjectDir
+                cwd: destinationProjectDir,
+                preservePaths: true,
                 // filter: filter
             }, [destinationProjectDir]);
 
@@ -394,7 +402,7 @@ const deploy = async () => {
             const ecosystemConfig = JSON.parse(fs.readFileSync(pm2EcosystemFile).toString());
             const app = (ecosystemConfig.apps || []).find(app => app.name === projectName);
             if (!app) {
-                console.error("Errore: impossibile avviare l'app. Entry in " + pm2EcosystemFileName + ' non trovata');
+                console.error('Errore: impossibile avviare l\'app. Entry in ' + pm2EcosystemFileName + ' non trovata');
                 error = true;
             } else {
                 intervalStatus();
