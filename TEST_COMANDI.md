@@ -38,6 +38,8 @@ COMPLETATO. NO altri comandi ssh
 [OK] mitech deploy pm2
 [OK] mitech deploy app
 [OK] mitech deploy file
+[OK] mitech deploy backups list
+[OK] mitech deploy backups restore
 
 
 

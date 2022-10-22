@@ -260,8 +260,10 @@ const restoreBackup = async () => {
     if (fs.existsSync(destinationProjectDirOld)){
         fs.rmdirSync(destinationProjectDirOld, { recursive: true });
     }
-    console.log('Rename ' + destinationProjectDir + ' in ' + destinationProjectDirOld);
-    fs.renameSync(destinationProjectDir, destinationProjectDirOld);
+    if (fs.existsSync(destinationProjectDir))
+        console.log('Rename ' + destinationProjectDir + ' in ' + destinationProjectDirOld);
+        fs.renameSync(destinationProjectDir, destinationProjectDirOld);
+    }
 
     // scompatto il vecchio archivio in /home/onit/apps/projectName
     console.log('Scompatto ' + archivePath + ' in ' + destinationProjectDir);
@@ -289,9 +291,11 @@ const restoreBackup = async () => {
     clearInterval(interval);
 
     // NOTE: recoursive needs node >12.10
-    console.log('Remove ' + destinationProjectDirOld);
-    fs.rmdirSync(destinationProjectDirOld, { recursive: true });
-
+    if (fs.existsSync(destinationProjectDirOld)){
+        console.log('Remove ' + destinationProjectDirOld);
+        fs.rmdirSync(destinationProjectDirOld, { recursive: true });
+    }
+    
     if (r.code !== 0) {
         console.log('Restart fallito');
     } else {
