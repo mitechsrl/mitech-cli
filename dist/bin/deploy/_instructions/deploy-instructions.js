@@ -260,7 +260,7 @@ const restoreBackup = async () => {
     if (fs.existsSync(destinationProjectDirOld)){
         fs.rmdirSync(destinationProjectDirOld, { recursive: true });
     }
-    if (fs.existsSync(destinationProjectDir))
+    if (fs.existsSync(destinationProjectDir)){
         console.log('Rename ' + destinationProjectDir + ' in ' + destinationProjectDirOld);
         fs.renameSync(destinationProjectDir, destinationProjectDirOld);
     }
