@@ -14,9 +14,9 @@
 
 import yargs from 'yargs';
 import path from 'path';
-import fs from 'fs';
 import { logger } from '../../../lib/logger';
 import { CommandExecFunction, StringError } from '../../../types';
+import { readFileSync, writeFileSync } from 'fs';
 
 const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => {
 
@@ -29,12 +29,11 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
     if (!dependencyVersion) throw new StringError('Parametro <-dv> non specificato. Vedi <-h> per help');
 
     const file = path.resolve(process.cwd(), packageJsonToBeUpdate);
-    const fileContent = await fs.promises.readFile(file);
+    const fileContent = readFileSync(file);
     const json = JSON.parse(fileContent.toString());
     json.dependencies = json.dependencies || {};
     json.dependencies[dependency] = dependencyVersion;
-
-    await fs.promises.writeFile(file, JSON.stringify(json, null, 4));
+    await writeFileSync(file, JSON.stringify(json, null, 4));
 
     logger.info('Update completato');
 };

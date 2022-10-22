@@ -18,8 +18,8 @@ import { logger } from '../../../lib/logger';
 import { CommandExecFunction, StringError } from '../../../types';
 import { npmScope } from '../npmConstants';
 import { buildNpmrc, getRegistry, npmExecutable } from '../../../lib/npm';
-import inquirer from 'inquirer';
-import { spawn } from 'child_process';
+import { confirm } from '../../../lib/confirm';
+import { spawn } from '../../../lib/spawn';
 
 const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => {
     /* step 1 ************************************************************************/
@@ -41,16 +41,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
     }
 
     // conferma
-    try {
-        if (!argv.y) { // auto yes if a param exists
-            const response = await inquirer.prompt({
-                type: 'confirm',
-                name: 'value',
-                message: 'Questa directory verrà pushata sul registry NPM. Sei sicuro di essere nella directory corretta? '
-            });
-            if (!response.value) return;
-        }
-    } catch (e) {
+    if (!await confirm(argv, 'Questa directory verrà pushata sul registry NPM. Sei sicuro di essere nella directory corretta?')){
         return;
     }
 
@@ -88,30 +79,22 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
 
     /* step 3 ************************************************************************/
     // eseguo comando
-    const npmParams = ['publish', '--registry', registryUrl, '--access', 'restricted'];
-    logger.log('Eseguo npm ' + npmParams.join(' '));
-    const npm = spawn(npmExecutable, npmParams, { stdio: 'inherit' });
+    const result = await spawn(npmExecutable, ['publish', '--registry', registryUrl, '--access', 'restricted'], true);
 
-    npm.on('error', (data) => {
-        console.log(`error: ${data}`);
-    });
+    try {
+        // rimuovo il file .npmrc. Non serve oltre l'operazione npm
+        fs.unlinkSync('.npmrc');
+    } catch (e) {}
+    if (fs.existsSync('.npmrc-BACKUP')) {
+        fs.renameSync('.npmrc-BACKUP', '.npmrc');
+    }
 
-    npm.on('exit', (code) => {
-        try {
-            // rimuovo il file .npmrc. Non serve oltre l'operazione npm
-            fs.unlinkSync('.npmrc');
-        } catch (e) { }
-        if (fs.existsSync('.npmrc-BACKUP')) {
-            fs.renameSync('.npmrc-BACKUP', '.npmrc');
-        }
-
-        if (code === 0) {
-            logger.info('Publish completo!');
-        } else {
-            logger.log('');
-            logger.error('Publish fallito: exit code = ' + code);
-        }
-    });
+    if (result.exitCode === 0) {
+        logger.info('Publish completo!');
+    } else {
+        logger.log('');
+        logger.error('Publish fallito: exit code = ' + result.exitCode);
+    }
 };
 
 export default exec;

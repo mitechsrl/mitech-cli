@@ -11,11 +11,5 @@
  * TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION:
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
-import { SshTarget } from '../types';
-/**
- * Seleziona una configurazione dalla directory configPaths e la esegue su target remoto.
- *
- * @param {*} target target remoto
- * @param {*} configPaths directory dove cercare le configurazioni
- */
-export declare function runTargetConfiguration(target: SshTarget, configPaths: string): Promise<void>;
+import yargs from 'yargs';
+export declare function confirm(argv: yargs.ArgumentsCamelCase<{}>, message: string): Promise<any>;

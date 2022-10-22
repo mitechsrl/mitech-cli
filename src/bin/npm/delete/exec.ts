@@ -13,61 +13,54 @@
  */
 
 import yargs from 'yargs';
-import fs from 'fs';
+import fs, { existsSync, unlinkSync } from 'fs';
 import { logger } from '../../../lib/logger';
 import { CommandExecFunction, StringError } from '../../../types';
 import { npmScope } from '../npmConstants';
 import { buildNpmrc, getRegistry, npmExecutable } from '../../../lib/npm';
 import inquirer from 'inquirer';
-import { spawn } from 'child_process';
+import { spawn } from '../../../lib/spawn';
+import { confirm } from '../../../lib/confirm';
+import { join } from 'path';
 
 const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => {
     if (!argv.p) {
         throw new StringError('Specifica il pacchetto da rimuovere con "-p packageName"');
     }
 
-    const packageName = argv.p;
+    if (existsSync(join(process.cwd(), 'package.json'))){
+        throw new StringError('Esegui questo comando in una cartella dove non è presente un file package.json!');
+    }
 
-    try {
-        const response = await inquirer.prompt({
-            type: 'confirm',
-            name: 'value',
-            message: 'Il pacchetto ' + packageName + ' verrà rimosso dal registry NPM Mitech. Sei sicuro? '
-        });
-        if (!response.value) return;
-    } catch (e) {
+    const packageName = argv.p;
+    if (!await confirm(argv, 'Il pacchetto ' + packageName + ' verrà rimosso dal registry NPM Mitech. Sei sicuro?')){
         return;
     }
 
-    // creo un .npmrc. Serve per far loggare npm in auto sul registry
+    // creo un .npmrc se serve. Serve per far loggare npm in auto sul registry
     const registry = await getRegistry(npmScope);
-    fs.writeFileSync('.npmrc', buildNpmrc(registry));
+    const npmrcPath = join(process.cwd(),'./.npmrc');
+    let deleteNpmRcFile = false;
+    if (!existsSync(npmrcPath)){
+        deleteNpmRcFile = true;
+        fs.writeFileSync(npmrcPath, buildNpmrc(registry));
+    }
 
-    const registryUrl = registry.registry;
-
-    /* eseguo comando ************************************************************************/
-    const npmParams = ['unpublish', packageName, '--registry', registryUrl, '--access', 'restricted', '--force'];
+    const npmParams = ['unpublish', packageName, '--registry', registry.registry, '--access', 'restricted', '--force'];
     logger.log('Eseguo npm ' + npmParams.join(' '));
+    const npmResult = await spawn(npmExecutable, npmParams, true);
 
-    const npm = spawn(npmExecutable, npmParams, { stdio: 'inherit' });
+    if (deleteNpmRcFile){
+        unlinkSync(npmrcPath);
+    }
 
-    npm.on('error', (data) => {
-        console.log(`error: ${data}`);
-    });
-
-    npm.on('exit', (code) => {
-        try {
-            // rimuovo il file .npmrc. Non serve oltre l'operazione npm
-            // fs.unlinkSync('.npmrc');
-        } catch (e) { }
-
-        if (code === 0) {
-            logger.info('Unpublish completo!');
-        } else {
-            logger.log('');
-            logger.error('Unpublish fallito: exit code = ' + code);
-        }
-    });
+    if (npmResult.exitCode !== 0) {
+        logger.error('Unpublish fallito: exit code = ' + npmResult.exitCode );
+        return;
+    }
+    
+    logger.info('Unpublish completo!');
+    
 };
 
 export default exec;

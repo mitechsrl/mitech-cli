@@ -22,7 +22,8 @@ const logger_1 = require("./logger");
 const runLinuxConiguration_1 = require("./runLinuxConiguration");
 const ssh_1 = require("./ssh");
 /**
- * Seleziona una configurazione dalla directory configPaths e la esegue su target remoto
+ * Seleziona una configurazione dalla directory configPaths e la esegue su target remoto.
+ *
  * @param {*} target target remoto
  * @param {*} configPaths directory dove cercare le configurazioni
  */

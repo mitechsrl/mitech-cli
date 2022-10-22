@@ -19,7 +19,8 @@ import { runLinuxConfiguration } from './runLinuxConiguration';
 import { createSshSession } from './ssh';
 
 /**
- * Seleziona una configurazione dalla directory configPaths e la esegue su target remoto
+ * Seleziona una configurazione dalla directory configPaths e la esegue su target remoto.
+ * 
  * @param {*} target target remoto
  * @param {*} configPaths directory dove cercare le configurazioni
  */

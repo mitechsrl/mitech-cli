@@ -21,8 +21,8 @@ const logger_1 = require("../../../lib/logger");
 const types_1 = require("../../../types");
 const npmConstants_1 = require("../npmConstants");
 const npm_1 = require("../../../lib/npm");
-const inquirer_1 = __importDefault(require("inquirer"));
-const child_process_1 = require("child_process");
+const confirm_1 = require("../../../lib/confirm");
+const spawn_1 = require("../../../lib/spawn");
 const exec = async (argv) => {
     /* step 1 ************************************************************************/
     logger_1.logger.log('Directory corrente: ' + process.cwd());
@@ -41,18 +41,7 @@ const exec = async (argv) => {
         throw new Error('Il pacchetto deve essere sotto scope @mitech. Rinominalo in @mitech/' + packageJson.name);
     }
     // conferma
-    try {
-        if (!argv.y) { // auto yes if a param exists
-            const response = await inquirer_1.default.prompt({
-                type: 'confirm',
-                name: 'value',
-                message: 'Questa directory verrà pushata sul registry NPM. Sei sicuro di essere nella directory corretta? '
-            });
-            if (!response.value)
-                return;
-        }
-    }
-    catch (e) {
+    if (!await (0, confirm_1.confirm)(argv, 'Questa directory verrà pushata sul registry NPM. Sei sicuro di essere nella directory corretta?')) {
         return;
     }
     // creo un .npmrc. Serve per far loggare npm in auto sul registry
@@ -86,29 +75,22 @@ const exec = async (argv) => {
     }
     /* step 3 ************************************************************************/
     // eseguo comando
-    const npmParams = ['publish', '--registry', registryUrl, '--access', 'restricted'];
-    logger_1.logger.log('Eseguo npm ' + npmParams.join(' '));
-    const npm = (0, child_process_1.spawn)(npm_1.npmExecutable, npmParams, { stdio: 'inherit' });
-    npm.on('error', (data) => {
-        console.log(`error: ${data}`);
-    });
-    npm.on('exit', (code) => {
-        try {
-            // rimuovo il file .npmrc. Non serve oltre l'operazione npm
-            fs_1.default.unlinkSync('.npmrc');
-        }
-        catch (e) { }
-        if (fs_1.default.existsSync('.npmrc-BACKUP')) {
-            fs_1.default.renameSync('.npmrc-BACKUP', '.npmrc');
-        }
-        if (code === 0) {
-            logger_1.logger.info('Publish completo!');
-        }
-        else {
-            logger_1.logger.log('');
-            logger_1.logger.error('Publish fallito: exit code = ' + code);
-        }
-    });
+    const result = await (0, spawn_1.spawn)(npm_1.npmExecutable, ['publish', '--registry', registryUrl, '--access', 'restricted'], true);
+    try {
+        // rimuovo il file .npmrc. Non serve oltre l'operazione npm
+        fs_1.default.unlinkSync('.npmrc');
+    }
+    catch (e) { }
+    if (fs_1.default.existsSync('.npmrc-BACKUP')) {
+        fs_1.default.renameSync('.npmrc-BACKUP', '.npmrc');
+    }
+    if (result.exitCode === 0) {
+        logger_1.logger.info('Publish completo!');
+    }
+    else {
+        logger_1.logger.log('');
+        logger_1.logger.error('Publish fallito: exit code = ' + result.exitCode);
+    }
 };
 exports.default = exec;
 //# sourceMappingURL=exec.js.map

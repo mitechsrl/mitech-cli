@@ -1,6 +1,5 @@
 [OK] mitech
 
-
 [OK] mitech ssh
 [OK] mitech ssh targets
 [OK] mitech ssh targets add
@@ -14,7 +13,7 @@ COMPLETATO. NO altri comandi ssh
 [OK] mitech vm setup redis
 [OK] mitech vm setup mongodb
 [OK] mitech vm setup crowdsec
-[  ] mitech vm setup certbot
+[OK] mitech vm setup certbot
 [OK] mitech vm uptime
 [OK] mitech vm os
 [OK] mitech vm maintenance
@@ -43,12 +42,12 @@ COMPLETATO. NO altri comandi ssh
 [OK] mitech npm registry add
 [OK] mitech npm registry delete
 [OK] mitech npm authorize
-[  ] mitech npm add-dep
+[OK] mitech npm add-dep
 [  ] mitech npm publish
-[  ] mitech npm delete
+[OK] mitech npm delete
 COMPLETATO. NO altri comandi ssh
 
-[  ] mitech git merged
-[  ] mitech git unmerged
-[  ] mitech git updated
+[OK] mitech git merged
+[OK] mitech git unmerged
+[OK] mitech git updated
 COMPLETATO. NO altri comandi ssh
