@@ -14,7 +14,7 @@ const ejs_1 = __importDefault(require("ejs"));
  */
 async function initGit(answers) {
     await (0, spawn_1.spawn)('git', ['init'], true);
-    const template = (0, fs_1.readFileSync)((0, path_1.join)(__dirname, './templates/.gitignore.ejs')).toString();
+    const template = (0, fs_1.readFileSync)((0, path_1.join)(__dirname, './templates/gitignore.ejs')).toString();
     const rendered = ejs_1.default.render(template, answers);
     (0, fs_1.writeFileSync)((0, path_1.join)(process.cwd(), '.gitignore'), rendered);
 }
