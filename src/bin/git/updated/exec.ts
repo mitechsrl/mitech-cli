@@ -19,7 +19,7 @@ import { CommandExecFunction, StringError } from '../../../types';
 import { prettyFormat } from '../_lib/prettyFormat';
 
 const exec: CommandExecFunction = async () => {
-    logger.log('Autofetch...');
+    logger.log('Eseguo git fetch...');
 
     // faccio fetch per avere info sulle commit in master
     await spawn('git', ['fetch'], false);

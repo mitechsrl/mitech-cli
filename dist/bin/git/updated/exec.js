@@ -22,7 +22,7 @@ const spawn_1 = require("../../../lib/spawn");
 const types_1 = require("../../../types");
 const prettyFormat_1 = require("../_lib/prettyFormat");
 const exec = async () => {
-    logger_1.logger.log('Autofetch...');
+    logger_1.logger.log('Eseguo git fetch...');
     // faccio fetch per avere info sulle commit in master
     await (0, spawn_1.spawn)('git', ['fetch'], false);
     const status = await (0, spawn_1.spawn)('git', ['status'], false);
