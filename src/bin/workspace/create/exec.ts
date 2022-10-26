@@ -21,9 +21,9 @@ import { buildNpmrc, getRegistry } from '../../../lib/npm';
 import { spawn } from '../../../lib/spawn';
 import { CommandExecFunction, GenericObject } from '../../../types';
 import { npmScope } from '../../npm/npmConstants';
-import { initGit, initGitSubmodules } from './_lib/initGit';
+import { copyTemplate } from './_lib/copyTemplate';
+import { setupGit } from './_lib/setupGit';
 import { packageJsonBuilder } from './_lib/packageJsonBuilder';
-import { readmeBuilder } from './_lib/readmeBuilder';
 
 type PackageItem = {
     name: string,
@@ -92,20 +92,17 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
     
     // create package.json
     packageJsonBuilder(answers);
-    
+     
     // add .npmrc to allow login in out npm registry
     const registry = await getRegistry(npmScope);
     writeFileSync('.npmrc', buildNpmrc(registry, 'managementAccount'));
-
-    // create the reade file
-    readmeBuilder(answers);
-
-    // setup git
-    await initGit(answers);
-    await initGitSubmodules(answers);
-    await spawn('git',['add','.']);
-    await spawn('git',['commit','-m','"Workspace setup"']);
     
+    // setup git
+    await setupGit(answers);
+
+    // copy and render all the other repository files
+    await copyTemplate(answers);
+
     logger.success(':pizza: :beer: Workspace creato! :top: :top:');
     logger.log('Setup workspace completo. Esegui');
     logger.log('> cd '+answers.name);

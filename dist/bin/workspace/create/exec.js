@@ -21,11 +21,10 @@ const inquirer_1 = __importDefault(require("inquirer"));
 const path_1 = require("path");
 const logger_1 = require("../../../lib/logger");
 const npm_1 = require("../../../lib/npm");
-const spawn_1 = require("../../../lib/spawn");
 const npmConstants_1 = require("../../npm/npmConstants");
-const initGit_1 = require("./_lib/initGit");
+const copyTemplate_1 = require("./_lib/copyTemplate");
+const setupGit_1 = require("./_lib/setupGit");
 const packageJsonBuilder_1 = require("./_lib/packageJsonBuilder");
-const readmeBuilder_1 = require("./_lib/readmeBuilder");
 // prepopulated list of packages
 const subpackagesList = [
     { name: '@mitech/onit-next', dir: 'onit-next', git: 'https://github.com/mitechsrl/onit-next.git' },
@@ -84,13 +83,10 @@ const exec = async (argv) => {
     // add .npmrc to allow login in out npm registry
     const registry = await (0, npm_1.getRegistry)(npmConstants_1.npmScope);
     (0, fs_1.writeFileSync)('.npmrc', (0, npm_1.buildNpmrc)(registry, 'managementAccount'));
-    // create the reade file
-    (0, readmeBuilder_1.readmeBuilder)(answers);
     // setup git
-    await (0, initGit_1.initGit)(answers);
-    await (0, initGit_1.initGitSubmodules)(answers);
-    await (0, spawn_1.spawn)('git', ['add', '.']);
-    await (0, spawn_1.spawn)('git', ['commit', '-m', '"Workspace setup"']);
+    await (0, setupGit_1.setupGit)(answers);
+    // copy and render all the other repository files
+    await (0, copyTemplate_1.copyTemplate)(answers);
     logger_1.logger.success(':pizza: :beer: Workspace creato! :top: :top:');
     logger_1.logger.log('Setup workspace completo. Esegui');
     logger_1.logger.log('> cd ' + answers.name);
