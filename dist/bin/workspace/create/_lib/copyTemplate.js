@@ -19,7 +19,6 @@ async function copyTemplate(answers) {
     // search all files in template
     const files = await promiseGlob('./**/*', { dot: true, cwd: templatePath });
     const excludeFiels = ['package.json'];
-    console.log(files);
     // render and save out all the found files.
     // Package.json is omitted since is managed by other code
     for (const file of files) {
@@ -29,7 +28,6 @@ async function copyTemplate(answers) {
         const template = fs_1.default.readFileSync((0, path_1.join)(templatePath, file)).toString();
         const rendered = ejs_1.default.render(template, answers);
         const finalFileName = (0, path_1.join)(process.cwd(), file.replace('.ejs', ''));
-        console.log('Rendering ' + finalFileName);
         const dir = (0, path_1.dirname)(finalFileName);
         if (!fs_1.default.existsSync(dir)) {
             fs_1.default.mkdirSync(dir, { recursive: true });
