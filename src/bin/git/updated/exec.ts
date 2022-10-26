@@ -12,9 +12,11 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
+import inquirer from 'inquirer';
 import { logger } from '../../../lib/logger';
 import { spawn } from '../../../lib/spawn';
-import { CommandExecFunction } from '../../../types';
+import { CommandExecFunction, StringError } from '../../../types';
+import { prettyFormat } from '../_lib/prettyFormat';
 
 const exec: CommandExecFunction = async () => {
     logger.log('Autofetch...');
@@ -26,22 +28,49 @@ const exec: CommandExecFunction = async () => {
         logger.warn('Esistono commit non pullate sulla branch corrente. Fai git pull e riesegui il comando.');
     }
 
+    const askTags = [];
     const lastTag = await spawn('git', ['describe', '--tags', '--abbrev=0'], false);
-    if ((lastTag.exitCode !== 0) || (!lastTag.output)) {
-        logger.error(':collision: Impossibile trovare un tag ');
-        return;
+    if ((lastTag.exitCode === 0) && lastTag.output) {
+        askTags.push({ name: 'Ultimo ('+lastTag.output.trim()+')', value: lastTag.output.trim() });
     }
 
-    const _count = await spawn('git', ['rev-list', '--count', lastTag.output.trim() + '..HEAD'], false);
+    const allTags = await spawn('git', ['tag', '-l'], false);
+    allTags.output.split('\n').reverse().forEach(t => {
+        askTags.push({
+            name: t.trim(),
+            value: t.trim()
+        });
+    });
+
+    if (askTags.length === 0 ){
+        throw new StringError('Nessun tag trovato. Impossibile verificare updates');
+    }
+
+    const answers = await inquirer.prompt([{
+        type:'list',
+        name: 'tag',
+        message:'Seleziona tag',
+        choices: askTags
+    }]);
+
+    if (!answers.tag.trim()){
+        throw new StringError('Nessun tag selezionato');
+    }
+
+    const _count = await spawn('git', ['rev-list', '--count', answers.tag.trim() + '..HEAD'], false);
     const count = parseInt(_count.output.trim());
 
-    logger.info('\nUltimo tag trovato: ' + lastTag.output.trim() + '\n');
+    logger.info('\nTag: ' + answers.tag.trim() + '\n');
     if (count === 0) {
-        logger.log('Non ci sono commit dal tag ' + lastTag.output.trim());
+        logger.log('Non ci sono commit dal tag ' + answers.tag.trim());
     } else {
-        logger.warn('Sono state trovate ' + count + ' commit dal tag ' + lastTag.output.trim() + '\n');
-        const commitsFromTag = await spawn('git', ['log', lastTag.output.trim() + '..HEAD', '--pretty=format:"%h - %an - %s - %ad"'], false);
-        logger.log(commitsFromTag.output);
+        logger.warn('Sono state trovate ' + count + ' commit dal tag ' + answers.tag.trim() + '\n');
+        const commitsFromTag = await spawn('git', ['log', answers.tag.trim() + '..HEAD', prettyFormat], false);
+        commitsFromTag.output.split('\n').forEach(l => {
+            const _l = l.trim().substring(1);
+            logger.log(_l.substring(0, _l.length-1));
+        });
+        
     }
 };
 

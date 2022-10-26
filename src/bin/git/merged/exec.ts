@@ -17,6 +17,7 @@ import { logger } from '../../../lib/logger';
 import { spawn } from '../../../lib/spawn';
 import { CommandExecFunction } from '../../../types';
 import { branchSelector } from '../_lib/branchSelector';
+import { prettyFormat } from '../_lib/prettyFormat';
 
 const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => {
     
@@ -48,8 +49,11 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
         const count = await spawn('git', ['rev-list', '--count', branchName, '^HEAD'], false);
         if (parseInt(count.output.trim()) >= 0) {
             logger.log('Commit pendenti non mergiate: ');
-            const commits = await spawn('git', ['log', '--no-merges', branchName, '^HEAD', '--pretty=format:"%h - %s - %ad"'], false);
-            logger.log(commits.output);
+            const commits = await spawn('git', ['log', '--no-merges', branchName, '^HEAD', prettyFormat], false);
+            commits.output.split('\n').forEach(l => {
+                const _l = l.trim().substring(1);
+                logger.log(_l.substring(0, _l.length-1));
+            });
         }
     } else {
         logger.warn(':confused: Mmm... la branch non è nè merged, nè unmerged... chiedi al cane, se abbaia due volte allora è merged.');

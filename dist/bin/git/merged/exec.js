@@ -16,6 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const logger_1 = require("../../../lib/logger");
 const spawn_1 = require("../../../lib/spawn");
 const branchSelector_1 = require("../_lib/branchSelector");
+const prettyFormat_1 = require("../_lib/prettyFormat");
 const exec = async (argv) => {
     let branchName = argv.b;
     // chiedi il nome branch nel caso non sia stata passata 
@@ -43,8 +44,11 @@ const exec = async (argv) => {
         const count = await (0, spawn_1.spawn)('git', ['rev-list', '--count', branchName, '^HEAD'], false);
         if (parseInt(count.output.trim()) >= 0) {
             logger_1.logger.log('Commit pendenti non mergiate: ');
-            const commits = await (0, spawn_1.spawn)('git', ['log', '--no-merges', branchName, '^HEAD', '--pretty=format:"%h - %s - %ad"'], false);
-            logger_1.logger.log(commits.output);
+            const commits = await (0, spawn_1.spawn)('git', ['log', '--no-merges', branchName, '^HEAD', prettyFormat_1.prettyFormat], false);
+            commits.output.split('\n').forEach(l => {
+                const _l = l.trim().substring(1);
+                logger_1.logger.log(_l.substring(0, _l.length - 1));
+            });
         }
     }
     else {
