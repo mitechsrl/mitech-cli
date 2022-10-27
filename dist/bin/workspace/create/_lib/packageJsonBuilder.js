@@ -10,7 +10,7 @@ const path_1 = require("path");
 function packageJsonBuilder(answers) {
     const packageJson = JSON.parse((0, fs_1.readFileSync)((0, path_1.join)(__dirname, './templates/package.json')).toString());
     packageJson.name = answers.name,
-        packageJson.workspaces = [packageJson.workspaces, ...answers.subpackages.map((s) => s.dir)],
+        packageJson.workspaces = [...packageJson.workspaces, ...answers.subpackages.map((s) => s.dir)],
         packageJson.scripts = Object.assign(answers.subpackages.reduce((acc, p) => {
             acc['precompile:packages'] += ' precompile:' + p.dir;
             acc['precompile:' + p.dir] = `cd ./${p.dir} && npm run clean && onit serve -t -exit && onit serve -w -exit && cd ../`;

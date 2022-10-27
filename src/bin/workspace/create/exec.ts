@@ -90,18 +90,18 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
     mkdirSync(path);
     process.chdir(path);
     
+    // copy and render all the other repository files
+    await copyTemplate(answers);
+    
     // create package.json
     packageJsonBuilder(answers);
      
     // add .npmrc to allow login in out npm registry
     const registry = await getRegistry(npmScope);
     writeFileSync('.npmrc', buildNpmrc(registry, 'managementAccount'));
-    
+
     // setup git
     await setupGit(answers);
-
-    // copy and render all the other repository files
-    await copyTemplate(answers);
 
     logger.success(':pizza: :beer: Workspace creato! :top: :top:');
     logger.log('Setup workspace completo. Esegui');

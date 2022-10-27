@@ -18,21 +18,21 @@ async function copyTemplate(answers) {
     const templatePath = (0, path_1.join)(__dirname, './templates');
     // search all files in template
     const files = await promiseGlob('./**/*', { dot: true, cwd: templatePath });
-    const excludeFiels = ['package.json'];
+    const excludeFiels = ['./package.json'];
     // render and save out all the found files.
     // Package.json is omitted since is managed by other code
     for (const file of files) {
         // do not process some files
-        if (excludeFiels.includes(file))
-            continue;
-        const template = fs_1.default.readFileSync((0, path_1.join)(templatePath, file)).toString();
-        const rendered = ejs_1.default.render(template, answers);
-        const finalFileName = (0, path_1.join)(process.cwd(), file.replace('.ejs', ''));
-        const dir = (0, path_1.dirname)(finalFileName);
-        if (!fs_1.default.existsSync(dir)) {
-            fs_1.default.mkdirSync(dir, { recursive: true });
+        if (!excludeFiels.includes(file)) {
+            const template = fs_1.default.readFileSync((0, path_1.join)(templatePath, file)).toString();
+            const rendered = ejs_1.default.render(template, answers);
+            const finalFileName = (0, path_1.join)(process.cwd(), file.replace('.ejs', ''));
+            const dir = (0, path_1.dirname)(finalFileName);
+            if (!fs_1.default.existsSync(dir)) {
+                fs_1.default.mkdirSync(dir, { recursive: true });
+            }
+            fs_1.default.writeFileSync(finalFileName, rendered);
         }
-        fs_1.default.writeFileSync(finalFileName, rendered);
     }
 }
 exports.copyTemplate = copyTemplate;

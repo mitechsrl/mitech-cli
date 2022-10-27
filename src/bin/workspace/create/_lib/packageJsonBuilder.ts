@@ -11,7 +11,7 @@ export function packageJsonBuilder(answers: GenericObject){
     const packageJson = JSON.parse(readFileSync(join(__dirname,'./templates/package.json')).toString());
 
     packageJson.name = answers.name,
-    packageJson.workspaces = [packageJson.workspaces, ...answers.subpackages.map((s:GenericObject) => s.dir)],
+    packageJson.workspaces = [...packageJson.workspaces, ...answers.subpackages.map((s:GenericObject) => s.dir)],
 
     packageJson.scripts = Object.assign(
         answers.subpackages.reduce((acc: GenericObject, p: GenericObject) => {

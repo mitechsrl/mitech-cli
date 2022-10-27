@@ -78,6 +78,8 @@ const exec = async (argv) => {
     // create the dir and move into it
     (0, fs_1.mkdirSync)(path);
     process.chdir(path);
+    // copy and render all the other repository files
+    await (0, copyTemplate_1.copyTemplate)(answers);
     // create package.json
     (0, packageJsonBuilder_1.packageJsonBuilder)(answers);
     // add .npmrc to allow login in out npm registry
@@ -85,8 +87,6 @@ const exec = async (argv) => {
     (0, fs_1.writeFileSync)('.npmrc', (0, npm_1.buildNpmrc)(registry, 'managementAccount'));
     // setup git
     await (0, setupGit_1.setupGit)(answers);
-    // copy and render all the other repository files
-    await (0, copyTemplate_1.copyTemplate)(answers);
     logger_1.logger.success(':pizza: :beer: Workspace creato! :top: :top:');
     logger_1.logger.log('Setup workspace completo. Esegui');
     logger_1.logger.log('> cd ' + answers.name);
