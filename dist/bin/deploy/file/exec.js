@@ -17,7 +17,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = require("fs");
-const inquirer_1 = __importDefault(require("inquirer"));
 const path_1 = __importDefault(require("path"));
 const logger_1 = require("../../../lib/logger");
 const ssh_1 = require("../../../lib/ssh");
@@ -26,6 +25,7 @@ const types_1 = require("../../../types");
 const createPackage_1 = require("./_lib/createPackage");
 const uuid_1 = require("uuid");
 const deployScript_1 = require("../_lib/deployScript");
+const confirm_1 = require("../../../lib/confirm");
 const exec = async (argv) => {
     const target = await (0, targets_1.getTarget)();
     if (!target)
@@ -47,12 +47,7 @@ const exec = async (argv) => {
     }
     logger_1.logger.log('Carico ' + toUpload + ' in RemoteAppsFolder/' + destination);
     // Conferma per essere sicuri
-    const response = await inquirer_1.default.prompt({
-        type: 'confirm',
-        name: 'yes',
-        message: toUpload + ' verrà deployato sul target selezionato. Continuare?'
-    });
-    if (!response.yes) {
+    if (!await (0, confirm_1.confirm)(argv, toUpload + ' verrà deployato sul target selezionato. Continuare?')) {
         logger_1.logger.error('Deploy abortito');
         return;
     }

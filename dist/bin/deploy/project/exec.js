@@ -18,6 +18,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const inquirer_1 = __importDefault(require("inquirer"));
 const path_1 = __importDefault(require("path"));
+const confirm_1 = require("../../../lib/confirm");
 const logger_1 = require("../../../lib/logger");
 const mitechCliFile_1 = require("../../../lib/mitechCliFile");
 const targets_1 = require("../../../lib/targets");
@@ -125,12 +126,8 @@ const exec = async (argv) => {
             if (result.aborted) {
                 logger_1.logger.info(`Deploy di ${project.name}/${deployment.name} abortito`);
                 // this deploy was aborted. Should we continue?
-                const response = await inquirer_1.default.prompt({
-                    type: 'confirm',
-                    name: 'yes',
-                    message: 'Continuare con i restanti deploy?'
-                });
-                if (!response.yes) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                if (!await (0, confirm_1.confirm)({}, 'Continuare con i restanti deploy?')) {
                     return;
                 }
             }

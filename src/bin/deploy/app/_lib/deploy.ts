@@ -26,6 +26,7 @@ import { throwOnDeployErrorError } from './deployError';
 import { throwOnFatalError } from '../../_lib/fatalError';
 import { downloadBackupFile } from '../../_lib/backupFile';
 import { listUptimeChecks } from './listUptimeChecks';
+import { confirm } from '../../../../lib/confirm';
 
 /**
  * deploy the app at the proces.cwd() path to the remote target
@@ -66,20 +67,9 @@ export async function deploy (target: SshTarget, params: yargs.ArgumentsCamelCas
     let packageName = packageJson.name;
     if (packageName.split('/').length > 1) { packageName = packageName.split('/')[1]; }
 
-    const autoYes = params.y as boolean;
-
-    if (!autoYes) {
-        // Conferma per essere sicuri
-        const response = await inquirer.prompt({
-            type: 'confirm',
-            name: 'yes',
-            message: packageJson.name + ' verrà deployato sul target selezionato. Continuare?'
-        });
-
-        if (!response.yes) {
-            returnValue.aborted = true;
-            return returnValue;
-        }
+    if (! await confirm(params, packageJson.name + ' verrà deployato sul target selezionato. Continuare?')){
+        returnValue.aborted = true;
+        return returnValue;
     }
 
     // compress the cwd() folder

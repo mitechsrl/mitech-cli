@@ -68,9 +68,9 @@ function loadFile() {
         if (fs.existsSync(jsFilename)) {
             try {
                 return { file: jsFilename, content: require(jsFilename) } as MitechCliFile;
-            } catch (e) {
-                logger.error(e);
-                return undefined;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } catch (e: any) {
+                throw new StringError(e.message.split('\n')[0]+'\nVerifica sintassi del tuo file '+jsFilename);
             }
         }
 
@@ -79,9 +79,9 @@ function loadFile() {
             if (fs.existsSync(filename)) {
                 try {
                     return { file: filename, content: JSON.parse(fs.readFileSync(filename).toString()) } as MitechCliFile;
-                } catch (e) {
-                    logger.error(e);
-                    return undefined;
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                } catch (e: any) {
+                    throw new StringError(e.message+'\nVerifica sintassi del tuo file '+jsFilename);
                 }
             }
         }
@@ -114,7 +114,7 @@ export function getMitechCliFile() {
 
     const f = loadFile();
     if (!f) {
-        throw new StringError('Nessun file .mitechcli trovato');
+        throw new StringError('Nessun file .mitechcli[.js|.json] trovato');
     }
 
     ensureNameUniqueness(f);

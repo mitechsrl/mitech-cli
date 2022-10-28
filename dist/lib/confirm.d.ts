@@ -12,4 +12,4 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 import yargs from 'yargs';
-export declare function confirm(argv: yargs.ArgumentsCamelCase<{}>, message: string): Promise<any>;
+export declare function confirm(argv: yargs.ArgumentsCamelCase<unknown>, message: string): Promise<any>;

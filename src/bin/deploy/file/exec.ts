@@ -13,7 +13,6 @@
  */
 
 import { existsSync } from 'fs';
-import inquirer from 'inquirer';
 import path from 'path';
 import yargs from 'yargs';
 import { logger } from '../../../lib/logger';
@@ -23,6 +22,7 @@ import { CommandExecFunction, StringError } from '../../../types';
 import { createPackage } from './_lib/createPackage';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadAndInstallDeployScript } from '../_lib/deployScript';
+import { confirm } from '../../../lib/confirm';
 
 const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>) => {
     const target = await getTarget();
@@ -51,12 +51,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
     logger.log('Carico ' + toUpload + ' in RemoteAppsFolder/' + destination);
 
     // Conferma per essere sicuri
-    const response = await inquirer.prompt({
-        type: 'confirm',
-        name: 'yes',
-        message: toUpload + ' verrà deployato sul target selezionato. Continuare?'
-    });
-    if (!response.yes) {
+    if (! await confirm(argv, toUpload + ' verrà deployato sul target selezionato. Continuare?')){
         logger.error('Deploy abortito');
         return;
     }

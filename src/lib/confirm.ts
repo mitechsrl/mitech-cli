@@ -15,7 +15,7 @@
 import yargs from 'yargs';
 import inquirer from 'inquirer';
 
-export async function confirm(argv: yargs.ArgumentsCamelCase<{}>, message:string){
+export async function confirm(argv: yargs.ArgumentsCamelCase<unknown>, message:string){
     if (argv.y) return true;
     
     const response = await inquirer.prompt({

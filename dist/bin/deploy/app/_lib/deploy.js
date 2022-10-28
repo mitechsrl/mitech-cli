@@ -18,7 +18,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deploy = void 0;
 const fs_1 = require("fs");
-const inquirer_1 = __importDefault(require("inquirer"));
 const path_1 = __importDefault(require("path"));
 const logger_1 = require("../../../../lib/logger");
 const ssh_1 = require("../../../../lib/ssh");
@@ -30,6 +29,7 @@ const deployError_1 = require("./deployError");
 const fatalError_1 = require("../../_lib/fatalError");
 const backupFile_1 = require("../../_lib/backupFile");
 const listUptimeChecks_1 = require("./listUptimeChecks");
+const confirm_1 = require("../../../../lib/confirm");
 /**
  * deploy the app at the proces.cwd() path to the remote target
  * Throws an error in case of fail
@@ -66,18 +66,9 @@ async function deploy(target, params) {
     if (packageName.split('/').length > 1) {
         packageName = packageName.split('/')[1];
     }
-    const autoYes = params.y;
-    if (!autoYes) {
-        // Conferma per essere sicuri
-        const response = await inquirer_1.default.prompt({
-            type: 'confirm',
-            name: 'yes',
-            message: packageJson.name + ' verrà deployato sul target selezionato. Continuare?'
-        });
-        if (!response.yes) {
-            returnValue.aborted = true;
-            return returnValue;
-        }
+    if (!await (0, confirm_1.confirm)(params, packageJson.name + ' verrà deployato sul target selezionato. Continuare?')) {
+        returnValue.aborted = true;
+        return returnValue;
     }
     // compress the cwd() folder
     const projectTar = await (0, createPackage_1.createPackage)();

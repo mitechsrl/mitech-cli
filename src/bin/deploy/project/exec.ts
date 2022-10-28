@@ -15,6 +15,7 @@
 import inquirer from 'inquirer';
 import path from 'path';
 import yargs from 'yargs';
+import { confirm } from '../../../lib/confirm';
 import { logger } from '../../../lib/logger';
 import { getMitechCliFile } from '../../../lib/mitechCliFile';
 import { decodeTarget, printTarget } from '../../../lib/targets';
@@ -133,12 +134,11 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
                 logger.info(`Deploy di ${project.name}/${deployment.name} abortito`);
 
                 // this deploy was aborted. Should we continue?
-                const response = await inquirer.prompt({
-                    type: 'confirm',
-                    name: 'yes',
-                    message: 'Continuare con i restanti deploy?'
-                });
-                if (!response.yes) { return; }
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                if (! await confirm({} as any, 'Continuare con i restanti deploy?')){
+                    return;
+                }
+              
             }
 
             // deploy complete

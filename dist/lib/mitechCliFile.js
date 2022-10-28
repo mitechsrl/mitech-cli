@@ -20,7 +20,6 @@ exports.getMitechCliFile = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const types_1 = require("../types");
-const logger_js_1 = require("./logger.js");
 /*
 Example of mitechcli file
 {
@@ -71,10 +70,10 @@ function loadFile() {
         if (fs_1.default.existsSync(jsFilename)) {
             try {
                 return { file: jsFilename, content: require(jsFilename) };
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
             }
             catch (e) {
-                logger_js_1.logger.error(e);
-                return undefined;
+                throw new types_1.StringError(e.message.split('\n')[0] + '\nVerifica sintassi del tuo file ' + jsFilename);
             }
         }
         for (const extension of ['', '.json']) {
@@ -82,10 +81,10 @@ function loadFile() {
             if (fs_1.default.existsSync(filename)) {
                 try {
                     return { file: filename, content: JSON.parse(fs_1.default.readFileSync(filename).toString()) };
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 }
                 catch (e) {
-                    logger_js_1.logger.error(e);
-                    return undefined;
+                    throw new types_1.StringError(e.message + '\nVerifica sintassi del tuo file ' + jsFilename);
                 }
             }
         }
@@ -115,7 +114,7 @@ function ensureNameUniqueness(f) {
 function getMitechCliFile() {
     const f = loadFile();
     if (!f) {
-        throw new types_1.StringError('Nessun file .mitechcli trovato');
+        throw new types_1.StringError('Nessun file .mitechcli[.js|.json] trovato');
     }
     ensureNameUniqueness(f);
     return f;
