@@ -65,11 +65,11 @@ async function runLinuxConfiguration(session, configDirectory) {
         }
     }
     // update e upgrade preventivo del sistema
-    logger_1.logger.log('Eseguo <sudo apt update>');
-    await session.command('sudo apt update');
+    logger_1.logger.log('Eseguo <sudo apt update>...');
+    await session.command('sudo apt update', false);
     // install dos2unix per evitare problemi di \r\n su server quando si caricano i files creati da windows
-    logger_1.logger.log('Eseguo <sudo apt install dos2unix>');
-    await session.command('sudo apt install dos2unix');
+    logger_1.logger.log('Eseguo <sudo apt install dos2unix>...');
+    await session.command('sudo apt install dos2unix', false);
     // lancio comandi configurazione
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const linuxCmds = require(path_1.default.join(mode.dir + '/commands.js')).default;

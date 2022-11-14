@@ -66,12 +66,12 @@ export async function runLinuxConfiguration(session:SshSession, configDirectory:
     }
  
     // update e upgrade preventivo del sistema
-    logger.log('Eseguo <sudo apt update>');
-    await session.command('sudo apt update');
+    logger.log('Eseguo <sudo apt update>...');
+    await session.command('sudo apt update',false);
  
     // install dos2unix per evitare problemi di \r\n su server quando si caricano i files creati da windows
-    logger.log('Eseguo <sudo apt install dos2unix>');
-    await session.command('sudo apt install dos2unix');
+    logger.log('Eseguo <sudo apt install dos2unix>...');
+    await session.command('sudo apt install dos2unix', false);
  
     // lancio comandi configurazione
     // eslint-disable-next-line @typescript-eslint/no-var-requires

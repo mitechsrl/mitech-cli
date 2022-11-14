@@ -26,6 +26,7 @@ async function command(session: SshSession, answers:GenericObject){
     const json = JSON.parse(result.output.trim());
     logger.log('');
     logger.log('Blocchi trovati');
+
     const sdX = json.blockdevices.filter((blockDevice:GenericObject) => {
         // considera solo sdX
         const isSdX = blockDevice.name.startsWith('sd');
@@ -47,7 +48,9 @@ async function command(session: SshSession, answers:GenericObject){
     if (sdX.length === 0){
         throw new StringError('Impossibile trovare un disco valido vuoto da utilizzare. Nessuno dei blocchi rilevati sembra appartenere ad un disco non formatato');
     }
+
     // Chiedi all'utente il blocco da usare
+    // Questa lista è già filtrata e mostra solo i blocchi non formattati (cosi non rischiamo di disintegrare altri dischi in uso!)
     const blockDevices = [
         {
             name:'blockdevice',

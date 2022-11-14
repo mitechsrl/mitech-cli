@@ -17,10 +17,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
+const confirm_1 = require("../../../../lib/confirm");
+const logger_1 = require("../../../../lib/logger");
 const runTargetConfiguration_1 = require("../../../../lib/runTargetConfiguration");
 const targets_1 = require("../../../../lib/targets");
 const presetupCheckConfirm_1 = require("../../pre-setup/presetupCheckConfirm");
 const exec = async (argv) => {
+    logger_1.logger.warn('ATTENZIONE! Questa procedura configura un disco aggiuntivo NUOVO, ed esegue una FORMATTAZIONE del disco in questione. Non usare questa procedura per connettere un disco già popolato!!');
+    if (!await (0, confirm_1.confirm)(argv, 'Continuare?')) {
+        return;
+    }
     const target = await (0, targets_1.getTarget)();
     (0, targets_1.printTarget)(target);
     if (!target)

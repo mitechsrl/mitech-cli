@@ -14,12 +14,19 @@
 
 import path from 'path';
 import yargs from 'yargs';
+import { confirm } from '../../../../lib/confirm';
+import { logger } from '../../../../lib/logger';
 import { runTargetConfiguration } from '../../../../lib/runTargetConfiguration';
 import { getTarget, printTarget } from '../../../../lib/targets';
 import { CommandExecFunction } from '../../../../types';
 import { presetupCheckConfirm } from '../../pre-setup/presetupCheckConfirm';
    
 const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>) => {
+    logger.warn('ATTENZIONE! Questa procedura configura un disco aggiuntivo NUOVO, ed esegue una FORMATTAZIONE del disco in questione. Non usare questa procedura per connettere un disco già popolato!!');
+    if (!await confirm(argv, 'Continuare?')){
+        return;
+    }
+    
     const target = await getTarget();
     printTarget(target);
 

@@ -36,7 +36,7 @@ async function command(session, answers) {
         const haveChilren = blockDevice.children && blockDevice.children.length > 0;
         // print some info
         if (isSdX) {
-            logger_1.logger.log(`-- /dev/${blockDevice.name} (${blockDevice.size}) ---------------- ${isOsDisk ? 'disco-os' : ''} ${haveChilren ? 'gia-formattato' : ''}`);
+            logger_1.logger.log(`--- /dev/${blockDevice.name} (${blockDevice.size}) ---------------- ${isOsDisk ? 'disco-os' : ''} ${haveChilren ? 'gia-formattato' : ''}`);
             (blockDevice.children || []).forEach((element) => {
                 logger_1.logger.log(` '--- /dev/${element.name} (${element.size})`);
             });
@@ -48,6 +48,7 @@ async function command(session, answers) {
         throw new types_1.StringError('Impossibile trovare un disco valido vuoto da utilizzare. Nessuno dei blocchi rilevati sembra appartenere ad un disco non formatato');
     }
     // Chiedi all'utente il blocco da usare
+    // Questa lista è già filtrata e mostra solo i blocchi non formattati (cosi non rischiamo di disintegrare altri dischi in uso!)
     const blockDevices = [
         {
             name: 'blockdevice',
