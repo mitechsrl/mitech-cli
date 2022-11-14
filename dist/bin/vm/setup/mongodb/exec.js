@@ -16,25 +16,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const inquirer_1 = __importDefault(require("inquirer"));
 const path_1 = __importDefault(require("path"));
-const logger_1 = require("../../../../lib/logger");
 const runTargetConfiguration_1 = require("../../../../lib/runTargetConfiguration");
 const targets_1 = require("../../../../lib/targets");
+const presetupCheckConfirm_1 = require("../../pre-setup/presetupCheckConfirm");
 const exec = async (argv) => {
     const target = await (0, targets_1.getTarget)();
     (0, targets_1.printTarget)(target);
     if (!target)
         return;
-    const answers = await inquirer_1.default.prompt([{
-            type: 'confirm',
-            name: 'confirm',
-            message: 'Hai verificato la compatibilità del setup con <mitech vm pre-setup>?'
-        }]);
-    if (answers.confirm !== true) {
-        logger_1.logger.error('Verifica prima la compatibilità.');
-        return;
-    }
+    // always make sure you can run sudo commands without entering password
+    await (0, presetupCheckConfirm_1.presetupCheckConfirm)();
     await (0, runTargetConfiguration_1.runTargetConfiguration)(target, path_1.default.join(__dirname, './_configs'));
 };
 exports.default = exec;

@@ -28,4 +28,4 @@ export declare function uploadShfile(session: SshSession, srcFile: string, dstFi
  * @param {string} dstFile path dove piazzare if file su server remoto. Deve essere path assoluto.
  * @param {string[]} params parametri di esecuzione script su server remoto
  */
-export declare function uploadAndRunShFile(session: SshSession, srcFile: string, dstFile: string, params?: string[]): Promise<void>;
+export declare function uploadAndRunShFile(session: SshSession, srcFile: string, dstFile: string, params?: string[]): Promise<import("./ssh").SshCommandResult>;

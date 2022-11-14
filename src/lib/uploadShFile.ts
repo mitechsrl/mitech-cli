@@ -41,5 +41,5 @@ export async function uploadShfile (session: SshSession, srcFile: string, dstFil
 export async function uploadAndRunShFile (session:SshSession, srcFile: string, dstFile:string, params:string[] = []){
     await uploadShfile(session, srcFile, dstFile);
     const _p = params.length === 0 ? '' : (' ' + params.join(' '));
-    await session.command('sudo ' + dstFile + _p);
+    return await session.command('sudo ' + dstFile + _p);
 }

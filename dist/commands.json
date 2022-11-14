@@ -191,6 +191,11 @@
                         "children": []
                     },
                     {
+                        "cmd": "datadisk",
+                        "file": "bin\\vm\\setup\\datadisk\\commandConfig.js",
+                        "children": []
+                    },
+                    {
                         "cmd": "mongodb",
                         "file": "bin\\vm\\setup\\mongodb\\commandConfig.js",
                         "children": []

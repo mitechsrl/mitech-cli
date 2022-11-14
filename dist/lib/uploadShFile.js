@@ -41,7 +41,7 @@ exports.uploadShfile = uploadShfile;
 async function uploadAndRunShFile(session, srcFile, dstFile, params = []) {
     await uploadShfile(session, srcFile, dstFile);
     const _p = params.length === 0 ? '' : (' ' + params.join(' '));
-    await session.command('sudo ' + dstFile + _p);
+    return await session.command('sudo ' + dstFile + _p);
 }
 exports.uploadAndRunShFile = uploadAndRunShFile;
 //# sourceMappingURL=uploadShFile.js.map

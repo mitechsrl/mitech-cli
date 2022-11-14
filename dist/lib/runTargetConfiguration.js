@@ -18,7 +18,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.runTargetConfiguration = void 0;
 const path_1 = __importDefault(require("path"));
-const logger_1 = require("./logger");
 const runLinuxConfiguration_1 = require("./runLinuxConfiguration");
 const ssh_1 = require("./ssh");
 /**
@@ -37,12 +36,18 @@ async function runTargetConfiguration(target, configPaths) {
         else {
             throw new Error('Setup script non disponibile per la piattaforma ' + JSON.stringify(session.os));
         }
+        if (session) {
+            session.disconnect();
+            session = null;
+        }
     }
     catch (error) {
-        logger_1.logger.error(error);
+        if (session) {
+            session.disconnect();
+            session = null;
+        }
+        throw error;
     }
-    if (session)
-        session.disconnect();
 }
 exports.runTargetConfiguration = runTargetConfiguration;
 //# sourceMappingURL=runTargetConfiguration.js.map

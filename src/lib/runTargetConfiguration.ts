@@ -33,9 +33,16 @@ export async function runTargetConfiguration (target :SshTarget, configPaths: st
         } else {
             throw new Error('Setup script non disponibile per la piattaforma ' + JSON.stringify(session.os));
         }
+        if (session){
+            session.disconnect();
+            session = null;
+        }
     } catch (error) {
-        logger.error(error);
+        if (session){
+            session.disconnect();
+            session = null;
+        }
+        throw error;
     }
-
-    if (session) session.disconnect();
+    
 }
