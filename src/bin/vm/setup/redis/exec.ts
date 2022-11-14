@@ -17,12 +17,16 @@ import yargs from 'yargs';
 import { runTargetConfiguration } from '../../../../lib/runTargetConfiguration';
 import { getTarget, printTarget } from '../../../../lib/targets';
 import { CommandExecFunction } from '../../../../types';
+import { presetupCheckConfirm } from '../../pre-setup/presetupCheckConfirm';
    
-const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => {
+const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>) => {
     const target = await getTarget();
     printTarget(target);
 
     if (!target) return;
+
+    // always make sure you can run sudo commands without entering password
+    await presetupCheckConfirm();
 
     await runTargetConfiguration(target, path.join(__dirname, './_configs'));
 };

@@ -15,7 +15,7 @@
 import path from 'path';
 import { SshTarget } from '../types';
 import { logger } from './logger';
-import { runLinuxConfiguration } from './runLinuxConiguration';
+import { runLinuxConfiguration } from './runLinuxConfiguration';
 import { createSshSession } from './ssh';
 
 /**

@@ -48,7 +48,9 @@ async function command(session, answers) {
         .then(() => {
         logger_1.logger.log('Avvio setup...');
         // escape for bash
-        const mongoPath = (answers.mongoPath || 'default').replace(/([^a-zA-Z0-9])/g, '\\' + '$1');
+        // const mongoPath = (answers.mongoPath || 'default').replace(/([^a-zA-Z0-9])/g, '\\' + '$1');
+        // fix slashes
+        const mongoPath = (answers.mongoPath || 'default').replace(/([\\/]+)/g, '/');
         return session.command('sudo /tmp/install_mongo.sh "' + mongoPath + '"');
     })
         .then(() => {

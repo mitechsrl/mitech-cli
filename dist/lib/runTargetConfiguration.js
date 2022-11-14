@@ -19,7 +19,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.runTargetConfiguration = void 0;
 const path_1 = __importDefault(require("path"));
 const logger_1 = require("./logger");
-const runLinuxConiguration_1 = require("./runLinuxConiguration");
+const runLinuxConfiguration_1 = require("./runLinuxConfiguration");
 const ssh_1 = require("./ssh");
 /**
  * Seleziona una configurazione dalla directory configPaths e la esegue su target remoto.
@@ -32,7 +32,7 @@ async function runTargetConfiguration(target, configPaths) {
     try {
         session = await (0, ssh_1.createSshSession)(target);
         if (session.os.linux) {
-            await (0, runLinuxConiguration_1.runLinuxConfiguration)(session, path_1.default.join(configPaths, './linux'));
+            await (0, runLinuxConfiguration_1.runLinuxConfiguration)(session, path_1.default.join(configPaths, './linux'));
         }
         else {
             throw new Error('Setup script non disponibile per la piattaforma ' + JSON.stringify(session.os));

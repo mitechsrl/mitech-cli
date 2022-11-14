@@ -56,7 +56,7 @@ then
 echo "Mongo path is default"
 else
 echo "Mongo path is $MONGOPATH";
-sed -i "s/dbPath:.*/dbPath: $MONGOPATH/g" /etc/mongod.conf
+sed -i "s#dbPath:.*#dbPath: $MONGOPATH#g" /etc/mongod.conf
 fi
 
 # launch service

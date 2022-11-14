@@ -58,7 +58,7 @@ else
 echo "Mongo path is $MONGOPATH";
 mkdir $MONGOPATH
 chmod 777 $MONGOPATH
-sed -i "s/dbPath:.*/dbPath: $MONGOPATH/g" /etc/mongod.conf
+sed -i "s#dbPath:.*#dbPath: $MONGOPATH#g" /etc/mongod.conf
 fi
 
 # sed "s/dbPath:.*/dbPath: \/demo/g" ./mongod.cfg
