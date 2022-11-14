@@ -19,7 +19,7 @@ import { getTarget, printTarget } from '../../../../lib/targets';
 import { CommandExecFunction } from '../../../../types';
 import { presetupCheckConfirm } from '../../pre-setup/presetupCheckConfirm';
     
-const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => {
+const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>) => {
     const target = await getTarget();
     printTarget(target);
     if (!target) return;

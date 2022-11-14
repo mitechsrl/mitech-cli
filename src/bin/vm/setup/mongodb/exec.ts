@@ -12,16 +12,14 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
-import inquirer from 'inquirer';
 import path from 'path';
 import yargs from 'yargs';
-import { logger } from '../../../../lib/logger';
 import { runTargetConfiguration } from '../../../../lib/runTargetConfiguration';
 import { getTarget, printTarget } from '../../../../lib/targets';
 import { CommandExecFunction } from '../../../../types';
 import { presetupCheckConfirm } from '../../pre-setup/presetupCheckConfirm';
      
-const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => {
+const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>) => {
     const target = await getTarget();
     printTarget(target);
 
