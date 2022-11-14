@@ -32,26 +32,30 @@ Per creare un nuovo comando è quindi necessario creare una cartella in **/bin/p
 ```js
 import { Command } from '../../types';
 
+// src\types\command.ts
 const config: Command = {
     description: 'Utility gestione target remoti pm2',
     exec: './exec', // file da eseguire al lancio del comando. Corrisponde a exec.ts
     longHelp:'Mostrami come body du quando l\'utente usa -h',
-    params: [/*inserisci qui i parametri come voluti da yargs*/]
+    params: [] // Array di parametri CMD da gestire. Vedi command.ts per info
 };
 
 export default config;
 ```
 
-Aggiungere quindi il file di **exec** (exec.ts in questo caso )
+Aggiungere quindi il file di **exec** (exec.ts in questo caso)
 ```js
 import yargs from 'yargs';
 import { logger } from '../../lib/logger';
 import { CommandExecFunction } from '../../types';
 
-const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => {
+const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>) => {
+    // argv contiene i parametri processati.
+    // Inserire qui la propria implementazione 
     logger.warn('Sono stato eseguito');
 };
 
+//export funzione come default per essere chiamata dal gestore dei comandi.
 export default exec;
 ```
 
@@ -83,7 +87,7 @@ Per aggiungere un target oppure creare un file ex-novo, usa **mitech ssh targets
 
 ## Comandi disponibili
 
-Digita **mitech -h** per la lista dei comandi di primo livello. Puoi usare poi **mitech comando -h** per ottenre risorsivamente la lista dei comandi di secondo livello e così via.
+Digita **mitech -h** per la lista dei comandi di primo livello. Puoi usare poi **mitech comando -h** per ottenere ricorsivamente la lista dei comandi di secondo livello e così via.
 
 ## Encrypt locale password
 La cli memorizza le password in modo criptato all'interno dei file .mitechcli, ma la password per il crypt/decrypt viene gestita tramite vaiabili di ambiente, in modo da facilitare l'utente nell'esecuzione dei comandi.
@@ -123,4 +127,4 @@ mitech deploy app // carica l'app hello-world-app e la avvia (o riavvia se già 
 
 
 ## Licenza
-Questo pacchetto è distribuito sotto licenza [WFTPL](./LICENSE). [http://www.wtfpl.net/]http://www.wtfpl.net/. 
+Questo pacchetto è distribuito sotto licenza [WFTPL](./LICENSE), [http://www.wtfpl.net/](http://www.wtfpl.net/). 
