@@ -121,9 +121,9 @@ Array di oggetti, ognuno dei quali definisce un [target](#concetto-del-target) c
     "port": 22, // porta ssh
     "username": "server-username", // server username. Deve supportare sudo senza password.
     "accessType": "sshKey", // sshKey oppure password
-    "sshKey": "file.pem", // necessario se accessType = sshKey
+    "sshKey": "file.pem", // necessario solo se accessType = "sshKey"
     "password":{
-        // oggetto definizione password. E' oggetto criptato, vedi "#Encrypt locale password". Non si specifica come creare l'oggetto manualmente, crearlo tramite "mitech ssh tragets add"
+        // oggetto definizione password, necessario solo se accessType="password". E' oggetto criptato, vedi "#Encrypt locale password". Non si specifica come creare l'oggetto manualmente, crearlo tramite "mitech ssh tragets add"
     },
     "nodeUser": "onit", // user processi onit
     "activate": false // Non ricordo a cosa serve?????
@@ -140,9 +140,9 @@ TODO
 La cli è fatta in modo da caricare dinamicamente come comandi i nomi delle cartelle presenti in bin/
 
 esempio:
-- **mitech publish** esegue lo script configurato in **/bin/publish**
-- **mitech publish test** esegue lo script configurato in **/bin/publish/test**
-- **mitech publish test -p 1 -c 3 -d 4** esegue lo script configurato in **/bin/publish/test** passando i parametri **-p 1 -c 3 -d 4**
+- **mitech publish** esegue la configurazione definita in **/bin/publish/commandConfig.ts**
+- **mitech publish test** esegue la configurazione definita in  **/bin/publish/test/commandConfig.ts**
+- **mitech publish test -p 1 -c 3 -d 4** esegue la configurazione definita in  **/bin/publish/test/commandConfig.ts** passando alla funzione di **exec** l'oggetto **argv** pari a ```{p:1,c:3, d:4}```
 
 Per creare un nuovo comando è quindi necessario creare una cartella in **/bin/path/del/comando** e inserire in esso un file **commandConfig.ts** che abbia la seguente struttura:
 
@@ -160,7 +160,8 @@ const config: Command = {
 export default config;
 ```
 
-Aggiungere quindi il file di **exec** (exec.ts in questo caso)
+Aggiungere quindi il file definito alla proprietà **exec** del file **commandConfig.ts** (exec.ts in questo caso)
+
 ```js
 import yargs from 'yargs';
 import { logger } from '../../lib/logger';
@@ -175,6 +176,8 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
 //export funzione come default per essere chiamata dal gestore dei comandi.
 export default exec;
 ```
+
+Una volta aggiunto i comando, esegui ```npm run build``` per eseguire la build typescript.
 
 ## Howto's
 
