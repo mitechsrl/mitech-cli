@@ -16,6 +16,7 @@ import inquirer from 'inquirer';
 import { GenericObject, StringError } from '../types';
 import { logger } from './logger';
 import { getPersistent, setPersistent } from './persistent';
+import os from 'os';
 
 export type NpmRegistry = {
     scope?: string,
@@ -30,7 +31,7 @@ export type NpmRegistry = {
 };
 
 // windows fa il windows percui lui vuole 'npm.cmd' anzichè 'npm' come comando di avvio
-const isWindows = (process.env.OS || '').toUpperCase().includes('WIN');
+const isWindows = os.platform() === 'win32';
 export const npmExecutable = isWindows ? 'npm.cmd' : 'npm';
 
 /**

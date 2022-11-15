@@ -22,6 +22,7 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const child_process_1 = require("child_process");
 const logger_1 = require("./logger");
+const os_1 = __importDefault(require("os"));
 /**
  * Esegue escaping di un comando doppi abici e backslash per essere usabili innestati in altri comandi
  */
@@ -283,7 +284,8 @@ exports.createSshSession = createSshSession;
  * @param {*} target
  */
 function interativeClient(target, params) {
-    const isWindows = (process.env.OS || '').toUpperCase().includes('WIN');
+    const isWindows = os_1.default.platform() === 'win32';
+    const isLinux = os_1.default.platform() === 'linux';
     if (isWindows) {
         const finalCmd = [];
         // prepare putty command
@@ -310,19 +312,22 @@ function interativeClient(target, params) {
         ssh.unref();
         return;
     }
-    // con chiave ssh
-    // ssh username@host -p port -i ssh_cert
-    // con password: occorre sshpass
-    // sshpass -p  "Your_Server_Password" ssh user@host -p port
-    if (target.accessType === 'sshKey') {
-        logger_1.logger.warn('Per uscire, digita \'exit\'');
-        const finalCmd = [target.username + '@' + target.host, '-p', target.port.toString(), '-i', target.sshKey];
-        // TODO: verificare pipe VS inherit
-        const ssh = (0, child_process_1.spawn)('ssh', finalCmd, { stdio: 'inherit', detached: false });
-        ssh.on('close', () => {
-            process.exit();
-        });
-        return;
+    if (isLinux) {
+        // con chiave ssh
+        // ssh username@host -p port -i ssh_cert
+        if (target.accessType === 'sshKey') {
+            logger_1.logger.warn('Per uscire, digita \'exit\'');
+            const finalCmd = [target.username + '@' + target.host, '-p', target.port.toString(), '-i', target.sshKey];
+            // TODO: verificare pipe VS inherit
+            const ssh = (0, child_process_1.spawn)('ssh', finalCmd, { stdio: 'inherit', detached: false });
+            ssh.on('close', () => {
+                process.exit();
+            });
+            return;
+        }
+        // con password: occorre sshpass, ma non voglio forzare l'utente a installare tool esterni!
+        // sshpass -p  "Your_Server_Password" ssh user@host -p port
+        throw new Error('Client ssh con credenzialu username+password non supportato su linux.');
     }
     throw new Error('Implementare client ssh per questa piattaforma!');
 }

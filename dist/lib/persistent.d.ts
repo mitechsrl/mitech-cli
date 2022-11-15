@@ -12,7 +12,8 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 import { GenericObject } from '../types';
-export declare const baseConfigDir: string;
+declare let baseConfigDir: string;
+export { baseConfigDir };
 /**
  *
  * @param key

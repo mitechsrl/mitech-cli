@@ -18,7 +18,7 @@ import path from 'path';
 import { spawn } from 'child_process';
 import { GenericObject, SshTarget } from '../types';
 import { logger } from './logger';
-
+import os from 'os';
 /**
  * 
  */
@@ -317,7 +317,8 @@ export async function createSshSession(target: SshTarget): Promise<SshSession> {
  */
 export function interativeClient(target: SshTarget, params: string[]){
     
-    const isWindows = (process.env.OS || '').toUpperCase().includes('WIN');
+    const isWindows = os.platform() === 'win32';
+    const isLinux = os.platform() === 'linux';
 
     if (isWindows) {
         const finalCmd: string[] = [];
@@ -351,21 +352,26 @@ export function interativeClient(target: SshTarget, params: string[]){
         return;
     }
 
-    // con chiave ssh
-    // ssh username@host -p port -i ssh_cert
-    // con password: occorre sshpass
-    // sshpass -p  "Your_Server_Password" ssh user@host -p port
-    if (target.accessType==='sshKey'){
-        logger.warn('Per uscire, digita \'exit\'');
-        const finalCmd: string[] = [target.username+'@'+target.host, '-p', target.port.toString(), '-i', target.sshKey!];
-        // TODO: verificare pipe VS inherit
-        const ssh = spawn( 'ssh', finalCmd, { stdio: 'inherit', detached: false } );
-        ssh.on('close', () => {
-            process.exit();
-        });
-        return;
+    if (isLinux){
+        // con chiave ssh
+        // ssh username@host -p port -i ssh_cert
+        if (target.accessType==='sshKey'){
+            logger.warn('Per uscire, digita \'exit\'');
+            const finalCmd: string[] = [target.username+'@'+target.host, '-p', target.port.toString(), '-i', target.sshKey!];
+            // TODO: verificare pipe VS inherit
+            const ssh = spawn( 'ssh', finalCmd, { stdio: 'inherit', detached: false } );
+            ssh.on('close', () => {
+                process.exit();
+            });
+            return;
+        }
+
+        // con password: occorre sshpass, ma non voglio forzare l'utente a installare tool esterni!
+        // sshpass -p  "Your_Server_Password" ssh user@host -p port
+        throw new Error('Client ssh con credenzialu username+password non supportato su linux.');
+
     }
-    
+
     throw new Error('Implementare client ssh per questa piattaforma!');
    
 }

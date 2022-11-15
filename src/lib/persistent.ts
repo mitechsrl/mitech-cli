@@ -15,8 +15,17 @@
 import fs from 'fs';
 import path from 'path';
 import { GenericObject } from '../types';
+import os from 'os';
 
-export const baseConfigDir = path.join(process.env.APPDATA as string, './mitech-cli');
+const isWindows = os.platform() === 'win32';
+let baseConfigDir = '';
+if (isWindows){
+    baseConfigDir = path.join(process.env.APPDATA as string, './.mitech-cli');
+}else{
+    baseConfigDir = path.join(os.homedir(), './.mitech-cli' );
+}
+
+export { baseConfigDir };
 
 /**
  * Check existence of dir for a gven key.

@@ -19,14 +19,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.setPersistent = exports.getPersistent = exports.baseConfigDir = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-exports.baseConfigDir = path_1.default.join(process.env.APPDATA, './mitech-cli');
+const os_1 = __importDefault(require("os"));
+const isWindows = os_1.default.platform() === 'win32';
+let baseConfigDir = '';
+exports.baseConfigDir = baseConfigDir;
+if (isWindows) {
+    exports.baseConfigDir = baseConfigDir = path_1.default.join(process.env.APPDATA, './.mitech-cli');
+}
+else {
+    exports.baseConfigDir = baseConfigDir = path_1.default.join(os_1.default.homedir(), './.mitech-cli');
+}
 /**
  * Check existence of dir for a gven key.
  * If not available, the dir is created
  * @param key
  */
 function checkDir(key) {
-    const mitechCliDbPath = exports.baseConfigDir;
+    const mitechCliDbPath = baseConfigDir;
     if (!fs_1.default.existsSync(mitechCliDbPath)) {
         fs_1.default.mkdirSync(mitechCliDbPath);
     }
@@ -45,7 +54,7 @@ function checkDir(key) {
  */
 function getPersistent(key, filename) {
     checkDir(key);
-    let _filename = exports.baseConfigDir;
+    let _filename = baseConfigDir;
     if (key) {
         _filename = path_1.default.join(_filename, './' + key);
     }
@@ -67,7 +76,7 @@ exports.getPersistent = getPersistent;
  */
 function setPersistent(key, obj, filename) {
     checkDir(key);
-    let _filename = exports.baseConfigDir;
+    let _filename = baseConfigDir;
     if (key) {
         _filename = path_1.default.join(_filename, './' + key);
     }
