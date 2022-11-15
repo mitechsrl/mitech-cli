@@ -15,11 +15,81 @@ npm link
 ## Run
 Digita **mitech** in console per vedere l'help.
 
-### Comandi help
-Aggiungendo in **qualsiasi** comando il parametro **-h**, la cli mostra l'help per quel comando, saltando l'esecuzione dello stesso
+## Comandi
+
+**Nota help**: Aggiungendo in **qualsiasi** comando il parametro **-h**, la cli mostra l'help per quel comando, saltando l'esecuzione dello stesso. Vengono anche mostrati eventuali sottocomandi con loro descrizioni.
+
+### mitech pm2
+Proxy verso PM2 remoto. Digita un qualsiasi comando dopo *pm2* ed esso viene eseguito su un target remoto.
+Vedi [documentazione pm2](https://pm2.io/docs/runtime/reference/pm2-cli/) su comandi utilizzabili.
+
+**esempio**
+```mitech pm2 logs``` esegue il comando ```pm2 logs``` su un target remoto via ssh e ne mostra il risultato
+
+### mitech cscli
+Proxy verso cscli remoto. Digita un qualsiasi comando dopo *cscli* ed esso viene eseguito su un target remoto.
+Vedi [documentazione cscli](https://docs.crowdsec.net/docs/cscli/cscli/#see-also) su comandi utilizzabili.
+
+**esempio**
+```mitech cscli alerts``` esegue il comando ```cscli alerts``` su un target remoto via ssh e ne mostra il risultato
 
 
-### Aggiungere comandi
+### mitech git merged
+Verifica lo stato di merge di una branch specifica all'interno del repository locale
+
+### mitech git unmerged
+Visualizza la lista di branch non ancora mergiate nel repository locale
+
+### mitech git updated
+Visualizza la lista di commit eseguite dall'ultimo tag. Se non vi sono commit, signigica che la build corrispondente al tag selezionato contiene tutte le modifiche e non è necessario rieseguire una ulteriore build
+
+### mitech workspace create
+Crea un workspace npm alla directory corrente.
+
+### mitech ssh connect
+Avvia una sessione ssh interattiva verso un target selezionato. E' neessario eseguire questo comando all'interno di una directory contenente un file **.mitechcli** 
+
+### mitech ssh targets add
+Crea un target nel file [.mitechcli](#file-.mitechcli) alla directory corrente
+
+
+## Concetto del 'target'
+
+Gran parte dell'ecosistema si basa su controllo remoto tramite ssh. Target identifica quindi il server remoto verso il quale eseguire la connessione ssh e i comandi stessi.
+
+La cli gestisce i targets tramite un file **.mitechcli.json** che può essere creato in una qualsiasi cartella. All'interno di questo file la cli va a inseire una struttura come segue:
+
+```
+{
+    targets:[{                 
+        name: string,
+        host: string,
+        ...
+    },{                 
+        name: string,
+        host: string,
+        ...
+    }]
+}
+```
+
+ogni qualvolta si lancia la cli in una directory contenente un file simile, viene mostrata la selezione del target voluto tra quelli listati nel file. Nel caso esista un solo target, la cli usa in automatico quello.
+
+La lista dei targets usabili può essere visualizzata con **mitech ssh targets**
+
+Per aggiungere un target oppure creare un file ex-novo, usa **mitech ssh targets add**
+
+## Encrypt locale password
+La cli memorizza le password in modo criptato all'interno dei file .mitechcli, ma la password per il crypt/decrypt viene gestita tramite vaiabili di ambiente, in modo da facilitare l'utente nell'esecuzione dei comandi.
+
+Inserire nelle variabili di ambiente dell'utente corrente (tramite utility dedicata del proprio OS) la chiave **MitechCliEncryptionKey** valorizzata con una propria password
+
+NOTA: se si presentano problematiche di case sensitivity, process.env.MITECHCLIENCRYPTIONKEY e  process.env.mitechcliencryptionkey vengono altresi riconosciute
+
+## File .mitechcli
+TODO
+
+## Aggiungere comandi
 La cli è fatta in modo da caricare dinamicamente come comandi i nomi delle cartelle presenti in bin/
 
 esempio:
@@ -58,43 +128,6 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
 //export funzione come default per essere chiamata dal gestore dei comandi.
 export default exec;
 ```
-
-### Concetto del 'target'
-
-Gran parte dell'ecosistema si basa su controllo remoto tramite ssh. Target identifica quindi il server remoto verso il quale eseguire la connessione ssh e i comandi stessi.
-
-La cli gestisce i targets tramite un file **.mitechcli.json** che può essere creato in una qualsiasi cartella. All'interno di questo file la cli va a inseire una struttura come segue:
-
-```
-{
-    targets:[{                 
-        name: string,
-        host: string,
-        ...
-    },{                 
-        name: string,
-        host: string,
-        ...
-    }]
-}
-```
-
-ogni qualvolta si lancia la cli in una directory contenente un file simile, viene mostrata la selezione del target voluto tra quelli listati nel file. Nel caso esista un solo target, la cli usa in automatico quello.
-
-La lista dei targets usabili può essere visualizzata con **mitech ssh targets**
-
-Per aggiungere un target oppure creare un file ex-novo, usa **mitech ssh targets add**
-
-## Comandi disponibili
-
-Digita **mitech -h** per la lista dei comandi di primo livello. Puoi usare poi **mitech comando -h** per ottenere ricorsivamente la lista dei comandi di secondo livello e così via.
-
-## Encrypt locale password
-La cli memorizza le password in modo criptato all'interno dei file .mitechcli, ma la password per il crypt/decrypt viene gestita tramite vaiabili di ambiente, in modo da facilitare l'utente nell'esecuzione dei comandi.
-
-Inserire nelle variabili di ambiente dell'utente corrente (tramite utility dedicata del proprio OS) la chiave **MitechCliEncryptionKey** valorizzata con una propria password
-
-NOTA: se si presentano problematiche di case sensitivity, process.env.MITECHCLIENCRYPTIONKEY e  process.env.mitechcliencryptionkey vengono altresi riconosciute
 
 ## Howto's
 
