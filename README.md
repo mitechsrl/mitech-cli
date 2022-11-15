@@ -80,31 +80,40 @@ La lista dei targets usabili può essere visualizzata con **mitech ssh targets**
 Per aggiungere un target oppure creare un file ex-novo, usa **mitech ssh targets add**
 
 ## Encrypt locale password
-La cli memorizza le password in modo criptato all'interno dei file [.mitechcli](#file-mitechcli), ma la password per il crypt/decrypt viene gestita tramite vaiabili di ambiente, in modo da facilitare l'utente nell'esecuzione dei comandi.
+La cli memorizza le password in modo criptato all'interno dei file [.mitechcli](#file-mitechcli), in modo da non avere password in chiaro su filesystem.
+La password per il crypt/decrypt viene gestita tramite vaiabili di ambiente, in modo da facilitare l'utente nell'esecuzione dei comandi.
 
-Inserire nelle variabili di ambiente dell'utente corrente (tramite utility dedicata del proprio OS) la chiave **MitechCliEncryptionKey** valorizzata con una propria password
+Inserire nelle variabili di ambiente dell'utente corrente (tramite utility dedicata del proprio OS) la chiave **MitechCliEncryptionKey** valorizzata con una propria password.
 
-NOTA: se si presentano problematiche di case sensitivity, process.env.MITECHCLIENCRYPTIONKEY e  process.env.mitechcliencryptionkey vengono altresi riconosciute
+NOTA 1: se si presentano problematiche di case sensitivity, **process.env.MITECHCLIENCRYPTIONKEY** e **process.env.mitechcliencryptionkey** vengono altresi riconosciute.
+
+NOTA 2: Se si vuole utilizzare la password custom, crearla il prima posibile poichè se cambiata DOPO averla già utilizzata per codificare valori, si perde l'abilità di decodifica su credenziali vecchie.
 
 ## File .mitechcli
 Il file .mitchcli permette la configurazione di alcuni comandi.
 
-la cli accetta diversi formati per questo file:
-- .mitechcli.json: file testuale contenente un oggetto json
-- .mitechcli: come mitechcli.json
-- .mitechcli.js: file javascript, deve esportare come unico elemento un oggetto json ```module.exports = {...}```.
+La cli accetta diversi formati e filenames per questo file:
+- **.mitechcli.json**: file testuale contenente un oggetto json
+- **.mitechcli**: come mitechcli.json
+- **.mitechcli.js**: file javascript, deve esportare come unico elemento un oggetto json ```module.exports = {...}```.
+
+La cli verifica la presenza del file nelle directory (rispettivamente, in ordine di precedenza) di esecuzione, padre e nonno.
 
 Il file può essere creato in automatico (ad esempio tramite mitech ssh targets add), e presenta una struttura simile a
 
 ```json
 {   
-    "projects": [],
-    "targets": []
+    "projects": [], // vedi sotto
+    "targets": [] // vedi sotto
 }
 ```
+### Nota su staging/commit
 
-#### targets
-Definisce i [target](#concetto-del-target) configurati in questa directory. Ogni target segu la struttura definita come
+Tale file potrebbe contenere valori dipendenti dall'environment locale (come ad esempio path di chiavi ssh) pertanto è pressochè proibito il commit di tale file eccetto il caso in cui non vi siano tali dipendenze (in caso contrario chi fa pull riceverebbe files con path molto probabilmente invalidi sul proprio pc).
+
+Prestare attenzione caso per caso alla fatibilità o meno della cosa.
+### targets
+Array di oggetti, ognuno dei quali definisce un [target](#concetto-del-target) configurato in questa directory. Ogni target segue la struttura definita come:
 ```json
 {
     "name": "ferroli-db-server", // stringa generica
@@ -114,10 +123,10 @@ Definisce i [target](#concetto-del-target) configurati in questa directory. Ogni
     "accessType": "sshKey", // sshKey oppure password
     "sshKey": "file.pem", // necessario se accessType = sshKey
     "password":{
-        // oggetto definizione password. é oggetto criptato, vedi "#Encrypt locale password". Non si specifica come creare l'oggetto manualmente, creare questo oggetto tramite "mitech ssh tragets add"
+        // oggetto definizione password. E' oggetto criptato, vedi "#Encrypt locale password". Non si specifica come creare l'oggetto manualmente, crearlo tramite "mitech ssh tragets add"
     },
     "nodeUser": "onit", // user processi onit
-    "activate": false // ??
+    "activate": false // Non ricordo a cosa serve?????
 },
 ```
 
