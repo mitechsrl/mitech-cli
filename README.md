@@ -79,24 +79,93 @@ Utility chiamabile automaticamente per aggiornare la dipendenza di un determinat
 Verifica che l'utenza **username** specificata nel file [.mitechcli](#file-mitechcli) abbia i permessi necessari all'esecuzione dei comandi di setup VM. 
 
 ### mitech vm download
-### mitech vm maintenance disable
 ### mitech vm maintenance enable
+Attiva la modalità maintenance di un [target](#concetto-del-target) remoto.
+
+Quendo un server è in modalità manutenzione, nginx mostra una pagina placeholder a tutti i clients eccetto quelli provenienti dai seguenti ip:
+- ip connessione di chi ha eseguito il comando
+- ip server vpn mitech
+
+NOTA 1: richiede configurazione specifica di nginx, creata in automatico nei setup piu recenti. I setup piu vecchi richiedono verifica ed eventuale update per supportare questa modalità.
+NOTA 2: la pagina web caricata e mostrata all'utente è modificabile, i files risiedono nella directory **src\bin\vm\maintenance\enable\_html_files**
+
+### mitech vm maintenance disable
+Disattiva la modalità manutenzione.
+
 ### mitech vm os
+Visualizza sistema operativo di un [target](#concetto-del-target) remoto.
+
 ### mitech vm reboot
+Esegue reboot del [target](#concetto-del-target) remoto.
+
 ### mitech vm setup node
+Esegue setup dell'environment node su un [target](#concetto-del-target) remoto.
+
+Tipicamente questo corrisponde a:
+- install node
+- install+setup nginx
+- install pm2
+- creazione utente dedicato a apps node (username onit tipicamente)
+
 ### mitech vm setup mongodb
+Esegue setup mongodb su [target](#concetto-del-target) remoto.
+
+Questa operazione esegue tipicamente:
+- install+setup mongodb
+- creazione di un user amministratore "admin" e uno dedicato alle app node con permessi piu limitati
+  
 ### mitech vm setup redis
+Esegue setup redis su [target](#concetto-del-target) remoto.
+
+Questa operazione esegue tipicamente:
+- install redis
+- abilitazione autenticazione con set password in config redis
+  
 ### mitech vm setup datadisk
+Esgue setup di un disco dati aggiuntivo su [target](#concetto-del-target) remoto.
+NOTA: Il disco deve essere già connesso alla macchina, si rimanda alla documentazione Azure su [come aggiungere un disco dati gestito](https://learn.microsoft.com/it-it/azure/virtual-machines/windows/attach-managed-disk-portal#add-a-data-disk). La parte di inizializzazione è automatizzata da qesto comando.
+
 ### mitech vm setup crowdsec
+Esegue setup di crowdsec su [target](#concetto-del-target) remoto.
+
 ### mitech vm setup certbot
+Attiva SSL su [target](#concetto-del-target) remoto tramite certbot. I certificati certbot sono gratuiti e di validità trimestrale, rinnovati automaticamente.
+
+Vedi [Certbot](https://certbot.eff.org/) per maggiori info
+
 ### mitech vm shutdown
+Esegue shutdown del [target](#concetto-del-target) remoto. 
+NOTA AZURE: Questo comando non dealloca la macchina, pertanto non è seguita da una sospensione dei costi. Per sospendere i costi, occorre stoppare la macchina via web su [https://portal.azure.com](https://portal.azure.com)
+
 ### mitech vm uptime
+Mostra uptime di un [target](#concetto-del-target) remoto. 
+
 ### mitech deploy app
+Esegue il deploy dell'app NodeJS alla directory corrente su un [target](#concetto-del-target).
+NOTA: L'app deve essere descritta nel corrispettivo file **ecosystem.conig.json** altrimenti non verrà avviata. Si consiglia pertanrto di eseguire questo comando DOPO il deploy del file pm2.
+
 ### mitech deploy backups list
+Visualizza la lista di backup di apps disponibili su [target](#concetto-del-target) remoto.
+
+NOTA BACKUP: Il backup di una app viene eseguita in fase di deploy, subito prima del caricamento della nuova app.
+Il backup contiene tutta la directory dell'app caricata, inclusa directory node_modules, pertanto per un futuro restore è sufficiente scompattare il file nella directory di destinazione senza dover rieseguire npm install.
+
 ### mitech deploy backups restore
+Esegue il restore di un backup di un app su [target](#concetto-del-target) remoto.
+
 ### mitech deploy file
+Copia files o directories su [target](#concetto-del-target) remoto.
+Per default, il comando copia i files nella directory delle apps node. Usa i parametri di questo comando per personalizzare le directory di copia.
+
 ### mitech deploy pm2
+Copia il file ecosystem.config.json su  [target](#concetto-del-target) remoto.
+
+Per default non viene eseguito nessun riavvio delle app descritte nel file, se necessario utilizzare i parametri del comando per farlo.
+
 ### mitech deploy project
+Esegue il deploy multiplo di un progetto, automatizzando il deploy di più app su più [targets](#concetto-del-target) remoti.
+
+Questo comando necessita della configurazione **projects** nel [file .mitechcli](#file-mitechcli). Vedi sezione [projects](#projects) per maggiori info
 
 ## Concetto del target
 
