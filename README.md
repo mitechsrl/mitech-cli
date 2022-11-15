@@ -79,14 +79,17 @@ Utility chiamabile automaticamente per aggiornare la dipendenza di un determinat
 Verifica che l'utenza **username** specificata nel file [.mitechcli](#file-mitechcli) abbia i permessi necessari all'esecuzione dei comandi di setup VM. 
 
 ### mitech vm download
+Copia un file da un [target](#concetto-del-target) remoto alla macchina locale.
+
 ### mitech vm maintenance enable
 Attiva la modalità maintenance di un [target](#concetto-del-target) remoto.
 
-Quendo un server è in modalità manutenzione, nginx mostra una pagina placeholder a tutti i clients eccetto quelli provenienti dai seguenti ip:
+Quando un server è in modalità manutenzione, nginx mostra una pagina placeholder a tutti i clients eccetto quelli provenienti dai seguenti ip:
 - ip connessione di chi ha eseguito il comando
 - ip server vpn mitech
 
-NOTA 1: richiede configurazione specifica di nginx, creata in automatico nei setup piu recenti. I setup piu vecchi richiedono verifica ed eventuale update per supportare questa modalità.
+NOTA 1: E' richiesta configurazione specifica di nginx, creata in automatico nei setup piu recenti. I setup piu vecchi richiedono verifica ed eventuale update per supportare questa modalità.
+
 NOTA 2: la pagina web caricata e mostrata all'utente è modificabile, i files risiedono nella directory **src\bin\vm\maintenance\enable\_html_files**
 
 ### mitech vm maintenance disable
@@ -123,6 +126,7 @@ Questa operazione esegue tipicamente:
   
 ### mitech vm setup datadisk
 Esgue setup di un disco dati aggiuntivo su [target](#concetto-del-target) remoto.
+
 NOTA: Il disco deve essere già connesso alla macchina, si rimanda alla documentazione Azure su [come aggiungere un disco dati gestito](https://learn.microsoft.com/it-it/azure/virtual-machines/windows/attach-managed-disk-portal#add-a-data-disk). La parte di inizializzazione è automatizzata da qesto comando.
 
 ### mitech vm setup crowdsec
@@ -134,7 +138,8 @@ Attiva SSL su [target](#concetto-del-target) remoto tramite certbot. I certifica
 Vedi [Certbot](https://certbot.eff.org/) per maggiori info
 
 ### mitech vm shutdown
-Esegue shutdown del [target](#concetto-del-target) remoto. 
+Esegue shutdown del [target](#concetto-del-target) remoto.
+
 NOTA AZURE: Questo comando non dealloca la macchina, pertanto non è seguita da una sospensione dei costi. Per sospendere i costi, occorre stoppare la macchina via web su [https://portal.azure.com](https://portal.azure.com)
 
 ### mitech vm uptime
@@ -142,6 +147,7 @@ Mostra uptime di un [target](#concetto-del-target) remoto.
 
 ### mitech deploy app
 Esegue il deploy dell'app NodeJS alla directory corrente su un [target](#concetto-del-target).
+
 NOTA: L'app deve essere descritta nel corrispettivo file **ecosystem.conig.json** altrimenti non verrà avviata. Si consiglia pertanrto di eseguire questo comando DOPO il deploy del file pm2.
 
 ### mitech deploy backups list
