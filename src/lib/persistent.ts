@@ -20,7 +20,10 @@ import os from 'os';
 const isWindows = os.platform() === 'win32';
 let baseConfigDir = '';
 if (isWindows){
-    baseConfigDir = path.join(process.env.APPDATA as string, './.mitech-cli');
+    // La prima implementazione funzionava solo su windows e usava APPDATA per memorizzare info locali. 
+    // Con il senno di poi sarebbe stato meglio usare os.homedir() per essere uguale ovunque e non richiedere 
+    // questo if... vabbè amen!
+    baseConfigDir = path.join(process.env.APPDATA as string, './mitech-cli');
 }else{
     baseConfigDir = path.join(os.homedir(), './.mitech-cli' );
 }
