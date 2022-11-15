@@ -1,25 +1,25 @@
 [
     {
         "cmd": "cscli",
-        "file": "bin\\cscli\\commandConfig.js",
+        "file": "bin/cscli/commandConfig.js",
         "children": []
     },
     {
         "cmd": "db",
-        "file": "bin\\db\\commandConfig.js",
+        "file": "bin/db/commandConfig.js",
         "children": [
             {
                 "cmd": "dump",
-                "file": "bin\\db\\dump\\commandConfig.js",
+                "file": "bin/db/dump/commandConfig.js",
                 "children": []
             },
             {
                 "cmd": "restore",
-                "file": "bin\\db\\restore\\commandConfig.js",
+                "file": "bin/db/restore/commandConfig.js",
                 "children": [
                     {
                         "cmd": "local",
-                        "file": "bin\\db\\restore\\local\\commandConfig.js",
+                        "file": "bin/db/restore/local/commandConfig.js",
                         "children": []
                     }
                 ]
@@ -28,103 +28,103 @@
     },
     {
         "cmd": "deploy",
-        "file": "bin\\deploy\\commandConfig.js",
+        "file": "bin/deploy/commandConfig.js",
         "children": [
             {
                 "cmd": "app",
-                "file": "bin\\deploy\\app\\commandConfig.js",
+                "file": "bin/deploy/app/commandConfig.js",
                 "children": []
             },
             {
                 "cmd": "backups",
-                "file": "bin\\deploy\\backups\\commandConfig.js",
+                "file": "bin/deploy/backups/commandConfig.js",
                 "children": [
                     {
                         "cmd": "list",
-                        "file": "bin\\deploy\\backups\\list\\commandConfig.js",
+                        "file": "bin/deploy/backups/list/commandConfig.js",
                         "children": []
                     },
                     {
                         "cmd": "restore",
-                        "file": "bin\\deploy\\backups\\restore\\commandConfig.js",
+                        "file": "bin/deploy/backups/restore/commandConfig.js",
                         "children": []
                     }
                 ]
             },
             {
                 "cmd": "file",
-                "file": "bin\\deploy\\file\\commandConfig.js",
+                "file": "bin/deploy/file/commandConfig.js",
                 "children": []
             },
             {
                 "cmd": "pm2",
-                "file": "bin\\deploy\\pm2\\commandConfig.js",
+                "file": "bin/deploy/pm2/commandConfig.js",
                 "children": []
             },
             {
                 "cmd": "project",
-                "file": "bin\\deploy\\project\\commandConfig.js",
+                "file": "bin/deploy/project/commandConfig.js",
                 "children": []
             }
         ]
     },
     {
         "cmd": "git",
-        "file": "bin\\git\\commandConfig.js",
+        "file": "bin/git/commandConfig.js",
         "children": [
             {
                 "cmd": "merged",
-                "file": "bin\\git\\merged\\commandConfig.js",
+                "file": "bin/git/merged/commandConfig.js",
                 "children": []
             },
             {
                 "cmd": "unmerged",
-                "file": "bin\\git\\unmerged\\commandConfig.js",
+                "file": "bin/git/unmerged/commandConfig.js",
                 "children": []
             },
             {
                 "cmd": "updated",
-                "file": "bin\\git\\updated\\commandConfig.js",
+                "file": "bin/git/updated/commandConfig.js",
                 "children": []
             }
         ]
     },
     {
         "cmd": "npm",
-        "file": "bin\\npm\\commandConfig.js",
+        "file": "bin/npm/commandConfig.js",
         "children": [
             {
                 "cmd": "add-dep",
-                "file": "bin\\npm\\add-dep\\commandConfig.js",
+                "file": "bin/npm/add-dep/commandConfig.js",
                 "children": []
             },
             {
                 "cmd": "authorize",
-                "file": "bin\\npm\\authorize\\commandConfig.js",
+                "file": "bin/npm/authorize/commandConfig.js",
                 "children": []
             },
             {
                 "cmd": "delete",
-                "file": "bin\\npm\\delete\\commandConfig.js",
+                "file": "bin/npm/delete/commandConfig.js",
                 "children": []
             },
             {
                 "cmd": "publish",
-                "file": "bin\\npm\\publish\\commandConfig.js",
+                "file": "bin/npm/publish/commandConfig.js",
                 "children": []
             },
             {
                 "cmd": "registry",
-                "file": "bin\\npm\\registry\\commandConfig.js",
+                "file": "bin/npm/registry/commandConfig.js",
                 "children": [
                     {
                         "cmd": "add",
-                        "file": "bin\\npm\\registry\\add\\commandConfig.js",
+                        "file": "bin/npm/registry/add/commandConfig.js",
                         "children": []
                     },
                     {
                         "cmd": "delete",
-                        "file": "bin\\npm\\registry\\delete\\commandConfig.js",
+                        "file": "bin/npm/registry/delete/commandConfig.js",
                         "children": []
                     }
                 ]
@@ -133,25 +133,25 @@
     },
     {
         "cmd": "pm2",
-        "file": "bin\\pm2\\commandConfig.js",
+        "file": "bin/pm2/commandConfig.js",
         "children": []
     },
     {
         "cmd": "ssh",
-        "file": "bin\\ssh\\commandConfig.js",
+        "file": "bin/ssh/commandConfig.js",
         "children": [
             {
                 "cmd": "connect",
-                "file": "bin\\ssh\\connect\\commandConfig.js",
+                "file": "bin/ssh/connect/commandConfig.js",
                 "children": []
             },
             {
                 "cmd": "targets",
-                "file": "bin\\ssh\\targets\\commandConfig.js",
+                "file": "bin/ssh/targets/commandConfig.js",
                 "children": [
                     {
                         "cmd": "add",
-                        "file": "bin\\ssh\\targets\\add\\commandConfig.js",
+                        "file": "bin/ssh/targets/add/commandConfig.js",
                         "children": []
                     }
                 ]
@@ -160,99 +160,99 @@
     },
     {
         "cmd": "vm",
-        "file": "bin\\vm\\commandConfig.js",
+        "file": "bin/vm/commandConfig.js",
         "children": [
             {
                 "cmd": "download",
-                "file": "bin\\vm\\download\\commandConfig.js",
+                "file": "bin/vm/download/commandConfig.js",
                 "children": []
             },
             {
                 "cmd": "maintenance",
-                "file": "bin\\vm\\maintenance\\commandConfig.js",
+                "file": "bin/vm/maintenance/commandConfig.js",
                 "children": [
                     {
                         "cmd": "disable",
-                        "file": "bin\\vm\\maintenance\\disable\\commandConfig.js",
+                        "file": "bin/vm/maintenance/disable/commandConfig.js",
                         "children": []
                     },
                     {
                         "cmd": "enable",
-                        "file": "bin\\vm\\maintenance\\enable\\commandConfig.js",
+                        "file": "bin/vm/maintenance/enable/commandConfig.js",
                         "children": []
                     }
                 ]
             },
             {
                 "cmd": "os",
-                "file": "bin\\vm\\os\\commandConfig.js",
+                "file": "bin/vm/os/commandConfig.js",
                 "children": []
             },
             {
                 "cmd": "pre-setup",
-                "file": "bin\\vm\\pre-setup\\commandConfig.js",
+                "file": "bin/vm/pre-setup/commandConfig.js",
                 "children": []
             },
             {
                 "cmd": "reboot",
-                "file": "bin\\vm\\reboot\\commandConfig.js",
+                "file": "bin/vm/reboot/commandConfig.js",
                 "children": []
             },
             {
                 "cmd": "setup",
-                "file": "bin\\vm\\setup\\commandConfig.js",
+                "file": "bin/vm/setup/commandConfig.js",
                 "children": [
                     {
                         "cmd": "certbot",
-                        "file": "bin\\vm\\setup\\certbot\\commandConfig.js",
+                        "file": "bin/vm/setup/certbot/commandConfig.js",
                         "children": []
                     },
                     {
                         "cmd": "crowdsec",
-                        "file": "bin\\vm\\setup\\crowdsec\\commandConfig.js",
+                        "file": "bin/vm/setup/crowdsec/commandConfig.js",
                         "children": []
                     },
                     {
                         "cmd": "datadisk",
-                        "file": "bin\\vm\\setup\\datadisk\\commandConfig.js",
+                        "file": "bin/vm/setup/datadisk/commandConfig.js",
                         "children": []
                     },
                     {
                         "cmd": "mongodb",
-                        "file": "bin\\vm\\setup\\mongodb\\commandConfig.js",
+                        "file": "bin/vm/setup/mongodb/commandConfig.js",
                         "children": []
                     },
                     {
                         "cmd": "node",
-                        "file": "bin\\vm\\setup\\node\\commandConfig.js",
+                        "file": "bin/vm/setup/node/commandConfig.js",
                         "children": []
                     },
                     {
                         "cmd": "redis",
-                        "file": "bin\\vm\\setup\\redis\\commandConfig.js",
+                        "file": "bin/vm/setup/redis/commandConfig.js",
                         "children": []
                     }
                 ]
             },
             {
                 "cmd": "shutdown",
-                "file": "bin\\vm\\shutdown\\commandConfig.js",
+                "file": "bin/vm/shutdown/commandConfig.js",
                 "children": []
             },
             {
                 "cmd": "uptime",
-                "file": "bin\\vm\\uptime\\commandConfig.js",
+                "file": "bin/vm/uptime/commandConfig.js",
                 "children": []
             }
         ]
     },
     {
         "cmd": "workspace",
-        "file": "bin\\workspace\\commandConfig.js",
+        "file": "bin/workspace/commandConfig.js",
         "children": [
             {
                 "cmd": "create",
-                "file": "bin\\workspace\\create\\commandConfig.js",
+                "file": "bin/workspace/create/commandConfig.js",
                 "children": []
             }
         ]
