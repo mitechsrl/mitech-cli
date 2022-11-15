@@ -70,6 +70,15 @@ async function getMongotoolsDirWindows(){
 }
 
 /**
+ * Check availability of mongo tools on linux
+ * There's too much variability for different distros, We let the user install himself mongotools for his platform
+ */
+async function checkMongoToolsLinux(file: string){
+    if (!fs.existsSync(file)){
+        throw new StringError('Mongo tools non trovati. Vedi https://www.mongodb.com/docs/database-tools/installation/installation-linux/ per info');
+    }
+}
+/**
  * Get the path to the mongodump tool. 
  * On windows, mongotools is a separate packages of executables not shipped with mongodb.
  * To hide the need to have them, a local copy is downloaded on the fly from mongodb website
@@ -77,11 +86,16 @@ async function getMongotoolsDirWindows(){
  * @returns 
  */
 export async function getMongodumpBinPath(){
-    if(os.type().toLowerCase().indexOf('windows')>=0){
+    if(os.platform() === 'win32'){
         return path.join(await getMongotoolsDirWindows(),'./mongodump.exe');
     }
 
-    throw new Error('getMongodumpBinPath not implemented for '+os.type());
+    if(os.platform() === 'linux'){
+        await checkMongoToolsLinux('/usr/bin/mongodump');
+        return '/usr/bin/mongodump';
+    }
+    
+    throw new Error('getMongodumpBinPath not implemented for '+os.platform());
 }
 
 /**
@@ -92,10 +106,15 @@ export async function getMongodumpBinPath(){
  * @returns 
  */
 export async function getMongorestoreBinPath(){
-    if(os.type().toLowerCase().indexOf('windows')>=0){
+    if(os.platform() === 'win32'){
         return path.join(await getMongotoolsDirWindows(),'./mongorestore.exe');
     }
 
+    if(os.platform() === 'linux'){
+        await checkMongoToolsLinux('/usr/bin/mongorestore');
+        return '/usr/bin/mongorestore';
+    }
+    
     throw new Error('getMongorestoreBinPath not implemented for '+os.type());
 }
 
