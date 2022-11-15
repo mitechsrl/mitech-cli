@@ -181,14 +181,14 @@ Esegue il deploy multiplo di un progetto, automatizzando il deploy di più app s
 Questo comando necessita della configurazione **projects** nel [file .mitechcli](#file-mitechcli). Vedi sezione [projects](#projects) per maggiori info
 
 ### mitech db dump
-Esegue dump di un database. Necessita di configurazione **db** nel file [file .mitechcli](#file-mitechcli). Vedi sezione [db](#db) per maggiori info.
+Esegue dump di un database. Necessita di configurazione **dbs** nel file [file .mitechcli](#file-mitechcli). Vedi sezione [dbs](#dbs) per maggiori info.
 
 Attualmente supportato: mongodb.
 
 Per il dump di mongodb il tool scarica in automatico e silentemente mongotools, pertanto non vi sono dipendenze particolari da insallare
 
 ### mitech db restore local
-Esegue restore di un database (precedentemente "dumpato" via *mitech db dump*) **con destinazione l'istanza locale del dbms**. Necessita di configurazione **db** nel file [file .mitechcli](#file-mitechcli). Vedi sezione [db](#db) per maggiori info.
+Esegue restore di un database (precedentemente "dumpato" via *mitech db dump*) **con destinazione l'istanza locale del dbms**. Necessita di configurazione **dsb** nel file [file .mitechcli](#file-mitechcli). Vedi sezione [dbs](#dbs) per maggiori info.
 
 Attualmente supportato: mongodb.
 
