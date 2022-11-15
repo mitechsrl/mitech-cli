@@ -1,7 +1,14 @@
 # Mitech-cli
-Mitech S.r.l. utility CLI
+<div align="center">
+
+![mitech-cli](./mitech-cli.png)
+
+Mitech S.r.l. utility CLI tool.
 
 Questo pacchetto fornisce il comando **mitech**, utility ad uso interno di Mitech S.r.L.
+
+</div>
+<hr>
 
 ## Prerequisiti
 E' richiesto l'uso di Node 12 o superiore
