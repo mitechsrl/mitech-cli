@@ -44,9 +44,22 @@ export type MitechCliFileContentProject = {
     deployments: { [k:string]: MitechCliFileContentProjectDeployment }
 };
 
+export type MitechCliFileContentDb = {
+    type?: string,
+    name?: string,
+    host?: string,
+    port?: string, // defaults 27017
+    username?: string,
+    password?:string,
+    tls?: boolean,
+    databaseNames?: string[],
+    dst?: string
+};
+
 export type MitechCliFileContent = {
     targets: SshTarget[],
-    projects: MitechCliFileContentProject[]
+    projects: MitechCliFileContentProject[],
+    db: MitechCliFileContentDb[]
 };
 
 export type MitechCliFile = {

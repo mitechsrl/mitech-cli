@@ -5,6 +5,28 @@
         "children": []
     },
     {
+        "cmd": "db",
+        "file": "bin\\db\\commandConfig.js",
+        "children": [
+            {
+                "cmd": "dump",
+                "file": "bin\\db\\dump\\commandConfig.js",
+                "children": []
+            },
+            {
+                "cmd": "restore",
+                "file": "bin\\db\\restore\\commandConfig.js",
+                "children": [
+                    {
+                        "cmd": "local",
+                        "file": "bin\\db\\restore\\local\\commandConfig.js",
+                        "children": []
+                    }
+                ]
+            }
+        ]
+    },
+    {
         "cmd": "deploy",
         "file": "bin\\deploy\\commandConfig.js",
         "children": [

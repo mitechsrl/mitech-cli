@@ -28,9 +28,21 @@ export declare type MitechCliFileContentProject = {
         [k: string]: MitechCliFileContentProjectDeployment;
     };
 };
+export declare type MitechCliFileContentDb = {
+    type?: string;
+    name?: string;
+    host?: string;
+    port?: string;
+    username?: string;
+    password?: string;
+    tls?: boolean;
+    databaseNames?: string[];
+    dst?: string;
+};
 export declare type MitechCliFileContent = {
     targets: SshTarget[];
     projects: MitechCliFileContentProject[];
+    db: MitechCliFileContentDb[];
 };
 export declare type MitechCliFile = {
     file: string;
