@@ -132,9 +132,51 @@ Array di oggetti, ognuno dei quali definisce un [target](#concetto-del-target) c
 
 #### projects
 
-Projects permette di configurare il comando *mitech deploy project*
+Projects permette di configurare il comando *mitech deploy project*.
 
-TODO
+Ogni elemento dell'array presenta la seguente struttura:
+
+```json
+{
+    // nome arbitrario mostrato in fase di selezione iniziale. Non è legato al nome dell'app, può anche essere "pippo"
+    "name": "onit-next",
+    
+    // versione hardcodata di --uptime-check onitVersion
+    // uptimeCheck: 'onitVersion',
+
+    // dipendenze globali. Queste vengono aggiunte ai package.json dei vari deployments.
+    // Stessa sintassi di dependencies in package.json
+    "commonDependencies": {
+        "express": "4.18.1"
+    },
+    // lo script chiede quali di questi deploy eseguire. Se si seleziona "tutti", vengono eseguiti tutti in sequenza.
+    // l'ordine è quello in cui compaiono qui
+    "deployments": {
+        "dab": {
+            // Nome del target da utilizzare per la connessione ssh.
+            // Deve eseguire match letterale con i nomi definiti nell'array targets del file .mitechcli
+            "target": "vm local",
+            "dependencies": {
+                // opzionali. Stessa sintassi di dependencies in package.json
+                // dipendenze specifiche. Queste vengono aggiunte al package.json presente in "path".
+                // Sovrascrivono eventuali commonDependencies
+                "debug": "4.3.4"
+            },
+            // path dell'app da deployare. Questa directory contiene il package.json + eventuali files da caricare sul server
+            "path": "./onit-material-certificates-dab-deployment/onit-next"
+        },
+        "marelli": {
+            "target": "vm local",
+            "path": "./onit-material-certificates-marelli-deployment/onit-next"
+        }
+    }
+}
+```
+
+Vedi la issue da cui è nata l'implementazione di questo comando per altre info: [https://github.com/mitechsrl/onit-next/issues/40](https://github.com/mitechsrl/onit-next/issues/40)
+
+Vedi un esempio di configurazione attiva nel depoloyment di prodocu: [https://github.com/mitechsrl/onit-prodocu-deployment/blob/Onit-V4/.mitechcli.js](https://github.com/mitechsrl/onit-prodocu-deployment/blob/Onit-V4/.mitechcli.js)
+
 
 ## Aggiungere comandi
 La cli è fatta in modo da caricare dinamicamente come comandi i nomi delle cartelle presenti in bin/
@@ -178,6 +220,8 @@ export default exec;
 ```
 
 Una volta aggiunto i comando, esegui ```npm run build``` per eseguire la build typescript.
+
+Committa anche i files nella directory dist, in modo da non dover rendere obbligatoria una build agli utenti utilizzatori (eseguendo pull si trovano i files della build già aggiornati)
 
 ## Howto's
 
