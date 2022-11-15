@@ -52,6 +52,51 @@ Avvia una sessione ssh interattiva verso un [target](#concetto-del-target) selez
 ### mitech ssh targets add
 Crea un target nel file [.mitechcli](#file-mitechcli) alla directory corrente
 
+### mitech npm registry
+Mostra la lista di registy npm configurati
+
+### mitech npm registry add
+Mostra prompt interattivo per aggiungere un registry npm
+
+### mitech npm registry delete
+Mostra prompt interattivo per eliminare un registry npm
+
+### mitech npm publish
+Pacchettizza la directory locale e pusha il tutto su un registry configurato.
+
+### mitech npm delete
+Elimina un pacchetto da un registry configurato
+
+ATTENZIONE: Eliminando il pacchetto, eventuali oeprazioni di ```npm install``` che dipendono da tale pacchetto falliranno in quanto non troveranno piu il pacchetto!
+
+### mitech npm authorize
+Crea nella directory corrente il file **.npmrc** che permette l'autenticazione verso il repository privato mitech
+
+### mitech npm add-dep
+Utility chiamabile automaticamente per aggiornare la dipendenza di un determinato pacchetto in un determinato file package.json. Tutti i valori sono passabili come parameri argv, digita **mitech npm add-dep -h** per piu info.
+
+### mitech vm pre-setup
+Verifica che l'utenza **username** specificata nel file [.mitechcli](#file-mitechcli) abbia i permessi necessari all'esecuzione dei comandi di setup VM. 
+
+### mitech vm download
+### mitech vm maintenance disable
+### mitech vm maintenance enable
+### mitech vm os
+### mitech vm reboot
+### mitech vm setup node
+### mitech vm setup mongodb
+### mitech vm setup redis
+### mitech vm setup datadisk
+### mitech vm setup crowdsec
+### mitech vm setup certbot
+### mitech vm shutdown
+### mitech vm uptime
+### mitech deploy app
+### mitech deploy backups list
+### mitech deploy backups restore
+### mitech deploy file
+### mitech deploy pm2
+### mitech deploy project
 
 ## Concetto del target
 
@@ -149,8 +194,9 @@ Ogni elemento dell'array presenta la seguente struttura:
     "commonDependencies": {
         "express": "4.18.1"
     },
-    // lo script chiede quali di questi deploy eseguire. Se si seleziona "tutti", vengono eseguiti tutti in sequenza.
-    // l'ordine è quello in cui compaiono qui
+    // Lo script chiede quali di questi deploy eseguire. Se si seleziona "tutti", vengono eseguiti tutti in sequenza.
+    // L'ordine è quello in cui compaiono qui.
+    // Le chiavi di questo oggetto sono nomi arbitrari, non è necessario che eseguano match con altri valori
     "deployments": {
         "dab": {
             // Nome del target da utilizzare per la connessione ssh.
