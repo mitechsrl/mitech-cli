@@ -1,4 +1,4 @@
-# Mitech-cli
+# Mitech CLI
 <div align="center">
 
 ![mitech-cli](./mitech-cli.png)
