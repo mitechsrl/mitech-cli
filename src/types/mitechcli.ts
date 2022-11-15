@@ -59,7 +59,7 @@ export type MitechCliFileContentDb = {
 export type MitechCliFileContent = {
     targets: SshTarget[],
     projects: MitechCliFileContentProject[],
-    db: MitechCliFileContentDb[]
+    dbs: MitechCliFileContentDb[]
 };
 
 export type MitechCliFile = {

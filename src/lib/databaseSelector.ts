@@ -57,10 +57,10 @@ export async function getDatabase(): Promise<MitechCliFileContentDb> {
     const mitechCliFile = getMitechCliFile();
 
     logger.info('Uso file: ' + mitechCliFile.file);
-    const databases = mitechCliFile.content.db ?? [];
+    const databases = mitechCliFile.content.dbs ?? [];
 
     if (databases.length === 0) {
-        throw new StringError('Nessun database disponibile');
+        throw new StringError('Nessun database disponibile. Aggiungi al tuo file .mitechcli la sezione <dbs>.');
     }
 
     let _t: MitechCliFileContentDb;
@@ -92,7 +92,7 @@ export async function getDatabase(): Promise<MitechCliFileContentDb> {
  */
 export function printDatabase(database: MitechCliFileContentDb) {
     if (!database) {
-        logger.warn('Nessun database correntemente attivo. Creane uno nel file .mitechcli');
+        logger.warn('Nessun database selezionato');
     } else {
         const separator = '─';
         const strings = [

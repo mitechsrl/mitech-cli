@@ -58,7 +58,7 @@ async function getDatabase() {
     logger_1.logger.info('Uso file: ' + mitechCliFile.file);
     const databases = (_a = mitechCliFile.content.db) !== null && _a !== void 0 ? _a : [];
     if (databases.length === 0) {
-        throw new types_1.StringError('Nessun database disponibile');
+        throw new types_1.StringError('Nessun database disponibile. Aggiungi al tuo file .mitechcli la sezione <db>.');
     }
     let _t;
     if (databases.length === 1) {
@@ -89,7 +89,7 @@ exports.getDatabase = getDatabase;
 function printDatabase(database) {
     var _a;
     if (!database) {
-        logger_1.logger.warn('Nessun database correntemente attivo. Creane uno nel file .mitechcli');
+        logger_1.logger.warn('Nessun database selezionato');
     }
     else {
         const separator = '─';

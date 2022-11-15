@@ -180,6 +180,20 @@ Esegue il deploy multiplo di un progetto, automatizzando il deploy di più app s
 
 Questo comando necessita della configurazione **projects** nel [file .mitechcli](#file-mitechcli). Vedi sezione [projects](#projects) per maggiori info
 
+### mitech db dump
+Esegue dump di un database. Necessita di configurazione **db** nel file [file .mitechcli](#file-mitechcli). Vedi sezione [db](#db) per maggiori info.
+
+Attualmente supportato: mongodb.
+
+Per il dump di mongodb il tool scarica in automatico e silentemente mongotools, pertanto non vi sono dipendenze particolari da insallare
+
+### mitech db restore local
+Esegue restore di un database (precedentemente "dumpato" via *mitech db dump*) **con destinazione l'istanza locale del dbms**. Necessita di configurazione **db** nel file [file .mitechcli](#file-mitechcli). Vedi sezione [db](#db) per maggiori info.
+
+Attualmente supportato: mongodb.
+
+Per il restore di mongodb il tool scarica in automatico e silentemente mongotools, pertanto non vi sono dipendenze particolari da insallare.
+
 ## Concetto del target
 
 Gran parte dell'ecosistema si basa su controllo remoto tramite ssh. Target identifica quindi il server remoto verso il quale eseguire la connessione ssh e i comandi stessi.
@@ -231,7 +245,8 @@ Il file può essere creato in automatico (ad esempio tramite mitech ssh targets 
 ```json
 {   
     "projects": [], // vedi sotto
-    "targets": [] // vedi sotto
+    "targets": [], // vedi sotto,
+    "dbs":[] // vedi sotto
 }
 ```
 ### Nota su staging/commit
@@ -305,6 +320,24 @@ Vedi la issue da cui è nata l'implementazione di questo comando per altre info:
 
 Vedi un esempio di configurazione attiva nel depoloyment di prodocu: [https://github.com/mitechsrl/onit-prodocu-deployment/blob/Onit-V4/.mitechcli.js](https://github.com/mitechsrl/onit-prodocu-deployment/blob/Onit-V4/.mitechcli.js)
 
+#### dbs
+Array di definizione dei database per abilitare l'uso dei comandi **mitech db dump** e **mitech db restore**.
+
+Ogni elemento dell'array mantiene una struttura pari a:
+
+```json
+{
+    "type": string, // Tipo di dbms. Ad ora supportato solo 'mongodb'
+    "name": string, // nome di questo db. Sringa arbitraria.
+    "host": string, // hostname del server su cui è attiva l'istanza mongo a cui connettersi
+    "port": string, // opzionale, defaults 27017
+    "username": string,  // opzionale, se omessa non avviene aujtenticazione
+    "password": string, // opzionale, se omessa non avviene aujtenticazione
+    "tls": boolean, // opzionale, se true usa tls per la connessione mongo
+    "databaseNames": string[], // opzionale, lista di database names da dumpare. Se omessa o lista vuota processa "tutti i db"
+    "dst": string // opzionale, directory destinazione dump, default ./
+};
+```
 
 ## Aggiungere comandi
 La cli è fatta in modo da caricare dinamicamente come comandi i nomi delle cartelle presenti in bin/
