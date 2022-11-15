@@ -47,17 +47,17 @@ Visualizza la lista di commit eseguite dall'ultimo tag. Se non vi sono commit, s
 Crea un workspace npm alla directory corrente.
 
 ### mitech ssh connect
-Avvia una sessione ssh interattiva verso un target selezionato. E' neessario eseguire questo comando all'interno di una directory contenente un file **.mitechcli** 
+Avvia una sessione ssh interattiva verso un [target](#concetto-del-target) selezionato. E' neessario eseguire questo comando all'interno di una directory contenente un file [.mitechcli](#file-mitechcli)
 
 ### mitech ssh targets add
-Crea un target nel file [.mitechcli](#file-.mitechcli) alla directory corrente
+Crea un target nel file [.mitechcli](#file-mitechcli) alla directory corrente
 
 
-## Concetto del 'target'
+## Concetto del target
 
 Gran parte dell'ecosistema si basa su controllo remoto tramite ssh. Target identifica quindi il server remoto verso il quale eseguire la connessione ssh e i comandi stessi.
 
-La cli gestisce i targets tramite un file **.mitechcli.json** che può essere creato in una qualsiasi cartella. All'interno di questo file la cli va a inseire una struttura come segue:
+La cli gestisce i targets tramite un file [.mitechcli](#file-mitechcli) che può essere creato in una qualsiasi cartella. All'interno di questo file la cli va a inseire una struttura come segue:
 
 ```
 {
@@ -80,13 +80,51 @@ La lista dei targets usabili può essere visualizzata con **mitech ssh targets**
 Per aggiungere un target oppure creare un file ex-novo, usa **mitech ssh targets add**
 
 ## Encrypt locale password
-La cli memorizza le password in modo criptato all'interno dei file .mitechcli, ma la password per il crypt/decrypt viene gestita tramite vaiabili di ambiente, in modo da facilitare l'utente nell'esecuzione dei comandi.
+La cli memorizza le password in modo criptato all'interno dei file [.mitechcli](#file-mitechcli), ma la password per il crypt/decrypt viene gestita tramite vaiabili di ambiente, in modo da facilitare l'utente nell'esecuzione dei comandi.
 
 Inserire nelle variabili di ambiente dell'utente corrente (tramite utility dedicata del proprio OS) la chiave **MitechCliEncryptionKey** valorizzata con una propria password
 
 NOTA: se si presentano problematiche di case sensitivity, process.env.MITECHCLIENCRYPTIONKEY e  process.env.mitechcliencryptionkey vengono altresi riconosciute
 
 ## File .mitechcli
+Il file .mitchcli permette la configurazione di alcuni comandi.
+
+la cli accetta diversi formati per questo file:
+- .mitechcli.json: file testuale contenente un oggetto json
+- .mitechcli: come mitechcli.json
+- .mitechcli.js: file javascript, deve esportare come unico elemento un oggetto json ```module.exports = {...}```.
+
+Il file può essere creato in automatico (ad esempio tramite mitech ssh targets add), e presenta una struttura simile a
+
+```json
+{   
+    "projects": [],
+    "targets": []
+}
+```
+
+#### targets
+Definisce i [target](#concetto-del-target) configurati in questa directory. Ogni target segu la struttura definita come
+```json
+{
+    "name": "ferroli-db-server", // stringa generica
+    "host": "name.server.com", // hostname del server remoto 
+    "port": 22, // porta ssh
+    "username": "server-username", // server username. Deve supportare sudo senza password.
+    "accessType": "sshKey", // sshKey oppure password
+    "sshKey": "file.pem", // necessario se accessType = sshKey
+    "password":{
+        // oggetto definizione password. é oggetto criptato, vedi "#Encrypt locale password". Non si specifica come creare l'oggetto manualmente, creare questo oggetto tramite "mitech ssh tragets add"
+    },
+    "nodeUser": "onit", // user processi onit
+    "activate": false // ??
+},
+```
+
+#### projects
+
+Projects permette di configurare il comando *mitech deploy project*
+
 TODO
 
 ## Aggiungere comandi
