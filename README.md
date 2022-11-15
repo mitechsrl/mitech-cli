@@ -188,7 +188,7 @@ Attualmente supportato: mongodb.
 Per il dump di mongodb il tool scarica in automatico e silentemente mongotools, pertanto non vi sono dipendenze particolari da insallare
 
 ### mitech db restore local
-Esegue restore di un database (precedentemente "dumpato" via *mitech db dump*) **con destinazione l'istanza locale del dbms**. Necessita di configurazione **dsb** nel file [file .mitechcli](#file-mitechcli). Vedi sezione [dbs](#dbs) per maggiori info.
+Esegue restore di un database (precedentemente "dumpato" via *mitech db dump*) **con destinazione l'istanza locale del dbms**. Necessita di configurazione **dbs** nel file [file .mitechcli](#file-mitechcli). Vedi sezione [dbs](#dbs) per maggiori info.
 
 Attualmente supportato: mongodb.
 

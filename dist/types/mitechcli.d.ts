@@ -42,7 +42,7 @@ export declare type MitechCliFileContentDb = {
 export declare type MitechCliFileContent = {
     targets: SshTarget[];
     projects: MitechCliFileContentProject[];
-    db: MitechCliFileContentDb[];
+    dbs: MitechCliFileContentDb[];
 };
 export declare type MitechCliFile = {
     file: string;

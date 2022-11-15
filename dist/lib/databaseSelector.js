@@ -56,9 +56,9 @@ async function getDatabase() {
     var _a;
     const mitechCliFile = (0, mitechCliFile_1.getMitechCliFile)();
     logger_1.logger.info('Uso file: ' + mitechCliFile.file);
-    const databases = (_a = mitechCliFile.content.db) !== null && _a !== void 0 ? _a : [];
+    const databases = (_a = mitechCliFile.content.dbs) !== null && _a !== void 0 ? _a : [];
     if (databases.length === 0) {
-        throw new types_1.StringError('Nessun database disponibile. Aggiungi al tuo file .mitechcli la sezione <db>.');
+        throw new types_1.StringError('Nessun database disponibile. Aggiungi al tuo file .mitechcli la sezione <dbs>.');
     }
     let _t;
     if (databases.length === 1) {
