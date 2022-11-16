@@ -100,7 +100,7 @@ export declare class SshSession {
 }
 export declare function createSshSession(target: SshTarget): Promise<SshSession>;
 /**
- * Lancia una sessione ssh interattiva. Su windows, viene aperto putty, su altri OS è da implementare.
+ * Lancia una sessione ssh interattiva.
  * @param {*} target
  */
 export declare function interativeClient(target: SshTarget, params: string[]): void;

@@ -20,16 +20,16 @@ exports.setPersistent = exports.getPersistent = exports.baseConfigDir = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const os_1 = __importDefault(require("os"));
-const isWindows = os_1.default.platform() === 'win32';
 let baseConfigDir = '';
 exports.baseConfigDir = baseConfigDir;
-if (isWindows) {
+if (os_1.default.platform() === 'win32') {
     // La prima implementazione funzionava solo su windows e usava APPDATA per memorizzare info locali. 
     // Con il senno di poi sarebbe stato meglio usare os.homedir() per essere uguale ovunque e non richiedere 
     // questo if... vabbè amen!
     exports.baseConfigDir = baseConfigDir = path_1.default.join(process.env.APPDATA, './mitech-cli');
 }
 else {
+    // linux e osx
     exports.baseConfigDir = baseConfigDir = path_1.default.join(os_1.default.homedir(), './.mitech-cli');
 }
 /**

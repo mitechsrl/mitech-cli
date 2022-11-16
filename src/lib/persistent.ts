@@ -17,14 +17,14 @@ import path from 'path';
 import { GenericObject } from '../types';
 import os from 'os';
 
-const isWindows = os.platform() === 'win32';
 let baseConfigDir = '';
-if (isWindows){
+if (os.platform() === 'win32'){
     // La prima implementazione funzionava solo su windows e usava APPDATA per memorizzare info locali. 
     // Con il senno di poi sarebbe stato meglio usare os.homedir() per essere uguale ovunque e non richiedere 
     // questo if... vabbè amen!
     baseConfigDir = path.join(process.env.APPDATA as string, './mitech-cli');
 }else{
+    // linux e osx
     baseConfigDir = path.join(os.homedir(), './.mitech-cli' );
 }
 

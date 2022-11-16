@@ -27,9 +27,10 @@ export function header() {
     logger.info('    &&&&  &&&&&&&  &&&&   &&&&&&&            ');
     logger.info('    &&&&   &&&&&   &&&&  &&&&                ');
     logger.info('    &&&&   &&&&&   &&&&                      ');
-
     logger.info('');
     logger.info('Mitech CLI tool ' + packageJson.version);
+    logger.log('');
+    logger.log('https://github.com/mitechsrl/mitech-cli');
     logger.log('Add -h flag for more info');
     // logger.log('Config files dir ' + persistent.baseConfigDir);
 }

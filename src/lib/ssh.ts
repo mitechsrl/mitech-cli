@@ -135,7 +135,7 @@ export class SshSession {
                 }
                 return this.os;
             }
-        } catch (error) { }
+        } catch (error) { /* */ }
 
         // windows on powershell.
         try {
@@ -151,7 +151,7 @@ export class SshSession {
                     return this.os;
                 }
             }
-        } catch (error) { }
+        } catch (error) { /* */ }
 
         // windows with cmd
         try {
@@ -166,7 +166,7 @@ export class SshSession {
                     return this.os;
                 }
             }
-        } catch (error) { }
+        } catch (error) { /* */ }
 
         return this.os;
     }
@@ -312,15 +312,15 @@ export async function createSshSession(target: SshTarget): Promise<SshSession> {
 }
 
 /**
- * Lancia una sessione ssh interattiva. Su windows, viene aperto putty, su altri OS è da implementare.
+ * Lancia una sessione ssh interattiva. 
  * @param {*} target
  */
 export function interativeClient(target: SshTarget, params: string[]){
     
-    const isWindows = os.platform() === 'win32';
-    const isLinux = os.platform() === 'linux';
-
-    if (isWindows) {
+    // Su windows non esiste client ssh di default. Per questo ci portiamo dietro il binario di putty
+    // e demandiamo tutto a quello.
+    
+    if (os.platform() === 'win32') {    
         const finalCmd: string[] = [];
         
         // prepare putty command
@@ -352,27 +352,29 @@ export function interativeClient(target: SshTarget, params: string[]){
         return;
     }
 
-    if (isLinux){
-        // con chiave ssh
-        // ssh username@host -p port -i ssh_cert
+    if (fs.existsSync('/usr/bin/ssh')){
+        // Linux e qualsiasi altro OS unix-based che abbia /usr/bin/ssh
+        
+        // Qui implementiamo il solo caso con chiave ssh, perchè non è possibile con /usr/bin/ssh passare la password
+        // in chiaro come parametro.  Eventualmente la si risolve con sshpass, ma per ora non voglio far dipendere
+        // questo tool da altri (eventualmente il comando sarebbe <sshpass -p  "Your_Server_Password" ssh user@host -p port>)
+        // comando con chiave ssh: <ssh username@host -p port -i ssh_cert>
         if (target.accessType==='sshKey'){
             logger.warn('Per uscire, digita \'exit\'');
             const finalCmd: string[] = [target.username+'@'+target.host, '-p', target.port.toString(), '-i', target.sshKey!];
             // TODO: verificare pipe VS inherit
-            const ssh = spawn( 'ssh', finalCmd, { stdio: 'inherit', detached: false } );
+            const ssh = spawn( '/usr/bin/ssh', finalCmd, { stdio: 'inherit', detached: false } );
             ssh.on('close', () => {
                 process.exit();
             });
             return;
         }
 
-        // con password: occorre sshpass, ma non voglio forzare l'utente a installare tool esterni!
-        // sshpass -p  "Your_Server_Password" ssh user@host -p port
         throw new Error('Client ssh con credenzialu username+password non supportato su linux.');
 
     }
 
-    throw new Error('Implementare client ssh per questa piattaforma!');
+    throw new Error(`Client ssh non implementato per questa piattaforma: ${os.platform()}`);
    
 }
 

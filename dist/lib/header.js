@@ -29,6 +29,8 @@ function header() {
     logger_1.logger.info('    &&&&   &&&&&   &&&&                      ');
     logger_1.logger.info('');
     logger_1.logger.info('Mitech CLI tool ' + packageJson_1.packageJson.version);
+    logger_1.logger.log('');
+    logger_1.logger.log('https://github.com/mitechsrl/mitech-cli');
     logger_1.logger.log('Add -h flag for more info');
     // logger.log('Config files dir ' + persistent.baseConfigDir);
 }

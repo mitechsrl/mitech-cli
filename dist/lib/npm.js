@@ -23,8 +23,7 @@ const logger_1 = require("./logger");
 const persistent_1 = require("./persistent");
 const os_1 = __importDefault(require("os"));
 // windows fa il windows percui lui vuole 'npm.cmd' anzichè 'npm' come comando di avvio
-const isWindows = os_1.default.platform() === 'win32';
-exports.npmExecutable = isWindows ? 'npm.cmd' : 'npm';
+exports.npmExecutable = os_1.default.platform() === 'win32' ? 'npm.cmd' : 'npm';
 /**
  * ottiene url del registry per lo scope scelto
  */
