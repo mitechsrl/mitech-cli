@@ -370,7 +370,7 @@ export function interativeClient(target: SshTarget, params: string[]){
             return;
         }
 
-        throw new Error('Client ssh con credenzialu username+password non supportato su linux.');
+        throw new Error('Client ssh con credenziali username+password non supportato per questa piattaforma.');
 
     }
 

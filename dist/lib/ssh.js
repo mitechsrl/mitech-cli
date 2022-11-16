@@ -328,7 +328,7 @@ function interativeClient(target, params) {
             });
             return;
         }
-        throw new Error('Client ssh con credenzialu username+password non supportato su linux.');
+        throw new Error('Client ssh con credenziali username+password non supportato per questa piattaforma.');
     }
     throw new Error(`Client ssh non implementato per questa piattaforma: ${os_1.default.platform()}`);
 }
