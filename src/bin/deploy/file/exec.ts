@@ -51,7 +51,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
     logger.log('Carico ' + toUpload + ' in RemoteAppsFolder/' + destination);
 
     // Conferma per essere sicuri
-    if (! await confirm(argv, toUpload + ' verrà deployato sul target selezionato. Continuare?')){
+    if (! await confirm(argv, toUpload + ' verrà caricato sul target selezionato. Continuare?')){
         logger.error('Deploy abortito');
         return;
     }

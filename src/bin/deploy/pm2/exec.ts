@@ -15,6 +15,7 @@
 import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import yargs from 'yargs';
+import { confirm } from '../../../lib/confirm';
 import { logger } from '../../../lib/logger';
 import { createSshSession } from '../../../lib/ssh';
 import { getTarget, printTarget } from '../../../lib/targets';
@@ -43,13 +44,16 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
         logger.error('Errore di sintassi nel file ' + filename);
         throw error;
     }
+
+    // ask for confirm
+    if (!await confirm(argv, `Il file ${filename} verrà caricato sul target selezionato. Continuare?`)){
+        return;
+    }
+
     const session = await createSshSession(target);
-
-    const pm2 = session.os.windows ? 'pm2.cmd' : 'pm2';
-
+    const pm2 = session.os.windows ? 'pm2.cmd' : 'pm2';        
     const remoteDeployBasePath = await session.getRemoteHomeDir(nodeUser, '.' + appsContainer);
     const remoteTmpPath = await session.getRemoteTmpDir(nodeUser);
-
     const remoteTmpFilename = remoteTmpPath + filename;
     const remoteFilename = remoteDeployBasePath + filename;
 

@@ -18,6 +18,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
+const confirm_1 = require("../../../lib/confirm");
 const logger_1 = require("../../../lib/logger");
 const ssh_1 = require("../../../lib/ssh");
 const targets_1 = require("../../../lib/targets");
@@ -41,6 +42,10 @@ const exec = async (argv) => {
     catch (error) {
         logger_1.logger.error('Errore di sintassi nel file ' + filename);
         throw error;
+    }
+    // ask for confirm
+    if (!await (0, confirm_1.confirm)(argv, `Il file ${filename} verrà caricato sul target selezionato. Continuare?`)) {
+        return;
     }
     const session = await (0, ssh_1.createSshSession)(target);
     const pm2 = session.os.windows ? 'pm2.cmd' : 'pm2';

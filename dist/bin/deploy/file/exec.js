@@ -47,7 +47,7 @@ const exec = async (argv) => {
     }
     logger_1.logger.log('Carico ' + toUpload + ' in RemoteAppsFolder/' + destination);
     // Conferma per essere sicuri
-    if (!await (0, confirm_1.confirm)(argv, toUpload + ' verrà deployato sul target selezionato. Continuare?')) {
+    if (!await (0, confirm_1.confirm)(argv, toUpload + ' verrà caricato sul target selezionato. Continuare?')) {
         logger_1.logger.error('Deploy abortito');
         return;
     }
