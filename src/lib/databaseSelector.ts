@@ -35,13 +35,16 @@ function checkDatabase(db: MitechCliFileContentDb){
     if (!db.host){
         throw new StringError('Il database selezionato non ha <host> definito');
     }
+
     if(!db.port){
         db.port = '27017';
+    }else if (typeof db.port === 'number'){
+        db.port = (db.port as number).toString();
     }
-
     if (db.port && !db.port.match(/^[0-9]+$/)){
         throw new StringError('Il database selezionato ha <port> invalida');
     }
+
     if ([db.username, db.password].filter(v => !!v).length === 1 ){
         throw new StringError('Il database selezionato ha credenziali incomplete. Verifica username e password.');
     }

@@ -96,7 +96,7 @@ function loadFile() {
 function ensureNameUniqueness(f: MitechCliFile) {
 
     const cache: GenericObject = {};
-    f.content.targets.forEach(t => {
+    (f.content.targets ?? []).forEach(t => {
         if (!t.name) {
             throw new StringError('Missing name in target. Please set it in your package.json file.');
         }

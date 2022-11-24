@@ -96,8 +96,9 @@ function loadFile() {
  * @param f
  */
 function ensureNameUniqueness(f) {
+    var _a;
     const cache = {};
-    f.content.targets.forEach(t => {
+    ((_a = f.content.targets) !== null && _a !== void 0 ? _a : []).forEach(t => {
         if (!t.name) {
             throw new types_1.StringError('Missing name in target. Please set it in your package.json file.');
         }

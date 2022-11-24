@@ -40,6 +40,9 @@ function checkDatabase(db) {
     if (!db.port) {
         db.port = '27017';
     }
+    else if (typeof db.port === 'number') {
+        db.port = db.port.toString();
+    }
     if (db.port && !db.port.match(/^[0-9]+$/)) {
         throw new types_1.StringError('Il database selezionato ha <port> invalida');
     }
