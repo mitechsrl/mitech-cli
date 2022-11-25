@@ -18,6 +18,13 @@ const config = {
                 type: 'string',
                 description: 'Ricarica solo l\'app specificata'
             },
+        },
+        {
+            name: 'target',
+            config: {
+                type: 'string',
+                description: 'Nome target per autoselezione target'
+            }
         }]
 };
 exports.default = config;

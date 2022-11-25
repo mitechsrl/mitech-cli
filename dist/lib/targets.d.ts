@@ -11,6 +11,7 @@
  * TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION:
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
+import yargs from 'yargs';
 import { SshTarget } from '../types';
 /**
  * DEcode the target password if needed
@@ -22,7 +23,7 @@ export declare function decodeTarget(target: SshTarget): SshTarget;
  * NOTA: la funzione autoseleziona l'unico target disponibile se la lista è composta da un solo target
  * @returns
  */
-export declare function getTarget(): Promise<SshTarget>;
+export declare function getTarget(argv?: yargs.ArgumentsCamelCase<unknown>): Promise<SshTarget>;
 /**
  * Stampa il target selezionato
  *

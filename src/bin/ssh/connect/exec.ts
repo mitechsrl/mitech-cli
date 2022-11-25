@@ -18,8 +18,8 @@ import { CommandExecFunction } from '../../../types';
 import { getTarget, printTarget } from '../../../lib/targets';
 import { interativeClient } from '../../../lib/ssh';
 
-const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => {
-    const target = await getTarget();
+const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>) => {
+    const target = await getTarget(argv);
     printTarget(target);
     interativeClient(target, argv._.slice(2).map(v => v.toString()));
 };

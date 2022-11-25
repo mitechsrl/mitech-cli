@@ -45,7 +45,7 @@ exports.decodeTarget = decodeTarget;
  * NOTA: la funzione autoseleziona l'unico target disponibile se la lista è composta da un solo target
  * @returns
  */
-async function getTarget() {
+async function getTarget(argv) {
     const mitechCliFile = (0, mitechCliFile_1.getMitechCliFile)();
     logger_1.logger.info('Uso file: ' + mitechCliFile.file);
     if (mitechCliFile.content.targets.length === 0) {
@@ -53,10 +53,18 @@ async function getTarget() {
     }
     const targets = mitechCliFile.content.targets;
     let _t;
-    if (targets.length === 1) {
+    if (argv === null || argv === void 0 ? void 0 : argv.target) {
+        // autoselect con match nome da parametri
+        _t = targets.find(target => target.name === argv.target);
+        if (!_t)
+            throw new types_1.StringError('Target ' + argv.target + ' non trovato');
+    }
+    else if (targets.length === 1) {
+        // autoselect unico target disponibile
         _t = targets[0];
     }
     else {
+        // chiedere al bomber davanti al monitor
         const questions = [{
                 type: 'list',
                 name: 'target',

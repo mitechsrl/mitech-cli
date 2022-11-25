@@ -12,6 +12,7 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
+import yargs from 'yargs';
 import inquirer from 'inquirer';
 import _ from 'lodash';
 import { SshTarget, StringError } from '../types';
@@ -41,7 +42,7 @@ export function decodeTarget(target: SshTarget) {
  * NOTA: la funzione autoseleziona l'unico target disponibile se la lista è composta da un solo target
  * @returns
  */
-export async function getTarget() {
+export async function getTarget(argv?: yargs.ArgumentsCamelCase<unknown>) {
 
     const mitechCliFile = getMitechCliFile();
 
@@ -51,10 +52,17 @@ export async function getTarget() {
     }
     const targets = mitechCliFile.content.targets;
 
-    let _t: SshTarget;
-    if (targets.length === 1) {
+    let _t: SshTarget | undefined;
+
+    if (argv?.target){
+        // autoselect con match nome da parametri
+        _t = targets.find(target => target.name === argv.target);
+        if (!_t) throw new StringError('Target '+argv.target+' non trovato');
+    }else if (targets.length === 1) {
+        // autoselect unico target disponibile
         _t = targets[0];
     } else {
+        // chiedere al bomber davanti al monitor
         const questions = [{
             type: 'list',
             name: 'target',

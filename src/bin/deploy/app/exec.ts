@@ -20,7 +20,7 @@ import { deploy } from './_lib/deploy';
 
 const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>) => {
 
-    const target = await getTarget();
+    const target = await getTarget(argv);
     if (!target) return;
     printTarget(target);
 
@@ -28,8 +28,10 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
 
     if (result.aborted) {
         logger.error('Deploy abortito');
+        return;
     }
-    if (result.aborted) {
+
+    if (result.complete) {
         logger.info('Deploy Completato');
     }
 };

@@ -30,7 +30,15 @@ const config = {
                 type: 'string',
                 description: 'Esegue check di uptime app dopo deploy. Disponibili: ' + (0, listUptimeChecks_1.listUptimeChecks)()
             },
-        }]
+        },
+        {
+            name: 'target',
+            config: {
+                type: 'string',
+                description: 'Nome target per autoselezione target'
+            }
+        }
+    ]
 };
 exports.default = config;
 //# sourceMappingURL=commandConfig.js.map

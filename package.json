@@ -4,6 +4,7 @@
     "description": "",
     "main": "./dist/index.js",
     "scripts": {
+        "test": "mocha ./dist/tests",
         "lint": "eslint . --fix --ext .ts",
         "clean": "rimraf .tsbuildinfo  dist",
         "copy-files": "copyfiles -u 1 src/**/*.js src/**/*.html src/**/.gitignore.ejs src/**/*.ejs src/**/*.conf src/**/*.sh src/**/*.md src/**/*.json dist/",
@@ -43,6 +44,7 @@
         "eslint-plugin-import": "^2.25.3",
         "eslint-plugin-n": "^15.0.0",
         "eslint-plugin-promise": "^6.0.0",
+        "extract-zip": "^2.0.1",
         "glob": "^8.0.3",
         "ignore": "^5.2.0",
         "inquirer": "^8.2.4",
@@ -58,10 +60,8 @@
         "ssh2": "^1.11.0",
         "tar": "^6.1.11",
         "tmp-promise": "^3.0.3",
-        "ts-node": "^10.9.1",
         "typescript": "^4.8.3",
         "uuid": "^9.0.0",
-        "yargs": "^17.5.1",
-        "extract-zip": "^2.0.1"
+        "yargs": "^17.5.1"
     }
 }

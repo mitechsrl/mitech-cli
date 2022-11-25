@@ -157,7 +157,6 @@ function buildMongoDumpParams(database: MitechCliFileContentDb, outdir:string, d
         params.push('--ssl','--sslAllowInvalidCertificates');
     }
     params.push('--out', outdir);
-
     return params;
 }
 

@@ -17,15 +17,16 @@ const logger_1 = require("../../../lib/logger");
 const targets_1 = require("../../../lib/targets");
 const deploy_1 = require("./_lib/deploy");
 const exec = async (argv) => {
-    const target = await (0, targets_1.getTarget)();
+    const target = await (0, targets_1.getTarget)(argv);
     if (!target)
         return;
     (0, targets_1.printTarget)(target);
     const result = await (0, deploy_1.deploy)(target, argv);
     if (result.aborted) {
         logger_1.logger.error('Deploy abortito');
+        return;
     }
-    if (result.aborted) {
+    if (result.complete) {
         logger_1.logger.info('Deploy Completato');
     }
 };

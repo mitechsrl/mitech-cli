@@ -17,6 +17,13 @@ const config = {
                 type: 'string',
                 description: 'Directory remota in cui copiare i files. Per default parte dalla directory di deploy delle apps'
             },
+        },
+        {
+            name: 'target',
+            config: {
+                type: 'string',
+                description: 'Nome target per autoselezione target'
+            }
         }]
 };
 exports.default = config;

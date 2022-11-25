@@ -16,7 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const targets_1 = require("../../../lib/targets");
 const ssh_1 = require("../../../lib/ssh");
 const exec = async (argv) => {
-    const target = await (0, targets_1.getTarget)();
+    const target = await (0, targets_1.getTarget)(argv);
     (0, targets_1.printTarget)(target);
     (0, ssh_1.interativeClient)(target, argv._.slice(2).map(v => v.toString()));
 };
