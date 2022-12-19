@@ -54,9 +54,17 @@ const exec = async (argv) => {
     fs_1.default.writeFileSync('.npmrc', (0, npm_1.buildNpmrc)(registry));
     const registryUrl = registry.registry;
     /* step 3 ************************************************************************/
-    logger_1.logger.log('Preparo .npmignore...');
+    /*
+    IV: 19-12-2022 Per via di
+        https://medium.com/@jdxcode/for-the-love-of-god-dont-use-npmignore-f93c08909d8d
+        cerco di deprecare l'uso di npmignore.
+        I progetti che lo usano coninuno ad averlo finchè il dev non lo gestisce in alto modo,
+        ma se non c'è non viene icreato.
+        NOTA: contestualmente l'uso di "files" in package.json riduce i files pacchettizzati
+    */
     try {
         if (fs_1.default.existsSync('.npmignore')) {
+            logger_1.logger.log('Update .npmignore...');
             // .npmignore esiste già. Ci metto dentro .npmrc in modo da non spararlo sul registry
             let npmignore = fs_1.default.readFileSync('.npmignore').toString();
             const haveIgnore = npmignore.split('\n').map(r => r.trim()).filter(r => r === '.npmrc').length > 0;
@@ -65,13 +73,9 @@ const exec = async (argv) => {
                 fs_1.default.writeFileSync('.npmignore', npmignore);
             }
         }
-        else {
-            // .npmignore non esiste. Lo creo mettendoci dentro .npmrc in modo da non spararlo sul registry
-            fs_1.default.writeFileSync('.npmignore', '.npmrc\n.npmrc-BACKUP');
-        }
     }
     catch (e) {
-        throw new types_1.StringError('Impossibile aggiungere .npmrc a .npmignore: ' + e.message);
+        throw new types_1.StringError('Update .npmignore fallito: ' + e.message);
     }
     /* step 3 ************************************************************************/
     // eseguo comando

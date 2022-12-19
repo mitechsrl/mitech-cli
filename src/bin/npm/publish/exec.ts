@@ -21,7 +21,7 @@ import { buildNpmrc, getRegistry, npmExecutable } from '../../../lib/npm';
 import { confirm } from '../../../lib/confirm';
 import { spawn } from '../../../lib/spawn';
 
-const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => {
+const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>) => {
     /* step 1 ************************************************************************/
     logger.log('Directory corrente: ' + process.cwd());
     const registryIdParam = argv.r as string;
@@ -59,9 +59,17 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
     const registryUrl = registry.registry;
 
     /* step 3 ************************************************************************/
-    logger.log('Preparo .npmignore...');
+    /*
+    IV: 19-12-2022 Per via di
+        https://medium.com/@jdxcode/for-the-love-of-god-dont-use-npmignore-f93c08909d8d
+        cerco di deprecare l'uso di npmignore.
+        I progetti che lo usano coninuno ad averlo finchè il dev non lo gestisce in alto modo,
+        ma se non c'è non viene icreato.
+        NOTA: contestualmente l'uso di "files" in package.json riduce i files pacchettizzati
+    */
     try {
         if (fs.existsSync('.npmignore')) {
+            logger.log('Update .npmignore...');
             // .npmignore esiste già. Ci metto dentro .npmrc in modo da non spararlo sul registry
             let npmignore = fs.readFileSync('.npmignore').toString();
             const haveIgnore = npmignore.split('\n').map(r => r.trim()).filter(r => r === '.npmrc').length > 0;
@@ -69,12 +77,9 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
                 npmignore = npmignore + '\n.npmrc\n.npmrc-BACKUP';
                 fs.writeFileSync('.npmignore', npmignore);
             }
-        } else {
-            // .npmignore non esiste. Lo creo mettendoci dentro .npmrc in modo da non spararlo sul registry
-            fs.writeFileSync('.npmignore', '.npmrc\n.npmrc-BACKUP');
         }
-    } catch (e:any) {
-        throw new StringError('Impossibile aggiungere .npmrc a .npmignore: ' + e.message);
+    } catch (e: any) {
+        throw new StringError('Update .npmignore fallito: ' + e.message);
     }
 
     /* step 3 ************************************************************************/
