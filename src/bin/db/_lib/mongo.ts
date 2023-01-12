@@ -194,10 +194,12 @@ export async function restoreMongo(database: MitechCliFileContentDb){
 
     const files = fs.readdirSync(scanDir).filter(f => {
         
-        // only dirs
+        // only dirs, no files (no support for zip or something like this)
         const stat = fs.statSync(path.join(scanDir,f));
         if (!stat.isDirectory()) return false;
-
+        
+        // this match dir names, hwever it might not be a mongo dump dir. Don't checking this,
+        // leave the user to select something valid.
         return !!f.match(new RegExp('^'+safeFilename+'-(.*)$'));
     }).map(file => {
         const dir = path.join(scanDir,file);
