@@ -179,6 +179,10 @@ async function restoreMongo(database) {
     const safeFilename = database.name.replace(/[^a-zA-Z0-9-_.]/g, '-').replace(/\./g, '\\.');
     const scanDir = ((_a = database.dst) !== null && _a !== void 0 ? _a : './');
     const files = fs_1.default.readdirSync(scanDir).filter(f => {
+        // only dirs
+        const stat = fs_1.default.statSync(path_1.default.join(scanDir, f));
+        if (!stat.isDirectory())
+            return false;
         return !!f.match(new RegExp('^' + safeFilename + '-(.*)$'));
     }).map(file => {
         const dir = path_1.default.join(scanDir, file);

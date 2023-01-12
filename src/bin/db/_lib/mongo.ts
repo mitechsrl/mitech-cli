@@ -193,6 +193,11 @@ export async function restoreMongo(database: MitechCliFileContentDb){
     const scanDir = (database.dst ?? './');
 
     const files = fs.readdirSync(scanDir).filter(f => {
+        
+        // only dirs
+        const stat = fs.statSync(path.join(scanDir,f));
+        if (!stat.isDirectory()) return false;
+
         return !!f.match(new RegExp('^'+safeFilename+'-(.*)$'));
     }).map(file => {
         const dir = path.join(scanDir,file);
