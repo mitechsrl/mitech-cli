@@ -23,6 +23,7 @@ const types_1 = require("../types");
 const crypto_1 = require("./crypto");
 const logger_1 = require("./logger");
 const mitechCliFile_1 = require("./mitechCliFile");
+const path_1 = __importDefault(require("path"));
 /**
  * DEcode the target password if needed
  * @param {*} target
@@ -76,6 +77,12 @@ async function getTarget(argv) {
     }
     if (!_t) {
         throw new types_1.StringError('Nessun target selezionato');
+    }
+    // Convert relative ssh keys to absolute. The relative path is referred to .mitechcli file
+    // This will solve the incongruence of process.cwd from the mitech cli file location
+    if (_t.sshKey && !path_1.default.isAbsolute(_t.sshKey)) {
+        const mitechCliFileDirectory = path_1.default.dirname(mitechCliFile.file);
+        _t.sshKey = path_1.default.resolve(mitechCliFileDirectory, _t.sshKey);
     }
     return decodeTarget(_t);
 }

@@ -19,6 +19,7 @@ import { SshTarget, StringError } from '../types';
 import { decrypt } from './crypto';
 import { logger } from './logger';
 import { getMitechCliFile } from './mitechCliFile';
+import path from 'path';
 
 /**
  * DEcode the target password if needed
@@ -76,6 +77,14 @@ export async function getTarget(argv?: yargs.ArgumentsCamelCase<unknown>) {
     if (!_t) {
         throw new StringError('Nessun target selezionato');
     }
+
+    // Convert relative ssh keys to absolute. The relative path is referred to .mitechcli file
+    // This will solve the incongruence of process.cwd from the mitech cli file location
+    if (_t.sshKey && !path.isAbsolute(_t.sshKey)){
+        const mitechCliFileDirectory = path.dirname(mitechCliFile.file);
+        _t.sshKey = path.resolve(mitechCliFileDirectory, _t.sshKey);
+    }
+    
     return decodeTarget(_t);
 }
 
