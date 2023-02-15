@@ -14,7 +14,7 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 const config = {
-    name: 'Ubuntu 22.04, Node 16.X, Nginx, pm2 5.1.2',
+    name: 'Ubuntu 22.04, Node 16.X, Nginx, pm2 5.2.2',
     value: {
         questions: [{
                 type: 'input',

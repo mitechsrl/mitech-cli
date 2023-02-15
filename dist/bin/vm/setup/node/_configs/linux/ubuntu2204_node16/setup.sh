@@ -15,7 +15,7 @@ timedatectl set-timezone Europe/Rome
 # installo curl. Dovrebbe essere gia' installato ma non si sa mai
 apt install -y curl
 
-# vado nella mia home e setto i repository di node(default v14, per altre versioni cambiare _14.x con _16.x)
+# vado nella mia home e setto i repository di node(altre versioni cambiare _16.x con rispettiva)
 cd ~
 curl -sL https://deb.nodesource.com/setup_16.x -o nodesource_setup.sh
 chmod +x nodesource_setup.sh
@@ -32,7 +32,7 @@ systemctl enable nginx.service
 npm install -g node-gyp
 
 # install pm2
-npm install pm2@5.1.2 -g
+npm install pm2@5.2.2 -g
 
 ######## setup nginx
 # per prima cosa creo il file geo_dyn che serve per la modalità maintenance

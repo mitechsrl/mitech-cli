@@ -11,16 +11,22 @@
  * TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION:
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
-
-const config = {
-    name: 'Ubuntu 22.04, Node 16.X, Nginx, pm2 5.2.2',
+import { GenericObject } from '../../../../../../../types';
+declare const config: {
+    name: string;
     value: {
-        questions: [{
-            type: 'input',
-            name: 'MITECH_HOSTNAME',
-            message: 'FQDN hostname (solo ip/dns senza http(s)://)'
-        }]
-    }
+        questions: ({
+            type: string;
+            name: string;
+            message: string;
+            default?: undefined;
+        } | {
+            type: string;
+            name: string;
+            default: string;
+            message: string;
+        })[];
+        validateAnswers: (answers: GenericObject) => void;
+    };
 };
-
 export default config;
