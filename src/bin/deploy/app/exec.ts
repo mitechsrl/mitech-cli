@@ -14,6 +14,7 @@
 
 import yargs from 'yargs';
 import { logger } from '../../../lib/logger';
+import { soundBell } from '../../../lib/sound';
 import { getTarget, printTarget } from '../../../lib/targets';
 import { CommandExecFunction } from '../../../types';
 import { deploy } from './_lib/deploy';
@@ -27,11 +28,13 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
     const result = await deploy(target, argv);
 
     if (result.aborted) {
+        await soundBell();
         logger.error('Deploy abortito');
         return;
     }
 
     if (result.complete) {
+        await soundBell();
         logger.info('Deploy Completato');
     }
 };

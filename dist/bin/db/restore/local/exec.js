@@ -32,7 +32,7 @@ async function restore(database) {
     }
 }
 const exec = async (argv) => {
-    logger_1.logger.warn('NOTA: la selezione verrà usata solo per determinare il tipo di database. Non verranno effettuat altre operazioni.');
+    logger_1.logger.warn('NOTA: la selezione verrà usata solo per determinare il tipo di database. Non verranno effettuate altre operazioni.');
     const database = await (0, databaseSelector_1.getDatabase)();
     (0, databaseSelector_1.printDatabase)(database);
     await restore(database);

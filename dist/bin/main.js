@@ -12,6 +12,7 @@ exports.cli = yargs_1.default.scriptName('mitech')
     .usage('$0 <cmd> [args]')
     .option('h', { alias: 'help' })
     .option('verbose', { describe: 'Abilita log verboso (logger.verbose)' })
+    .option('sounds', { describe: 'Riproduce suoni su eventi (playSound()) ' })
     .version(false)
     .command('$0', '', (yargs) => {
     yargs.option('v', { alias: 'version', describe: 'Show version' });

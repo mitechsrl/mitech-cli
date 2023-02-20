@@ -9,6 +9,7 @@ const index_js_1 = require("./types/index.js");
 const errorHandler_js_1 = require("./lib/errorHandler.js");
 const main_js_1 = require("./bin/main.js");
 const fs_1 = require("fs");
+const sound_js_1 = require("./lib/sound.js");
 function recourseRegisterCommand(parentYargs, commandConfig) {
     const configFilePath = path_1.default.join(__dirname, commandConfig.file);
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -61,8 +62,9 @@ function recourseRegisterCommand(parentYargs, commandConfig) {
 // Se vuoi ripristinare lo scan ad ogni boot, sostituisci la promise con la riga
 // scanCommands(path.join(__dirname, './bin'), '');
 // step 1: ottini json dei comandi (precompilato)
-new Promise((resolve) => {
+new Promise(async (resolve) => {
     const content = (0, fs_1.readFileSync)(path_1.default.join(__dirname, './commands.json')).toString();
+    await (0, sound_js_1.soundBell)();
     resolve(JSON.parse(content));
 })
     .then((files) => {

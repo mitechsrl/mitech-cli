@@ -34,7 +34,7 @@ async function restore(database: MitechCliFileContentDb){
 }
 
 const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>) => {
-    logger.warn('NOTA: la selezione verrà usata solo per determinare il tipo di database. Non verranno effettuat altre operazioni.');
+    logger.warn('NOTA: la selezione verrà usata solo per determinare il tipo di database. Non verranno effettuate altre operazioni.');
     const database = await getDatabase();
     printDatabase(database);
 

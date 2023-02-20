@@ -7,6 +7,7 @@ export const cli = yargs.scriptName('mitech')
     .usage('$0 <cmd> [args]')
     .option('h', { alias: 'help' })
     .option('verbose', { describe: 'Abilita log verboso (logger.verbose)' })
+    .option('sounds', { describe: 'Riproduce suoni su eventi (playSound()) ' })
     .version(false)
     .command('$0', '',
         (yargs) => {

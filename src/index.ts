@@ -7,6 +7,7 @@ import { errorHandler } from './lib/errorHandler.js';
 import { cli } from './bin/main.js';
 import yargs from 'yargs';
 import { existsSync, readFileSync } from 'fs';
+import { soundBell } from './lib/sound.js';
 
 function recourseRegisterCommand(parentYargs: yargs.Argv, commandConfig: ScanCommandResult) {
     const configFilePath = path.join(__dirname,commandConfig.file);
@@ -67,7 +68,7 @@ function recourseRegisterCommand(parentYargs: yargs.Argv, commandConfig: ScanCom
 // scanCommands(path.join(__dirname, './bin'), '');
 
 // step 1: ottini json dei comandi (precompilato)
-new Promise<ScanCommandResult[]>((resolve)=> {
+new Promise<ScanCommandResult[]>(resolve => {
     const content = readFileSync(path.join(__dirname,'./commands.json')).toString();
     resolve(JSON.parse(content) as ScanCommandResult[]);
 })

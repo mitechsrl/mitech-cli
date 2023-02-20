@@ -3,4 +3,6 @@ export declare const cli: yargs.Argv<{
     h: unknown;
 } & {
     verbose: unknown;
+} & {
+    sounds: unknown;
 }>;
