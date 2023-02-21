@@ -12,13 +12,12 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
-import { mkdir, mkdirSync, writeFileSync } from 'fs';
+import { mkdirSync, writeFileSync } from 'fs';
 import inquirer from 'inquirer';
 import { join } from 'path';
-import yargs, { choices } from 'yargs';
+import yargs from 'yargs';
 import { logger } from '../../../lib/logger';
 import { buildNpmrc, getRegistry } from '../../../lib/npm';
-import { spawn } from '../../../lib/spawn';
 import { CommandExecFunction, GenericObject } from '../../../types';
 import { npmScope } from '../../npm/npmConstants';
 import { copyTemplate } from './_lib/copyTemplate';
