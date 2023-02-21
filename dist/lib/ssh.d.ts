@@ -16,14 +16,14 @@ import { SshTarget } from '../types';
 /**
  *
  */
-export declare type SshCommandResult = {
+export type SshCommandResult = {
     exitCode: number;
     output: string;
 };
 /**
  *
  */
-export declare type SshOsDetectorResult = {
+export type SshOsDetectorResult = {
     windows: boolean;
     linux: boolean;
     name: string;

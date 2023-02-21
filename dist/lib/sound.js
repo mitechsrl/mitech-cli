@@ -6,7 +6,8 @@ const path_1 = require("path");
 const player = require('node-wav-player');
 /**
  * Play a bell sound.
- * Requires the param --sound
+ * When walking around in the office, use --sound to get sounds on events.
+ *
  */
 async function soundBell() {
     if (process.argv.find(p => p === '--sounds')) {

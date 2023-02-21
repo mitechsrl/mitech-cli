@@ -1,9 +1,9 @@
-export declare type SshTargetPassword = {
+export type SshTargetPassword = {
     algo: string;
     iv: string;
     encryptedData: string;
 };
-export declare type SshTarget = {
+export type SshTarget = {
     name: string;
     'host': string;
     'port': 22;
@@ -13,12 +13,12 @@ export declare type SshTarget = {
     'password'?: SshTargetPassword | string;
     'nodeUser': 'node';
 };
-export declare type MitechCliFileContentProjectDeployment = {
+export type MitechCliFileContentProjectDeployment = {
     name: string;
     path: string;
     target: string;
 };
-export declare type MitechCliFileContentProject = {
+export type MitechCliFileContentProject = {
     name?: string;
     uptimeCheck?: string;
     commonDependencies?: {
@@ -28,7 +28,7 @@ export declare type MitechCliFileContentProject = {
         [k: string]: MitechCliFileContentProjectDeployment;
     };
 };
-export declare type MitechCliFileContentDb = {
+export type MitechCliFileContentDb = {
     type?: string;
     name?: string;
     host?: string;
@@ -39,12 +39,12 @@ export declare type MitechCliFileContentDb = {
     databaseNames?: string[];
     dst?: string;
 };
-export declare type MitechCliFileContent = {
+export type MitechCliFileContent = {
     targets: SshTarget[];
     projects: MitechCliFileContentProject[];
     dbs: MitechCliFileContentDb[];
 };
-export declare type MitechCliFile = {
+export type MitechCliFile = {
     file: string;
     content: MitechCliFileContent;
 };

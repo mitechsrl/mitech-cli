@@ -24,12 +24,12 @@ const exec = async (argv) => {
     (0, targets_1.printTarget)(target);
     const result = await (0, deploy_1.deploy)(target, argv);
     if (result.aborted) {
-        (0, sound_1.soundBell)();
+        await (0, sound_1.soundBell)();
         logger_1.logger.error('Deploy abortito');
         return;
     }
     if (result.complete) {
-        (0, sound_1.soundBell)();
+        await (0, sound_1.soundBell)();
         logger_1.logger.info('Deploy Completato');
     }
 };

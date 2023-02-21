@@ -21,6 +21,7 @@ const path_1 = __importDefault(require("path"));
 const confirm_1 = require("../../../lib/confirm");
 const logger_1 = require("../../../lib/logger");
 const mitechCliFile_1 = require("../../../lib/mitechCliFile");
+const sound_1 = require("../../../lib/sound");
 const targets_1 = require("../../../lib/targets");
 const types_1 = require("../../../types");
 const deploy_1 = require("../app/_lib/deploy");
@@ -124,6 +125,7 @@ const exec = async (argv) => {
             process.chdir(originalPath);
             // deploy was manually aborted.
             if (result.aborted) {
+                await (0, sound_1.soundBell)();
                 logger_1.logger.info(`Deploy di ${project.name}/${deployment.name} abortito`);
                 // this deploy was aborted. Should we continue?
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -133,6 +135,7 @@ const exec = async (argv) => {
             }
             // deploy complete
             if (result.complete) {
+                await (0, sound_1.soundBell)();
                 logger_1.logger.info(`Deploy di ${project.name}/${deployment.name} completato`);
             }
         }

@@ -7,7 +7,6 @@ import { errorHandler } from './lib/errorHandler.js';
 import { cli } from './bin/main.js';
 import yargs from 'yargs';
 import { existsSync, readFileSync } from 'fs';
-import { soundBell } from './lib/sound.js';
 
 function recourseRegisterCommand(parentYargs: yargs.Argv, commandConfig: ScanCommandResult) {
     const configFilePath = path.join(__dirname,commandConfig.file);

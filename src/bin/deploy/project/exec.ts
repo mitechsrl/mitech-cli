@@ -18,6 +18,7 @@ import yargs from 'yargs';
 import { confirm } from '../../../lib/confirm';
 import { logger } from '../../../lib/logger';
 import { getMitechCliFile } from '../../../lib/mitechCliFile';
+import { soundBell } from '../../../lib/sound';
 import { decodeTarget, printTarget } from '../../../lib/targets';
 import { CommandExecFunction, MitechCliFileContentProjectDeployment, StringError } from '../../../types';
 import { deploy } from '../app/_lib/deploy';
@@ -131,6 +132,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
 
             // deploy was manually aborted.
             if (result.aborted) {
+                await soundBell();
                 logger.info(`Deploy di ${project.name}/${deployment.name} abortito`);
 
                 // this deploy was aborted. Should we continue?
@@ -143,6 +145,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
 
             // deploy complete
             if (result.complete) {
+                await soundBell();
                 logger.info(`Deploy di ${project.name}/${deployment.name} completato`);
             }
         } catch (e) {
