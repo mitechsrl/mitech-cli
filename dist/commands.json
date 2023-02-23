@@ -159,6 +159,11 @@
         ]
     },
     {
+        "cmd": "uuid",
+        "file": "bin/uuid/commandConfig.js",
+        "children": []
+    },
+    {
         "cmd": "vm",
         "file": "bin/vm/commandConfig.js",
         "children": [
