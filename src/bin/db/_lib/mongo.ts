@@ -13,7 +13,7 @@
  */
 
 import { spawn } from '../../../lib/spawn';
-import { MitechCliFileContentDb, StringError } from '../../../types';
+import { GenericObject, MitechCliFileContentDb, StringError } from '../../../types';
 import os from 'os';
 import path from 'path';
 import fs from 'fs';
@@ -22,6 +22,7 @@ import { pipeline } from 'stream';
 import fetch from 'node-fetch';
 import extract from 'extract-zip';
 import inquirer from 'inquirer';
+import glob from 'glob';
 
 const TMP_PATH = path.resolve(os.homedir(),'./.mitech-cli/');
 
@@ -85,7 +86,7 @@ async function checkMongoToolsLinux(file: string){
  * 
  * @returns 
  */
-export async function getMongodumpBinPath(){
+async function getMongodumpBinPath(){
     if(os.platform() === 'win32'){
         return path.join(await getMongotoolsDirWindows(),'./mongodump.exe');
     }
@@ -105,7 +106,7 @@ export async function getMongodumpBinPath(){
  * 
  * @returns 
  */
-export async function getMongorestoreBinPath(){
+async function getMongorestoreBinPath(){
     if(os.platform() === 'win32'){
         return path.join(await getMongotoolsDirWindows(),'./mongorestore.exe');
     }
@@ -164,7 +165,7 @@ function buildMongoDumpParams(database: MitechCliFileContentDb, outdir:string, d
   * Dump mongodb
   * @param database 
   */
-export async function dumpMongo(database: MitechCliFileContentDb){
+async function dumpMongo(database: MitechCliFileContentDb){
     const mongodumpBinPath = await getMongodumpBinPath();
     const outDir = buildOutDir(database);
 
@@ -180,39 +181,40 @@ export async function dumpMongo(database: MitechCliFileContentDb){
         const params = buildMongoDumpParams(database, outDir, databaseName);
         await spawn(mongodumpBinPath, params);
     }
+
 }
 
 /**
- * 
+ * Prompt the user to select a directory. Directories are detected based on their name format.
  * @param database 
+ * @returns 
  */
-export async function restoreMongo(database: MitechCliFileContentDb){
-
+async function selectMongodumpDir(database: MitechCliFileContentDb): Promise<string>{
     // this must match the names build with buildOutDir
     const safeFilename = database.name!.replace(/[^a-zA-Z0-9-_.]/g,'-').replace(/\./g,'\\.');
     const scanDir = (database.dst ?? './');
-
+ 
     const files = fs.readdirSync(scanDir).filter(f => {
-        
+         
         // only dirs, no files (no support for zip or something like this)
         const stat = fs.statSync(path.join(scanDir,f));
         if (!stat.isDirectory()) return false;
-        
+         
         // this match dir names, hwever it might not be a mongo dump dir. Don't checking this,
         // leave the user to select something valid.
         return !!f.match(new RegExp('^'+safeFilename+'-(.*)$'));
     }).map(file => {
         const dir = path.join(scanDir,file);
         const databases = fs.readdirSync(dir);
-
+ 
         return {
             name: dir + ' ('+databases.join(', ')+')',
             value: dir
         };
     });
-
+ 
     if (files.length === 0) throw new StringError('Nessun dump trovato');
-    
+     
     const questions = [{
         type: 'list',
         name: 'dump',
@@ -221,8 +223,58 @@ export async function restoreMongo(database: MitechCliFileContentDb){
     }];
     const answers = await inquirer.prompt(questions);
     if (!answers.dump) throw new StringError('Nessun dump selezionato');
+
+    // return the directory to be restored
+    return answers.dump; // that's a string
+}
+/**
+ * 
+ * @param database 
+ */
+async function restoreMongo(dump: string, database: MitechCliFileContentDb){
     
     const mongoresoreBinPath = await getMongorestoreBinPath();   
 
-    await spawn(mongoresoreBinPath, [answers.dump]);
+    await spawn(mongoresoreBinPath, [dump]);
 }
+
+/**
+ * Search the mongo bin on this system
+ */
+async function mongoServerBin(){
+
+    if(os.platform() === 'win32'){
+        const promiseGlob = util.promisify(glob);
+        const dirs: string[] = [...new Set([
+            process.env['ProgramFiles'] as string,
+            process.env['ProgramFiles(x86)'] as string,
+            process.env['ProgramW6432'] as string
+        ])]
+            .filter(d => !!d) // remove null dirs
+            .map((p:string) => path.join(p, './MongoDB/Server'));
+        const found: string[] = [];
+        for (const d of dirs){
+            if (found.length > 0) continue; // stop at the first found
+            const bins = await promiseGlob('./**/mongo.exe', { dot:true, cwd: d });
+            found.push(...bins.map(bin => path.join(d, bin)));
+        }
+        
+        if (found.length === 0) throw new StringError('No mongo.exe bin found on this system');
+        return found[0];
+    }else{
+        throw new StringError('Not implemented for '+os.platform());
+    }
+}
+
+/**
+ * 
+ * @param dbName 
+ * @param database 
+ */
+async function dropLocalDatabase(dbName:string, database: MitechCliFileContentDb){
+    const mongoBin = await mongoServerBin();  
+    
+    await spawn(mongoBin, [dbName, '--eval','db.dropDatabase()'], true);
+}
+
+export { restoreMongo, selectMongodumpDir, dumpMongo, getMongorestoreBinPath, getMongodumpBinPath, mongoServerBin, dropLocalDatabase };

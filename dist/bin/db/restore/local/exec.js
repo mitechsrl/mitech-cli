@@ -21,21 +21,29 @@ const mongo_1 = require("../../_lib/mongo");
  * Generic dump method
  * @param database
  */
-async function restore(database) {
-    var _a;
+async function restore(database, argv) {
+    var _a, _b;
     switch (database.type) {
         case 'mongodb': {
-            await (0, mongo_1.restoreMongo)(database);
+            const dir = await (0, mongo_1.selectMongodumpDir)(database);
+            // drop the databases before running the restore
+            if (argv.drop) {
+                for (const n of (_a = database.databaseNames) !== null && _a !== void 0 ? _a : []) {
+                    await (0, mongo_1.dropLocalDatabase)(n, database);
+                }
+            }
+            await (0, mongo_1.restoreMongo)(dir, database);
             break;
         }
-        default: throw new types_1.StringError('Il tipo di database <' + ((_a = database.type) !== null && _a !== void 0 ? _a : '') + '> non è supportato');
+        default: throw new types_1.StringError('Il tipo di database <' + ((_b = database.type) !== null && _b !== void 0 ? _b : '') + '> non è supportato');
     }
 }
 const exec = async (argv) => {
     logger_1.logger.warn('NOTA: la selezione verrà usata solo per determinare il tipo di database. Non verranno effettuate altre operazioni.');
     const database = await (0, databaseSelector_1.getDatabase)();
     (0, databaseSelector_1.printDatabase)(database);
-    await restore(database);
+    /**/
+    await restore(database, argv);
 };
 exports.default = exec;
 //# sourceMappingURL=exec.js.map

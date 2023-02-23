@@ -16,16 +16,25 @@ import yargs from 'yargs';
 import { getDatabase, printDatabase } from '../../../../lib/databaseSelector';
 import { logger } from '../../../../lib/logger';
 import { CommandExecFunction, MitechCliFileContentDb, StringError } from '../../../../types';
-import { restoreMongo } from '../../_lib/mongo';
+import { dropLocalDatabase, restoreMongo, selectMongodumpDir } from '../../_lib/mongo';
 
 /**
  * Generic dump method
  * @param database 
  */
-async function restore(database: MitechCliFileContentDb){
+async function restore(database: MitechCliFileContentDb, argv: yargs.ArgumentsCamelCase<unknown>){
     switch(database.type){
     case 'mongodb': {
-        await restoreMongo(database);
+        const dir = await selectMongodumpDir(database);
+
+        // drop the databases before running the restore
+        if (argv.drop){
+            for(const n of database.databaseNames??[]){
+                await dropLocalDatabase(n, database);
+            }
+        }
+        
+        await restoreMongo(dir, database);
         break;
     }
     default: throw new StringError('Il tipo di database <'+(database.type??'')+'> non è supportato');
@@ -38,7 +47,8 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
     const database = await getDatabase();
     printDatabase(database);
 
-    await restore(database);
+    /**/
+    await restore(database, argv);
 };
 
 export default exec;

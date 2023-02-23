@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.restoreMongo = exports.dumpMongo = exports.getMongorestoreBinPath = exports.getMongodumpBinPath = void 0;
+exports.dropLocalDatabase = exports.mongoServerBin = exports.getMongodumpBinPath = exports.getMongorestoreBinPath = exports.dumpMongo = exports.selectMongodumpDir = exports.restoreMongo = void 0;
 const spawn_1 = require("../../../lib/spawn");
 const types_1 = require("../../../types");
 const os_1 = __importDefault(require("os"));
@@ -27,6 +27,7 @@ const stream_1 = require("stream");
 const node_fetch_1 = __importDefault(require("node-fetch"));
 const extract_zip_1 = __importDefault(require("extract-zip"));
 const inquirer_1 = __importDefault(require("inquirer"));
+const glob_1 = __importDefault(require("glob"));
 const TMP_PATH = path_1.default.resolve(os_1.default.homedir(), './.mitech-cli/');
 const streamPipeline = util_1.default.promisify(stream_1.pipeline);
 // this one support mongodb>=4.2 to <=6
@@ -170,10 +171,11 @@ async function dumpMongo(database) {
 }
 exports.dumpMongo = dumpMongo;
 /**
- *
+ * Prompt the user to select a directory. Directories are detected based on their name format.
  * @param database
+ * @returns
  */
-async function restoreMongo(database) {
+async function selectMongodumpDir(database) {
     var _a;
     // this must match the names build with buildOutDir
     const safeFilename = database.name.replace(/[^a-zA-Z0-9-_.]/g, '-').replace(/\./g, '\\.');
@@ -205,8 +207,56 @@ async function restoreMongo(database) {
     const answers = await inquirer_1.default.prompt(questions);
     if (!answers.dump)
         throw new types_1.StringError('Nessun dump selezionato');
+    // return the directory to be restored
+    return answers.dump; // that's a string
+}
+exports.selectMongodumpDir = selectMongodumpDir;
+/**
+ *
+ * @param database
+ */
+async function restoreMongo(dump, database) {
     const mongoresoreBinPath = await getMongorestoreBinPath();
-    await (0, spawn_1.spawn)(mongoresoreBinPath, [answers.dump]);
+    await (0, spawn_1.spawn)(mongoresoreBinPath, [dump]);
 }
 exports.restoreMongo = restoreMongo;
+/**
+ * Search the mongo bin on this system
+ */
+async function mongoServerBin() {
+    if (os_1.default.platform() === 'win32') {
+        const promiseGlob = util_1.default.promisify(glob_1.default);
+        const dirs = [...new Set([
+                process.env['ProgramFiles'],
+                process.env['ProgramFiles(x86)'],
+                process.env['ProgramW6432']
+            ])]
+            .filter(d => !!d) // remove null dirs
+            .map((p) => path_1.default.join(p, './MongoDB/Server'));
+        const found = [];
+        for (const d of dirs) {
+            if (found.length > 0)
+                continue; // stop at the first found
+            const bins = await promiseGlob('./**/mongo.exe', { dot: true, cwd: d });
+            found.push(...bins.map(bin => path_1.default.join(d, bin)));
+        }
+        if (found.length === 0)
+            throw new types_1.StringError('No mongo.exe bin found on this system');
+        return found[0];
+    }
+    else {
+        throw new types_1.StringError('Not implemented for ' + os_1.default.platform());
+    }
+}
+exports.mongoServerBin = mongoServerBin;
+/**
+ *
+ * @param dbName
+ * @param database
+ */
+async function dropLocalDatabase(dbName, database) {
+    const mongoBin = await mongoServerBin();
+    await (0, spawn_1.spawn)(mongoBin, [dbName, '--eval', 'db.dropDatabase()'], true);
+}
+exports.dropLocalDatabase = dropLocalDatabase;
 //# sourceMappingURL=mongo.js.map

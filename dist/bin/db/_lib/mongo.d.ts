@@ -19,7 +19,7 @@ import { MitechCliFileContentDb } from '../../../types';
  *
  * @returns
  */
-export declare function getMongodumpBinPath(): Promise<string>;
+declare function getMongodumpBinPath(): Promise<string>;
 /**
  * Get the path to the mongoirestore tool.
  * On windows, mongotools is a separate packages of executables not shipped with mongodb.
@@ -27,14 +27,31 @@ export declare function getMongodumpBinPath(): Promise<string>;
  *
  * @returns
  */
-export declare function getMongorestoreBinPath(): Promise<string>;
+declare function getMongorestoreBinPath(): Promise<string>;
 /**
   * Dump mongodb
   * @param database
   */
-export declare function dumpMongo(database: MitechCliFileContentDb): Promise<void>;
+declare function dumpMongo(database: MitechCliFileContentDb): Promise<void>;
+/**
+ * Prompt the user to select a directory. Directories are detected based on their name format.
+ * @param database
+ * @returns
+ */
+declare function selectMongodumpDir(database: MitechCliFileContentDb): Promise<string>;
 /**
  *
  * @param database
  */
-export declare function restoreMongo(database: MitechCliFileContentDb): Promise<void>;
+declare function restoreMongo(dump: string, database: MitechCliFileContentDb): Promise<void>;
+/**
+ * Search the mongo bin on this system
+ */
+declare function mongoServerBin(): Promise<string>;
+/**
+ *
+ * @param dbName
+ * @param database
+ */
+declare function dropLocalDatabase(dbName: string, database: MitechCliFileContentDb): Promise<void>;
+export { restoreMongo, selectMongodumpDir, dumpMongo, getMongorestoreBinPath, getMongodumpBinPath, mongoServerBin, dropLocalDatabase };
