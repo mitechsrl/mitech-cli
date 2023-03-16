@@ -17,7 +17,7 @@ import fs from 'fs';
 import { logger } from '../../../lib/logger';
 import { CommandExecFunction, StringError } from '../../../types';
 import { npmScope } from '../npmConstants';
-import { buildNpmrc, getRegistry, npmExecutable } from '../../../lib/npm';
+import { getRegistry, npmExecutable } from '../../../lib/npm';
 import { confirm } from '../../../lib/confirm';
 import { spawn } from '../../../lib/spawn';
 
@@ -48,16 +48,6 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
     // creo un .npmrc. Serve per far loggare npm in auto sul registry
     const registry = await getRegistry(npmScope, registryIdParam, true);
 
-    /* step 2 ************************************************************************/
-    logger.log('Preparo .npmrc...');
-    if (fs.existsSync('.npmrc')) {
-        fs.renameSync('.npmrc', '.npmrc-BACKUP');
-    }
-
-    fs.writeFileSync('.npmrc', buildNpmrc(registry));
-
-    const registryUrl = registry.registry;
-
     /* step 3 ************************************************************************/
     /*
     IV: 19-12-2022 Per via di
@@ -74,7 +64,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
             let npmignore = fs.readFileSync('.npmignore').toString();
             const haveIgnore = npmignore.split('\n').map(r => r.trim()).filter(r => r === '.npmrc').length > 0;
             if (!haveIgnore) {
-                npmignore = npmignore + '\n.npmrc\n.npmrc-BACKUP';
+                npmignore = npmignore + '\n.npmrc\n';
                 fs.writeFileSync('.npmignore', npmignore);
             }
         }
@@ -84,15 +74,14 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
 
     /* step 3 ************************************************************************/
     // eseguo comando
-    const result = await spawn(npmExecutable, ['publish', '--registry', registryUrl, '--access', 'restricted'], true);
-
-    if (fs.existsSync('.npmrc')) {
-        // rimuovo il file .npmrc. Non serve oltre l'operazione npm
-        fs.unlinkSync('.npmrc');
-    }
-    if (fs.existsSync('.npmrc-BACKUP')) {
-        fs.renameSync('.npmrc-BACKUP', '.npmrc');
-    }
+    const npmParams = [
+        'publish',
+        '--userconfig', registry.npmrcPath, 
+        '--registry', registry.registry, 
+        '--access', 'restricted'
+    ];
+    logger.log('Eseguo npm ' + npmParams.join(' '));
+    const result = await spawn(npmExecutable, npmParams, true);
 
     if (result.exitCode === 0) {
         logger.info('Publish completo!');

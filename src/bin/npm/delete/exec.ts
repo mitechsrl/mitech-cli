@@ -13,12 +13,11 @@
  */
 
 import yargs from 'yargs';
-import fs, { existsSync, unlinkSync } from 'fs';
+import { existsSync } from 'fs';
 import { logger } from '../../../lib/logger';
 import { CommandExecFunction, StringError } from '../../../types';
 import { npmScope } from '../npmConstants';
-import { buildNpmrc, getRegistry, npmExecutable } from '../../../lib/npm';
-import inquirer from 'inquirer';
+import { getRegistry, npmExecutable } from '../../../lib/npm';
 import { spawn } from '../../../lib/spawn';
 import { confirm } from '../../../lib/confirm';
 import { join } from 'path';
@@ -32,27 +31,22 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
         throw new StringError('Esegui questo comando in una cartella dove non è presente un file package.json!');
     }
 
-    const packageName = argv.p;
+    const packageName = argv.p as string;
     if (!await confirm(argv, 'Il pacchetto ' + packageName + ' verrà rimosso dal registry NPM Mitech. Sei sicuro?')){
         return;
     }
 
-    // creo un .npmrc se serve. Serve per far loggare npm in auto sul registry
     const registry = await getRegistry(npmScope);
-    const npmrcPath = join(process.cwd(),'./.npmrc');
-    let deleteNpmRcFile = false;
-    if (!existsSync(npmrcPath)){
-        deleteNpmRcFile = true;
-        fs.writeFileSync(npmrcPath, buildNpmrc(registry));
-    }
-
-    const npmParams = ['unpublish', packageName, '--registry', registry.registry, '--access', 'restricted', '--force'];
+    
+    const npmParams = [
+        'unpublish', packageName, 
+        '--userconfig', registry.npmrcPath, 
+        '--registry', registry.registry, 
+        '--access', 'restricted', 
+        '--force'
+    ];
     logger.log('Eseguo npm ' + npmParams.join(' '));
     const npmResult = await spawn(npmExecutable, npmParams, true);
-
-    if (deleteNpmRcFile){
-        unlinkSync(npmrcPath);
-    }
 
     if (npmResult.exitCode !== 0) {
         logger.error('Unpublish fallito: exit code = ' + npmResult.exitCode );

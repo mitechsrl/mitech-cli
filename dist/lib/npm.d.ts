@@ -14,6 +14,8 @@
 export type NpmRegistry = {
     scope?: string;
     registry: string;
+    npmrcPath: string;
+    id: string;
     managementAccount?: {
         username: string;
         password: string;
@@ -24,7 +26,7 @@ export declare const npmExecutable: string;
 /**
  * ottiene url del registry per lo scope scelto
  */
-export declare function getRegistry(scope?: string, defaultRegistryId?: string, defaultIfSingle?: boolean): Promise<any>;
+export declare function getRegistry(scope?: string, defaultRegistryId?: string, defaultIfSingle?: boolean): Promise<NpmRegistry>;
 /**
  * Costruisce il contenuto del file .npmrc con le credenziali per il registry di turno
  */

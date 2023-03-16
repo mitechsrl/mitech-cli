@@ -71,7 +71,8 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
             readonlyAccount: {
                 username: answers.readonly_username,
                 password: answers.readonly_password
-            }
+            },
+            npmrcPath: '' // this is set at runtime
         };
 
         registies.push(registry);

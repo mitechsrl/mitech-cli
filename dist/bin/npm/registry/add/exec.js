@@ -70,7 +70,8 @@ const exec = async (argv) => {
             readonlyAccount: {
                 username: answers.readonly_username,
                 password: answers.readonly_password
-            }
+            },
+            npmrcPath: '' // this is set at runtime
         };
         registies.push(registry);
         registies.sort((a, b) => (a === b) ? 0 : (a < b) ? -1 : 1);

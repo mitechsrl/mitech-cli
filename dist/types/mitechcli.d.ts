@@ -1,4 +1,4 @@
-export type SshTargetPassword = {
+export type EncryptedPassword = {
     algo: string;
     iv: string;
     encryptedData: string;
@@ -10,7 +10,7 @@ export type SshTarget = {
     'username': 'root';
     'accessType': 'sshKey' | 'password';
     'sshKey'?: string;
-    'password'?: SshTargetPassword | string;
+    'password'?: EncryptedPassword | string;
     'nodeUser': 'node';
 };
 export type MitechCliFileContentProjectDeployment = {
@@ -34,7 +34,7 @@ export type MitechCliFileContentDb = {
     host?: string;
     port?: string;
     username?: string;
-    password?: string;
+    password?: string | EncryptedPassword;
     tls?: boolean;
     databaseNames?: string[];
     dst?: string;

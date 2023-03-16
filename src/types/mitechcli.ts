@@ -1,6 +1,5 @@
-import { type } from 'os';
 
-export type SshTargetPassword = {
+export type EncryptedPassword = {
     algo: string,
     iv: string,
     encryptedData: string
@@ -24,7 +23,7 @@ export type SshTarget = {
     // Path of the ssh file. Defined only if accessType = sshKey
     'sshKey'?: string,
     // Password for ssh access. Defined only if accessType = password
-    'password'?: SshTargetPassword | string,
+    'password'?: EncryptedPassword | string,
 
     // User for node processes
     'nodeUser': 'node',
@@ -50,7 +49,7 @@ export type MitechCliFileContentDb = {
     host?: string,
     port?: string, // defaults 27017
     username?: string,
-    password?:string,
+    password?: string|EncryptedPassword,
     tls?: boolean,
     databaseNames?: string[],
     dst?: string

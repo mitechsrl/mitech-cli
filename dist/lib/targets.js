@@ -24,6 +24,7 @@ const crypto_1 = require("./crypto");
 const logger_1 = require("./logger");
 const mitechCliFile_1 = require("./mitechCliFile");
 const path_1 = __importDefault(require("path"));
+const environment_1 = require("./environment");
 /**
  * DEcode the target password if needed
  * @param {*} target
@@ -35,8 +36,7 @@ function decodeTarget(target) {
         if (typeof _t.password !== 'object') {
             throw new Error('Cannot decrypt password.');
         }
-        const encryptionKey = process.env.MitechCliEncryptionKey || process.env.mitechcliencryptionkey || process.env.MITECHCLIENCRYPTIONKEY || '';
-        _t.password = (0, crypto_1.decrypt)(_t.password.iv, encryptionKey, _t.password.encryptedData);
+        _t.password = (0, crypto_1.decrypt)(_t.password.iv, environment_1.environment.encryptionKey, _t.password.encryptedData);
     }
     return _t;
 }

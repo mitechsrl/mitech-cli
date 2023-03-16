@@ -19,6 +19,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.printDatabase = exports.getDatabase = exports.SUPPORTED_TYPES = void 0;
 const inquirer_1 = __importDefault(require("inquirer"));
 const types_1 = require("../types");
+const crypto_1 = require("./crypto");
+const environment_1 = require("./environment");
 const logger_1 = require("./logger");
 const mitechCliFile_1 = require("./mitechCliFile");
 exports.SUPPORTED_TYPES = ['mongodb'];
@@ -81,6 +83,10 @@ async function getDatabase() {
         throw new types_1.StringError('Nessun database selezionato');
     }
     checkDatabase(_t);
+    // decrypt encrypted object
+    if (_t.password && typeof _t.password === 'object') {
+        _t.password = (0, crypto_1.decrypt)(_t.password.iv, environment_1.environment.encryptionKey, _t.password.encryptedData);
+    }
     return _t;
 }
 exports.getDatabase = getDatabase;

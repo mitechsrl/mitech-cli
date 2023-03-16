@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config = {
-    description: 'Generatore uuid',
+    description: 'Generatore uuid casuali',
     exec: './exec',
     params: []
 };

@@ -20,6 +20,7 @@ import { decrypt } from './crypto';
 import { logger } from './logger';
 import { getMitechCliFile } from './mitechCliFile';
 import path from 'path';
+import { environment } from './environment';
 
 /**
  * DEcode the target password if needed
@@ -32,8 +33,7 @@ export function decodeTarget(target: SshTarget) {
         if (typeof _t.password !== 'object') {
             throw new Error('Cannot decrypt password.');
         }
-        const encryptionKey = process.env.MitechCliEncryptionKey || process.env.mitechcliencryptionkey || process.env.MITECHCLIENCRYPTIONKEY || '';
-        _t.password = decrypt(_t.password.iv, encryptionKey, _t.password.encryptedData);
+        _t.password = decrypt(_t.password.iv, environment.encryptionKey, _t.password.encryptedData);
     }
     return _t;
 }

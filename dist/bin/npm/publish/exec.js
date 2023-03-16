@@ -46,13 +46,6 @@ const exec = async (argv) => {
     }
     // creo un .npmrc. Serve per far loggare npm in auto sul registry
     const registry = await (0, npm_1.getRegistry)(npmConstants_1.npmScope, registryIdParam, true);
-    /* step 2 ************************************************************************/
-    logger_1.logger.log('Preparo .npmrc...');
-    if (fs_1.default.existsSync('.npmrc')) {
-        fs_1.default.renameSync('.npmrc', '.npmrc-BACKUP');
-    }
-    fs_1.default.writeFileSync('.npmrc', (0, npm_1.buildNpmrc)(registry));
-    const registryUrl = registry.registry;
     /* step 3 ************************************************************************/
     /*
     IV: 19-12-2022 Per via di
@@ -69,7 +62,7 @@ const exec = async (argv) => {
             let npmignore = fs_1.default.readFileSync('.npmignore').toString();
             const haveIgnore = npmignore.split('\n').map(r => r.trim()).filter(r => r === '.npmrc').length > 0;
             if (!haveIgnore) {
-                npmignore = npmignore + '\n.npmrc\n.npmrc-BACKUP';
+                npmignore = npmignore + '\n.npmrc\n';
                 fs_1.default.writeFileSync('.npmignore', npmignore);
             }
         }
@@ -79,14 +72,14 @@ const exec = async (argv) => {
     }
     /* step 3 ************************************************************************/
     // eseguo comando
-    const result = await (0, spawn_1.spawn)(npm_1.npmExecutable, ['publish', '--registry', registryUrl, '--access', 'restricted'], true);
-    if (fs_1.default.existsSync('.npmrc')) {
-        // rimuovo il file .npmrc. Non serve oltre l'operazione npm
-        fs_1.default.unlinkSync('.npmrc');
-    }
-    if (fs_1.default.existsSync('.npmrc-BACKUP')) {
-        fs_1.default.renameSync('.npmrc-BACKUP', '.npmrc');
-    }
+    const npmParams = [
+        'publish',
+        '--userconfig', registry.npmrcPath,
+        '--registry', registry.registry,
+        '--access', 'restricted'
+    ];
+    logger_1.logger.log('Eseguo npm ' + npmParams.join(' '));
+    const result = await (0, spawn_1.spawn)(npm_1.npmExecutable, npmParams, true);
     if (result.exitCode === 0) {
         logger_1.logger.info('Publish completo!');
     }

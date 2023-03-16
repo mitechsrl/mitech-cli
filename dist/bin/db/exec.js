@@ -13,10 +13,9 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-const targets_1 = require("../../lib/targets");
+const logger_1 = require("../../lib/logger");
 const exec = async (argv) => {
-    const t = await (0, targets_1.getTarget)();
-    (0, targets_1.printTarget)(t);
+    logger_1.logger.log('Nulla da fare qui. Aggiungi -h per info');
 };
 exports.default = exec;
 //# sourceMappingURL=exec.js.map

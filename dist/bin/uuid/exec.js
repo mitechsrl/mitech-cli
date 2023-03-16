@@ -16,6 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const logger_1 = require("../../lib/logger");
 const uuid_1 = require("uuid");
 const exec = async (argv) => {
+    // Utility scema per generar degli uuid
     logger_1.logger.log((0, uuid_1.v4)());
     logger_1.logger.log((0, uuid_1.v4)());
     logger_1.logger.log((0, uuid_1.v4)());

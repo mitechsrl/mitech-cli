@@ -196,6 +196,14 @@ async function selectMongodumpDir(database) {
             value: dir
         };
     });
+    // sort: newer on top
+    files.sort((a, b) => {
+        if (a.name === b.name)
+            return 0;
+        if (a.name < b.name)
+            return 1;
+        return -1;
+    });
     if (files.length === 0)
         throw new types_1.StringError('Nessun dump trovato');
     const questions = [{

@@ -331,8 +331,8 @@ Ogni elemento dell'array mantiene una struttura pari a:
     "name": string, // nome di questo db. Sringa arbitraria.
     "host": string, // hostname del server su cui è attiva l'istanza mongo a cui connettersi
     "port": string, // opzionale, defaults 27017
-    "username": string,  // opzionale, se omessa non avviene aujtenticazione
-    "password": string, // opzionale, se omessa non avviene aujtenticazione
+    "username": string,  // opzionale, se omessa non avviene autenticazione
+    "password": string, // opzionale, se omessa non avviene autenticazione. TODO: encrypt
     "tls": boolean, // opzionale, se true usa tls per la connessione mongo
     "databaseNames": string[], // opzionale, lista di database names da dumpare. Se omessa o lista vuota processa "tutti i db"
     "dst": string // opzionale, directory destinazione dump, default ./

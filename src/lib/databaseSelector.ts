@@ -15,6 +15,8 @@
 import inquirer from 'inquirer';
 import _ from 'lodash';
 import { MitechCliFileContentDb, StringError } from '../types';
+import { decrypt } from './crypto';
+import { environment } from './environment';
 import { logger } from './logger';
 import { getMitechCliFile } from './mitechCliFile';
 
@@ -85,6 +87,12 @@ export async function getDatabase(): Promise<MitechCliFileContentDb> {
     }
     
     checkDatabase(_t);
+
+    // decrypt encrypted object
+    if (_t.password && typeof _t.password === 'object') {
+        _t.password = decrypt(_t.password.iv, environment.encryptionKey, _t.password.encryptedData);
+    }
+
     return _t as MitechCliFileContentDb;
 }
 

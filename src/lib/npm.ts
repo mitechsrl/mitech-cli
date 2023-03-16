@@ -15,12 +15,17 @@
 import inquirer from 'inquirer';
 import { GenericObject, StringError } from '../types';
 import { logger } from './logger';
-import { getPersistent, setPersistent } from './persistent';
+import { baseConfigDir, getPersistent, setPersistent } from './persistent';
 import os from 'os';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { join } from 'path';
+import crypto from 'crypto';
 
 export type NpmRegistry = {
     scope?: string,
     registry: string,
+    npmrcPath: string,
+    id: string,
     managementAccount?: {
         username: string,
         password: string,
@@ -34,9 +39,30 @@ export type NpmRegistry = {
 export const npmExecutable = os.platform() === 'win32' ? 'npm.cmd' : 'npm';
 
 /**
+ * Create the npmrc file based on the selected registry
+ * @param registry 
+ * @returns 
+ */
+async function prepareNpmRcFile(registry: NpmRegistry){
+    
+    // write the file
+    const npmRcContent = buildNpmrc(registry);
+    // different npmrc contents will have different files
+    const md5 = crypto.createHash('md5').update(npmRcContent).digest('hex');
+    const npmPersistentDir = join(baseConfigDir, './npm');
+    mkdirSync(npmPersistentDir, { recursive:true });
+    const npmrcPath = join(npmPersistentDir, '/.npmrc_'+md5.substring(0, 6));
+    if (!existsSync(npmrcPath)){
+        writeFileSync(npmrcPath, npmRcContent);
+    }
+    registry.npmrcPath = npmrcPath;
+    
+    return registry;
+}
+/**
  * ottiene url del registry per lo scope scelto
  */
-export async function getRegistry(scope?: string, defaultRegistryId?: string, defaultIfSingle = true) {
+export async function getRegistry(scope?: string, defaultRegistryId?: string, defaultIfSingle = true): Promise<NpmRegistry> {
     try {
         let registries = getPersistent('npm') as GenericObject[];
         if (!Array.isArray(registries) && Object.keys(registries).length === 0) {
@@ -59,10 +85,14 @@ export async function getRegistry(scope?: string, defaultRegistryId?: string, de
         // do we have something passed as parameter?
         if (defaultRegistryId) {
             const defaultRegistry = registries.find(r => r.id === defaultRegistryId);
-            if (defaultRegistry) return defaultRegistry;
+            if (defaultRegistry){
+                return prepareNpmRcFile(defaultRegistry as NpmRegistry);
+            }
         }
 
-        if (defaultIfSingle && registries.length === 1) return registries[0];
+        if (defaultIfSingle && registries.length === 1){
+            return prepareNpmRcFile(registries[0] as NpmRegistry);
+        }
 
         logger.log('Seleziona il registry');
         // ask the user for registry
@@ -73,7 +103,8 @@ export async function getRegistry(scope?: string, defaultRegistryId?: string, de
             choices: registries.map(r => ({ name: r.id + ' (scope: ' + r.scope + ', url: ' + r.registry + ')', value: r }))
         }];
         const answers = await inquirer.prompt(questions);
-        return answers.registry;
+
+        return prepareNpmRcFile(answers.registry);
         
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {

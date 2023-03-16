@@ -13,7 +13,7 @@
  */
 /// <reference types="node" />
 import crypto, { Encoding } from 'crypto';
-import { SshTargetPassword } from '../types';
+import { EncryptedPassword } from '../types';
 /**
  * Encrypt a plain text string and return the encrypted object.
  *
@@ -23,7 +23,7 @@ import { SshTargetPassword } from '../types';
  *
  * @returns The returned object is an object made of two elements: iv (init vector) and encryptedData. Both value are needed to perform a decrypt.
  */
-export declare function encrypt(privateKey: crypto.BinaryLike, plainTextData: string, encoding?: Encoding): SshTargetPassword;
+export declare function encrypt(privateKey: crypto.BinaryLike, plainTextData: string, encoding?: Encoding): EncryptedPassword;
 /**
  * Decrypt an encrypted data string and return the plain text result
  *

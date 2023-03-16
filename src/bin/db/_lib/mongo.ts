@@ -148,7 +148,7 @@ function buildMongoDumpParams(database: MitechCliFileContentDb, outdir:string, d
     if (database.username && database.password){
         params.push('--authenticationDatabase','admin',
             '--username', database.username, 
-            '--password', database.password); 
+            '--password', database.password as string); // note: passwrd was already decoded to string
     }
     if (databaseName){
         params.push('--db',databaseName);
@@ -212,7 +212,12 @@ async function selectMongodumpDir(database: MitechCliFileContentDb): Promise<str
             value: dir
         };
     });
- 
+    // sort: newer on top
+    files.sort((a,b) => { 
+        if (a.name === b.name)return 0;
+        if (a.name<b.name) return 1;
+        return -1;
+    });
     if (files.length === 0) throw new StringError('Nessun dump trovato');
      
     const questions = [{

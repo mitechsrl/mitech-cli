@@ -13,12 +13,11 @@
  */
 
 import yargs from 'yargs';
-import { getTarget, printTarget } from '../../lib/targets';
+import { logger } from '../../lib/logger';
 import { CommandExecFunction } from '../../types';
  
 const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => {
-    const t = await getTarget();
-    printTarget(t);
+    logger.log('Nulla da fare qui. Aggiungi -h per info');
 };
 
 export default exec;

@@ -13,7 +13,7 @@
  */
 
 import crypto, { Encoding } from 'crypto';
-import { SshTargetPassword } from '../types';
+import { EncryptedPassword } from '../types';
 
 /**
  * Encrypt a plain text string and return the encrypted object.
@@ -31,7 +31,7 @@ export function encrypt(privateKey: crypto.BinaryLike, plainTextData: string, en
     const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
     let encrypted = cipher.update(plainTextData, 'utf-8', _encoding);
     encrypted += cipher.final(_encoding);
-    return { algo: 'aes-256-cbc', iv: iv.toString(_encoding), encryptedData: encrypted } as SshTargetPassword;
+    return { algo: 'aes-256-cbc', iv: iv.toString(_encoding), encryptedData: encrypted } as EncryptedPassword;
 }
 
 /**

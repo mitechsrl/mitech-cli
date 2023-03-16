@@ -22,8 +22,30 @@ const types_1 = require("../types");
 const logger_1 = require("./logger");
 const persistent_1 = require("./persistent");
 const os_1 = __importDefault(require("os"));
+const fs_1 = require("fs");
+const path_1 = require("path");
+const crypto_1 = __importDefault(require("crypto"));
 // windows fa il windows percui lui vuole 'npm.cmd' anzichè 'npm' come comando di avvio
 exports.npmExecutable = os_1.default.platform() === 'win32' ? 'npm.cmd' : 'npm';
+/**
+ * Create the npmrc file based on the selected registry
+ * @param registry
+ * @returns
+ */
+async function prepareNpmRcFile(registry) {
+    // write the file
+    const npmRcContent = buildNpmrc(registry);
+    // different npmrc contents will have different files
+    const md5 = crypto_1.default.createHash('md5').update(npmRcContent).digest('hex');
+    const npmPersistentDir = (0, path_1.join)(persistent_1.baseConfigDir, './npm');
+    (0, fs_1.mkdirSync)(npmPersistentDir, { recursive: true });
+    const npmrcPath = (0, path_1.join)(npmPersistentDir, '/.npmrc_' + md5.substring(0, 6));
+    if (!(0, fs_1.existsSync)(npmrcPath)) {
+        (0, fs_1.writeFileSync)(npmrcPath, npmRcContent);
+    }
+    registry.npmrcPath = npmrcPath;
+    return registry;
+}
 /**
  * ottiene url del registry per lo scope scelto
  */
@@ -49,11 +71,13 @@ async function getRegistry(scope, defaultRegistryId, defaultIfSingle = true) {
         // do we have something passed as parameter?
         if (defaultRegistryId) {
             const defaultRegistry = registries.find(r => r.id === defaultRegistryId);
-            if (defaultRegistry)
-                return defaultRegistry;
+            if (defaultRegistry) {
+                return prepareNpmRcFile(defaultRegistry);
+            }
         }
-        if (defaultIfSingle && registries.length === 1)
-            return registries[0];
+        if (defaultIfSingle && registries.length === 1) {
+            return prepareNpmRcFile(registries[0]);
+        }
         logger_1.logger.log('Seleziona il registry');
         // ask the user for registry
         const questions = [{
@@ -63,7 +87,7 @@ async function getRegistry(scope, defaultRegistryId, defaultIfSingle = true) {
                 choices: registries.map(r => ({ name: r.id + ' (scope: ' + r.scope + ', url: ' + r.registry + ')', value: r }))
             }];
         const answers = await inquirer_1.default.prompt(questions);
-        return answers.registry;
+        return prepareNpmRcFile(answers.registry);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }
     catch (e) {
