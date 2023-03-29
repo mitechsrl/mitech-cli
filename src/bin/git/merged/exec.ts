@@ -19,7 +19,7 @@ import { CommandExecFunction } from '../../../types';
 import { branchSelector } from '../_lib/branchSelector';
 import { prettyFormat } from '../_lib/prettyFormat';
 
-const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => {
+const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>) => {
     
     let branchName: string = argv.b as string;
     // chiedi il nome branch nel caso non sia stata passata 
@@ -56,7 +56,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
             });
         }
     } else {
-        logger.warn(':confused: Mmm... la branch non è nè merged, nè unmerged... chiedi al cane, se abbaia due volte allora è merged.');
+        logger.warn(':confused: Mmm... la branch non è nè merged, nè unmerged. https://www.youtube.com/watch?v=A5V_pz848oA');
     }
 
     logger.log('');

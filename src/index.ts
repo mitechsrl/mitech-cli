@@ -10,6 +10,7 @@ import { existsSync, readFileSync } from 'fs';
 
 function recourseRegisterCommand(parentYargs: yargs.Argv, commandConfig: ScanCommandResult) {
     const configFilePath = path.join(__dirname,commandConfig.file);
+    // How the hell should i do in typescriot dynamic import like this??
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const command: Command = require(configFilePath).default;
     parentYargs.command(commandConfig.cmd, command.description, (_yargs) => {
