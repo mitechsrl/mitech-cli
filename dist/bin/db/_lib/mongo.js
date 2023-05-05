@@ -139,7 +139,7 @@ function buildMongoDumpParams(database, outdir, databaseName) {
     ];
     // add auth if both user & password are defined
     if (database.username && database.password) {
-        params.push('--authenticationDatabase', 'admin', '--username', database.username, '--password', database.password);
+        params.push('--authenticationDatabase', 'admin', '--username', database.username, '--password', database.password); // note: passwrd was already decoded to string
     }
     if (databaseName) {
         params.push('--db', databaseName);

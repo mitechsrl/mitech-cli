@@ -334,7 +334,8 @@ export function interativeClient(target: SshTarget, params: string[]){
         } else if (target.accessType === 'sshKey') {
             const ppkFile = target.sshKey + '.ppk';
             if (!fs.existsSync(ppkFile)) {
-                spawn(path.join(__dirname, '../../putty/puttygen.exe'), [target.sshKey!]).unref();
+                const proc = spawn(path.join(__dirname, '../../putty/puttygen.exe'), [target.sshKey!], { detached:true});
+                proc.unref();
                 throw new Error('Putty richiede la chiave in formato ppk. Convertila con puttygen e salvala in ' + ppkFile + ', con lo stesso nome ma aggiungi l\'estensione .ppk. Lancio Puttygen in auto, clicca su -save private key-');
             }
             finalCmd.push('-i');

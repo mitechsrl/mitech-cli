@@ -11,6 +11,7 @@ const main_js_1 = require("./bin/main.js");
 const fs_1 = require("fs");
 function recourseRegisterCommand(parentYargs, commandConfig) {
     const configFilePath = path_1.default.join(__dirname, commandConfig.file);
+    // How the hell should i do in typescriot dynamic import like this??
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const command = require(configFilePath).default;
     parentYargs.command(commandConfig.cmd, command.description, (_yargs) => {

@@ -52,7 +52,7 @@ const exec = async (argv) => {
         }
     }
     else {
-        logger_1.logger.warn(':confused: Mmm... la branch non è nè merged, nè unmerged... chiedi al cane, se abbaia due volte allora è merged.');
+        logger_1.logger.warn(':confused: Mmm... la branch non è nè merged, nè unmerged. https://www.youtube.com/watch?v=A5V_pz848oA');
     }
     logger_1.logger.log('');
 };
