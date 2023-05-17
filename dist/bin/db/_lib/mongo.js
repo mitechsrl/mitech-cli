@@ -161,13 +161,15 @@ async function dumpMongo(database) {
     if (!Array.isArray(database.databaseNames)) {
         const params = buildMongoDumpParams(database, outDir);
         await (0, spawn_1.spawn)(mongodumpBinPath, params);
-        return;
     }
-    // per db multipli occorre rilanciare mongodump piu volte. Itero sui npmi db
-    for (const databaseName of database.databaseNames) {
-        const params = buildMongoDumpParams(database, outDir, databaseName);
-        await (0, spawn_1.spawn)(mongodumpBinPath, params);
+    else {
+        // per db multipli occorre rilanciare mongodump piu volte. Itero sui npmi db
+        for (const databaseName of database.databaseNames) {
+            const params = buildMongoDumpParams(database, outDir, databaseName);
+            await (0, spawn_1.spawn)(mongodumpBinPath, params);
+        }
     }
+    return { outDir: outDir };
 }
 exports.dumpMongo = dumpMongo;
 /**

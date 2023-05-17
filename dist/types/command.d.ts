@@ -9,4 +9,5 @@ export type Command = {
     }[];
     exec: string;
     strictCommands?: boolean;
+    strictOptions?: boolean;
 };

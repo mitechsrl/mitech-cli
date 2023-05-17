@@ -32,6 +32,10 @@ function recourseRegisterCommand(parentYargs, commandConfig) {
         // Se non strict, chiama l'ultimo padre riconosciuto e passagli i restanti parametri
         // https://yargs.js.org/docs/#api-reference-strictcommandsenabledtrue
         _yargs.strictCommands(command.strictCommands !== false);
+        /**
+         * Errore per parametri sconosciuti.
+         */
+        _yargs.strictOptions(command.strictOptions !== false);
     }, (argv) => {
         // funzione chiamata sull'esecuzione del comando
         Promise.resolve()

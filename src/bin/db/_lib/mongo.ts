@@ -173,15 +173,15 @@ async function dumpMongo(database: MitechCliFileContentDb){
     if (!Array.isArray(database.databaseNames)){
         const params = buildMongoDumpParams(database, outDir);
         await spawn(mongodumpBinPath, params);
-        return;
-    }
- 
-    // per db multipli occorre rilanciare mongodump piu volte. Itero sui npmi db
-    for(const databaseName of database.databaseNames){
-        const params = buildMongoDumpParams(database, outDir, databaseName);
-        await spawn(mongodumpBinPath, params);
+    }else{
+        // per db multipli occorre rilanciare mongodump piu volte. Itero sui npmi db
+        for(const databaseName of database.databaseNames){
+            const params = buildMongoDumpParams(database, outDir, databaseName);
+            await spawn(mongodumpBinPath, params);
+        }
     }
 
+    return { outDir: outDir };
 }
 
 /**

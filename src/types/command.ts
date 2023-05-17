@@ -22,4 +22,7 @@ export type Command = {
     // allow unknown positional parameters
     // If true, "mitech pm2 demo" will be managed by "mitech pm2" since everything after "pm2" is unknown 
     strictCommands?: boolean
+
+    // unknown options will raise an error
+    strictOptions?:boolean
 };

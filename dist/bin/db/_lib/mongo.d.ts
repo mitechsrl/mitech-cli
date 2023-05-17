@@ -32,7 +32,9 @@ declare function getMongorestoreBinPath(): Promise<string>;
   * Dump mongodb
   * @param database
   */
-declare function dumpMongo(database: MitechCliFileContentDb): Promise<void>;
+declare function dumpMongo(database: MitechCliFileContentDb): Promise<{
+    outDir: string;
+}>;
 /**
  * Prompt the user to select a directory. Directories are detected based on their name format.
  * @param database

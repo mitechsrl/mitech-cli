@@ -21,22 +21,29 @@ import { dumpMongo } from '../_lib/mongo';
  * Generic dump method
  * @param database 
  */
-async function dump(database: MitechCliFileContentDb){
+async function dump(database: MitechCliFileContentDb, argv?: yargs.ArgumentsCamelCase<unknown> ){
+    let dumpResult: {
+        outDir: string 
+    };
     switch(database.type){
     case 'mongodb': {
-        await dumpMongo(database);
+        dumpResult = await dumpMongo(database);
         break;
     }
     default: throw new StringError('Il tipo di database <'+(database.type??'')+'> non è supportato');
     }
+
+    // implementare zip 
+    if (argv?.zip){ 
+    }
     
 }
 
-const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => {
+const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>) => {
     const database = await getDatabase();
     printDatabase(database);
 
-    await dump(database);
+    await dump(database, argv);
 };
 
 export default exec;

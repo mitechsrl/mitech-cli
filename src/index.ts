@@ -35,6 +35,10 @@ function recourseRegisterCommand(parentYargs: yargs.Argv, commandConfig: ScanCom
         // https://yargs.js.org/docs/#api-reference-strictcommandsenabledtrue
         _yargs.strictCommands(command.strictCommands !== false);
 
+        /**
+         * Errore per parametri sconosciuti.
+         */
+        _yargs.strictOptions(command.strictOptions !== false );
     }, (argv) => {
         // funzione chiamata sull'esecuzione del comando
         Promise.resolve()
