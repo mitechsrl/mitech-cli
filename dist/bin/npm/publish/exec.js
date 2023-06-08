@@ -51,9 +51,10 @@ const exec = async (argv) => {
     IV: 19-12-2022 Per via di
         https://medium.com/@jdxcode/for-the-love-of-god-dont-use-npmignore-f93c08909d8d
         cerco di deprecare l'uso di npmignore.
-        I progetti che lo usano coninuno ad averlo finchè il dev non lo gestisce in alto modo,
-        ma se non c'è non viene icreato.
-        NOTA: contestualmente l'uso di "files" in package.json riduce i files pacchettizzati
+        I progetti che lo usano continuano ad averlo finchè il dev non lo gestisce in alto modo,
+        ma se non c'è non viene più creato automaticamente.
+        NOTA: contestualmente l'uso di "files" in package.json riduce i files pacchettizzati.
+        Usare inoltre .gitignore per limitare ulteriormente files pacchettizzati
     */
     try {
         if (fs_1.default.existsSync('.npmignore')) {

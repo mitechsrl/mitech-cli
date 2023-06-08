@@ -1,7 +1,7 @@
 import { Command } from '../../../types';
 
 const config: Command = {
-    description: 'Utility deploy ecosystem.config.json su VM',
+    description: 'Utility deploy ecosystem.config.js(on) su VM',
     exec: './exec',
     params: [{
         name:'r',
