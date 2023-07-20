@@ -69,6 +69,11 @@
         ]
     },
     {
+        "cmd": "docker",
+        "file": "bin/docker/commandConfig.js",
+        "children": []
+    },
+    {
         "cmd": "git",
         "file": "bin/git/commandConfig.js",
         "children": [
@@ -220,6 +225,11 @@
                     {
                         "cmd": "datadisk",
                         "file": "bin/vm/setup/datadisk/commandConfig.js",
+                        "children": []
+                    },
+                    {
+                        "cmd": "docker",
+                        "file": "bin/vm/setup/docker/commandConfig.js",
                         "children": []
                     },
                     {

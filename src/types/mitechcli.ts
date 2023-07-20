@@ -9,26 +9,22 @@ export type SshTarget = {
     // target name
     name: string,
     // Targte host
-    'host': string,
-
+    host: string,
     // targte ssh port
-    'port': 22,
-
+    port: 22,
     // default sh username
-    'username': 'root',
-
+    username: 'root',
     // access type
-    'accessType': 'sshKey' | 'password',
-
+    accessType: 'sshKey' | 'password',
     // Path of the ssh file. Defined only if accessType = sshKey
-    'sshKey'?: string,
+    sshKey?: string,
     // Password for ssh access. Defined only if accessType = password
-    'password'?: EncryptedPassword | string,
-
+    password?: EncryptedPassword | string,
     // User for node processes
-    'nodeUser': 'node',
-
-    // "activate": true,
+    nodeUser: 'node',
+    // Whick environment expect on remote server.
+    // This will run different commands for different environments
+    environment?: 'pm2'|'docker'
 };
 
 export type MitechCliFileContentProjectDeployment = {

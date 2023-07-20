@@ -75,14 +75,21 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
         {
             type: 'input',
             name: 'nodeUser',
-            message: 'Utente dedicato ai processi node',
+            message: 'Utente dedicato ai processi relativi a onit',
             default: 'onit'
+        },
+        {
+            type: 'list',
+            name: 'environment',
+            message: 'Tipologia setup remoto',
+            choices: [{ name: 'pm2', value: 'pm2' }, { name: 'docker', value: 'docker' }]
         }
     ];
 
     const answers: SshTarget = await inquirer.prompt(questionsStart);
     if (answers.accessType === 'password') {
-        while (1) {
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
             const _answers = await inquirer.prompt(questionsPassword);
             if (_answers.password === _answers.password2) {
                 delete _answers.password2;
