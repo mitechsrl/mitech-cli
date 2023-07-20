@@ -52,6 +52,11 @@
                 ]
             },
             {
+                "cmd": "docker",
+                "file": "bin/deploy/docker/commandConfig.js",
+                "children": []
+            },
+            {
                 "cmd": "file",
                 "file": "bin/deploy/file/commandConfig.js",
                 "children": []

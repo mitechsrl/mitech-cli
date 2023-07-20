@@ -18,6 +18,8 @@ apt install -y curl apt-transport-https ca-certificates curl software-properties
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
 apt install -y docker-ce docker-ce-cli
+
+#### enable service on boot
 systemctl enable docker
 
 #### crea utente dedicato a apps. NOTA: non gli si assegna alcuna password.
@@ -36,4 +38,15 @@ usermod -a -G docker $ADMINUSER
 echo "Aggiungo righe sudoers"
 #### L'utente ADMINUSER può ricaricare docker cons sudo senza che gli venga richiesta password
 #### SUPERATTENZIONE! una riga errata nel file /etc/sudoers fotte il sistema!
-echo "$ADMINUSER ALL = NOPASSWD: /usr/local/bin/docker-compose up -d --remove-orphans" >> /etc/sudoers
+echo "$ADMINUSER ALL = NOPASSWD: /usr/bin/docker compose up -d --remove-orphans" >> /etc/sudoers
+
+## Già che ci siamo installiamo anche node. Non serve, ma se dobbiamo fare degli script
+## ci potrebbe essere utile. Installo la versione 18
+cd ~
+curl -sL https://deb.nodesource.com/setup_18.x -o nodesource_setup.sh
+chmod +x nodesource_setup.sh
+./nodesource_setup.sh
+apt install -y nodejs
+
+# clean finale
+apt autoremove -y

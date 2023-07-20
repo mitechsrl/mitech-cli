@@ -1,3 +1,4 @@
 node_modules
 .tsbuildinfo
 .mitechcli*
+docker-compose.yml

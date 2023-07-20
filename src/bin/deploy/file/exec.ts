@@ -40,15 +40,17 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
         throw new StringError('File o path sorgente ' + toUpload + ' inesistente');
     }
 
+    // connect to ssh remote target
+    const session = await createSshSession(target);
+    
     const remoteErase = path.relative('./', toUpload);
+    const defaultDestination = await session.getRemoteHomeDir(nodeUser, 'apps' );
 
-    let destination = argv.d as string;
+    let destination = argv.d as string ?? defaultDestination;
     if (!destination) {
-        logger.warn('Destination dir non definita, uso il default (apps folder)');
-        destination = './';
+        logger.warn(`Destination dir non definita, uso il default ${defaultDestination}`);
+        destination = defaultDestination;
     }
-
-    logger.log('Carico ' + toUpload + ' in RemoteAppsFolder/' + destination);
 
     // Conferma per essere sicuri
     if (! await confirm(argv, toUpload + ' verrà caricato sul target selezionato. Continuare?')){
@@ -56,11 +58,10 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
         return;
     }
 
+    logger.log(`Carico ${toUpload} in ${defaultDestination}`);
+
     // compress the cwd() folder
     const projectTar = await createPackage(toUpload);
-
-    // connect to ssh remote target
-    const session = await createSshSession(target);
 
     // get destination paths from the remote target
     const remoteTempDir = await session.getRemoteTmpDir(nodeUser);

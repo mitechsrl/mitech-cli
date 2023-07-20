@@ -27,6 +27,7 @@ const uuid_1 = require("uuid");
 const deployScript_1 = require("../_lib/deployScript");
 const confirm_1 = require("../../../lib/confirm");
 const exec = async (argv) => {
+    var _a;
     const target = await (0, targets_1.getTarget)();
     if (!target)
         return;
@@ -39,13 +40,16 @@ const exec = async (argv) => {
     if (!(0, fs_1.existsSync)(toUpload)) {
         throw new types_1.StringError('File o path sorgente ' + toUpload + ' inesistente');
     }
+    // connect to ssh remote target
+    const session = await (0, ssh_1.createSshSession)(target);
     const remoteErase = path_1.default.relative('./', toUpload);
-    let destination = argv.d;
+    const defaultDestination = await session.getRemoteHomeDir(nodeUser, 'apps');
+    let destination = (_a = argv.d) !== null && _a !== void 0 ? _a : defaultDestination;
     if (!destination) {
-        logger_1.logger.warn('Destination dir non definita, uso il default (apps folder)');
-        destination = './';
+        logger_1.logger.warn(`Destination dir non definita, uso il default ${defaultDestination}`);
+        destination = defaultDestination;
     }
-    logger_1.logger.log('Carico ' + toUpload + ' in RemoteAppsFolder/' + destination);
+    logger_1.logger.log(`Carico ${toUpload} in ${defaultDestination}`);
     // Conferma per essere sicuri
     if (!await (0, confirm_1.confirm)(argv, toUpload + ' verrà caricato sul target selezionato. Continuare?')) {
         logger_1.logger.error('Deploy abortito');
@@ -53,8 +57,6 @@ const exec = async (argv) => {
     }
     // compress the cwd() folder
     const projectTar = await (0, createPackage_1.createPackage)(toUpload);
-    // connect to ssh remote target
-    const session = await (0, ssh_1.createSshSession)(target);
     // get destination paths from the remote target
     const remoteTempDir = await session.getRemoteTmpDir(nodeUser);
     const remoteTempFile = remoteTempDir.trim() + (0, uuid_1.v4)() + '.tgz';

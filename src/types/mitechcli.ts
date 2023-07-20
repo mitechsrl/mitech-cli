@@ -21,6 +21,7 @@ export type SshTarget = {
     // Password for ssh access. Defined only if accessType = password
     password?: EncryptedPassword | string,
     // User for node processes
+    // UPDATE IV 20-07-2023: this value may refer to a generic user to run app, not just node! 
     nodeUser: 'node',
     // Whick environment expect on remote server.
     // This will run different commands for different environments
