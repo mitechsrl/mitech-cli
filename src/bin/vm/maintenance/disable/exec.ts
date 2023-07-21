@@ -14,13 +14,11 @@
 
 import { createSshSession } from '../../../../lib/ssh';
 import { getTarget, printTarget } from '../../../../lib/targets';
-import { CommandExecFunction } from '../../../../types';
-import fs from 'fs';
-import fetch from 'node-fetch';
-import { file } from 'tmp-promise';
-import { validateIPaddress } from '../_lib/validateIpAddress';
-import { logger } from '../../../../lib/logger';
+import { CommandExecFunction, StringError } from '../../../../types';
 import yargs from 'yargs';
+import { disableMaintenancePm2 } from './modes/pm2';
+import { disableMaintenanceDocker } from './modes/docker';
+import { logger } from '../../../../lib/logger';
 
 const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => {
     const t = await getTarget();
@@ -28,31 +26,13 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
 
     const session = await createSshSession(t);
 
-    const response = await fetch('https://api.ipify.org');
-    const ip = (await response.text()).trim();
-
-    if (!validateIPaddress(ip)) {
-        console.warn('Impossibile rimuovere l\'indirizzo ip locale da /etc/nginx/geo_dyn.conf');
-    } else {
-        console.warn('Rimuovo ip locale ' + ip + ' da /etc/nginx/geo_dyn.conf');
-        const tmpFile = await file({ discardDescriptor: true, postfix: '.conf' });
-        await session.downloadFile('/etc/nginx/geo_dyn.conf', tmpFile.path);
-        const fileContent = (await fs.promises.readFile(tmpFile.path)).toString();
-        let fileContentLines = fileContent.split('\n');
-        fileContentLines = fileContentLines.filter(l => l.indexOf(ip) < 0);
-        await fs.promises.writeFile(tmpFile.path, fileContentLines.join('\n'));
-        await session.uploadFile(tmpFile.path, '/tmp/geo_dyn.conf');
-        await session.command('sudo mv /tmp/geo_dyn.conf /etc/nginx/geo_dyn.conf');
-        tmpFile.cleanup();
-        await session.command('sudo systemctl reload nginx.service');
+    switch (t.environment){
+    case 'pm2': await disableMaintenancePm2(session, t); break;
+    case 'docker': await disableMaintenanceDocker(session, t); break;
+    default: throw new StringError('Unknown environment mode');
     }
-
-    // set the nginx config
-    logger.log('Rimuovo file lock di maintenance mode...');
-    await session.command('sudo rm -rf /var/www/maintmode');
-
+    
     logger.success('Modalità maintenance disattivata');
-
     session.disconnect();
 };
 

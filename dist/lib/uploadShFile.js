@@ -31,12 +31,12 @@ async function uploadShfile(session, srcFile, dstFile) {
 }
 exports.uploadShfile = uploadShfile;
 /**
- * Carica e esegue uno script sh su server remoto
+ * Carica e esegue uno script sh su server remoto. Lo script viene eseguito con sudo.
  *
- * @param {*} session sessione ssh
- * @param {string} srcFile path file da caricare su disco locale
- * @param {string} dstFile path dove piazzare if file su server remoto. Deve essere path assoluto.
- * @param {string[]} params parametri di esecuzione script su server remoto
+ * @param session sessione ssh
+ * @param srcFile path file da caricare su disco locale
+ * @param dstFile path dove piazzare if file su server remoto. Deve essere path assoluto, il nome non è fondamentale, basta che sia valido su sistema remoto.
+ * @param params parametri di esecuzione script su server remoto
  */
 async function uploadAndRunShFile(session, srcFile, dstFile, params = []) {
     await uploadShfile(session, srcFile, dstFile);

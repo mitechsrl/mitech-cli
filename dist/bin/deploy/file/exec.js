@@ -49,12 +49,12 @@ const exec = async (argv) => {
         logger_1.logger.warn(`Destination dir non definita, uso il default ${defaultDestination}`);
         destination = defaultDestination;
     }
-    logger_1.logger.log(`Carico ${toUpload} in ${defaultDestination}`);
     // Conferma per essere sicuri
     if (!await (0, confirm_1.confirm)(argv, toUpload + ' verrà caricato sul target selezionato. Continuare?')) {
         logger_1.logger.error('Deploy abortito');
         return;
     }
+    logger_1.logger.log(`Carico ${toUpload} in ${defaultDestination}`);
     // compress the cwd() folder
     const projectTar = await (0, createPackage_1.createPackage)(toUpload);
     // get destination paths from the remote target

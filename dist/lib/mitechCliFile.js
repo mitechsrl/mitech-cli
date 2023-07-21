@@ -108,6 +108,14 @@ function ensureNameUniqueness(f) {
         cache[t.name] = true;
     });
 }
+// Make sure the environment type is set
+function ensureEnvironmentType(f) {
+    var _a;
+    ((_a = f.content.targets) !== null && _a !== void 0 ? _a : []).forEach(t => {
+        if (!t.environment)
+            t.environment = 'pm2';
+    });
+}
 /**
  * Read the mitechCli file. Searhc for different filenames, extensions and paths. The first found is the one used.
  * @returns
@@ -118,6 +126,7 @@ function getMitechCliFile() {
         throw new types_1.StringError('Nessun file .mitechcli[.js|.json] trovato');
     }
     ensureNameUniqueness(f);
+    ensureEnvironmentType(f);
     return f;
 }
 exports.getMitechCliFile = getMitechCliFile;

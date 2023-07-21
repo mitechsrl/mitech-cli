@@ -94,7 +94,6 @@ function loadFile() {
  * @param f 
  */
 function ensureNameUniqueness(f: MitechCliFile) {
-
     const cache: GenericObject = {};
     (f.content.targets ?? []).forEach(t => {
         if (!t.name) {
@@ -106,6 +105,15 @@ function ensureNameUniqueness(f: MitechCliFile) {
         cache[t.name] = true;
     });
 }
+
+// Make sure the environment type is set
+function ensureEnvironmentType(f: MitechCliFile) {
+
+    (f.content.targets ?? []).forEach(t => {
+        if (!t.environment) t.environment = 'pm2';
+    });
+}
+
 /**
  * Read the mitechCli file. Searhc for different filenames, extensions and paths. The first found is the one used.
  * @returns
@@ -118,7 +126,7 @@ export function getMitechCliFile() {
     }
 
     ensureNameUniqueness(f);
-
+    ensureEnvironmentType(f);
     return f;
 }
 

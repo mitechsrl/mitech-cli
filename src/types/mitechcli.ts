@@ -25,7 +25,7 @@ export type SshTarget = {
     nodeUser: 'node',
     // Whick environment expect on remote server.
     // This will run different commands for different environments
-    environment?: 'pm2'|'docker'
+    environment: 'pm2'|'docker'
 };
 
 export type MitechCliFileContentProjectDeployment = {

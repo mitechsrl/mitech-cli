@@ -12,7 +12,7 @@ export type SshTarget = {
     sshKey?: string;
     password?: EncryptedPassword | string;
     nodeUser: 'node';
-    environment?: 'pm2' | 'docker';
+    environment: 'pm2' | 'docker';
 };
 export type MitechCliFileContentProjectDeployment = {
     name: string;

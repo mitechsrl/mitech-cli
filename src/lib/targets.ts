@@ -101,7 +101,8 @@ export function printTarget(target: SshTarget) {
         const separator = '─';
         const targetStrings = [
             ' :arrow_forward:   Nome target: ' + target.name,
-            ' :globe_with_meridians:  Hostname/ip: ' + target.host
+            ' :globe_with_meridians:  Hostname/ip: ' + target.host,
+            ' :globe_with_meridians:  Environment: ' + target.environment
         ];
         const selectedTarget = 'Target selezionato';
         const l = Math.max(targetStrings[0].length, targetStrings[1].length);
