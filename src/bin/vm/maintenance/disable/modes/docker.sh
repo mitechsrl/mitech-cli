@@ -13,6 +13,7 @@ else
     NGINXMAINTMODEVOLUMEDIR=$3
 fi
 
+# sed '/1.2.3.4/d' ip.txt > ip2.txt
 
 # il maintenance mode lo si applica facendo touch di questo file.
 # NGINX è preconfigurato per dare http 503 con redirect verso il portale di

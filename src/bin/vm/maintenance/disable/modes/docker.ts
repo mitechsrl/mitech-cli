@@ -38,7 +38,7 @@ export async function disableMaintenanceDocker(session: SshSession, target: SshT
     const remoteNginxMaintmodeVolumeDir = remoteNginxVolumeDir+'/maintmode';
 
     // L'ip che ha abilitato la modalità manutenzione deve essere rimosso dalla lista geo_dyn
-    await removeMyIpAddressFromGeoDyn(session, geoDynFileName, remoteNginxGeoDynFile,remoteTempDirGeoDynFile );
+    await removeMyIpAddressFromGeoDyn(session, geoDynFileName, remoteNginxGeoDynFile, remoteTempDirGeoDynFile );
 
     // La serie (medio-lunga) di  comandi sono implementati via script bash, in modo da essere più veloce la scrittura del codice
     logger.log('Carico ed eseguo lo script bash di disattivazione modalità manutenzione..');
