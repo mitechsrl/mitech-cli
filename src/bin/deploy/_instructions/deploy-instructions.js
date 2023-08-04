@@ -169,6 +169,7 @@ const deployFiles = async () => {
 
 /**
  * scan the backup directory and list all found files
+ * Valido solo per environment basati su pm2
  */
 const lsBackups = async () => {
     const scanDirRecoursive = function (dirPath, arrayOfFiles) {
@@ -200,7 +201,8 @@ const lsBackups = async () => {
 };
 
 /**
- * Remove older backup files
+ * Remove older backup files.
+ * Valido solo per environment basati su pm2
  */
 const cleanBackups = async (projectName = null) => {
     const files = await lsBackups();
@@ -229,7 +231,7 @@ const cleanBackups = async (projectName = null) => {
 
 /**
  * Esegue il restore di un progetto in environemtn basato su pm2.
- * 
+ * Valido solo per environment basati su pm2
  */
 const restoreBackup = async () => {
     const tar = require('tar');
@@ -308,7 +310,7 @@ const restoreBackup = async () => {
 };
 
 /**
- * Esegue deploy applicazione in environment basato du pm2
+ * Esegue deploy applicazione in environment basato su pm2
  */
 const deploy = async () => {
     const tar = require('tar');
@@ -471,7 +473,7 @@ const deploy = async () => {
 /**
  * Rollout docker service.
  * Crea o aggiorna un servizio con logica zero-downtime.
- * Inspirato da https://github.com/Wowu/docker-rollout, ma reimplementato in node per 
+ * Ispirato da https://github.com/Wowu/docker-rollout, ma reimplementato in node per 
  * migliore chiarezza.
  * 
  * Logica: senza toccare le istanze dell servizio esistente, tira su un container con nuova versione.
@@ -552,15 +554,23 @@ const dockerRollout = async () => {
 
         if (isHealthy) break;
 
-        // try for healthCountdown times, then exit regardless of status 
+        // try for healthCountdown times, then exit regardless of status.
+        // In that case, consider it unhealthy
         await new Promise(r => setTimeout(r,1000));
         healthCountdown--;
         if (healthCountdown === 0) break;
     }
     
     console.log("");
+
+    // Il nuovo container non è su.
+    // Eliminalo e interrompi il deploy
     if (!isHealthy){
-        throw new Error("Il nuovo container non è ok. Interrompo");
+        const error = "Il nuovo container non è ok. Interrompo";
+        console.log(error);
+        await spawn(dockerBinPath,['stop', newContainerIds[0]]);
+        await spawn(dockerBinPath,['rm',newContainerIds[0]]);
+        throw new Error(error);
     }
 
     console.log("Il nuovo container è ok.");
@@ -586,7 +596,7 @@ const dockerRollout = async () => {
     }
 }
 
-/** *******************  flags swicth section *******************/
+/*********************  flags swicth section *******************/
 const operation = argvParam('-o');
 let promise = Promise.resolve();
 switch (operation) {
