@@ -8,8 +8,12 @@ const _spawn = require('child_process').spawn;
  * common values
  */
 const isWindows = os.platform() === 'win32';
-const pm2EcosystemFileName = 'ecosystem.config.json';
+let pm2EcosystemFileName = 'ecosystem.config.json';
 const appsContainer = path.join(os.homedir(), '/apps/');
+if (!fs.existsSync(path.join(appsContainer, pm2EcosystemFileName))){
+    pm2EcosystemFileName = 'ecosystem.config.js';
+}
+
 process.chdir(appsContainer);
 const pm2 = isWindows ? 'pm2.cmd' : 'pm2';
 const npm = isWindows ? 'npm.cmd' : 'npm';
@@ -20,6 +24,15 @@ let backupDir = path.join(os.tmpdir(), './deploy-backups');
 // keep these backups
 const keepBackupsCount = 4;
 
+const loadPm2EcosystemFile = (pm2File)=> {
+    if (pm2File.endsWith('.json')){
+        return JSON.parse(fs.readFileSync(pm2File).toString());
+    }else if (pm2File.endsWith('.js')){
+        return require(pm2File);
+    }else{
+        throw new Error('File pm2 invalido: '+pm2File);
+    }
+};
 /**
  * Extract parameters from command line
  * @param {*} name
@@ -58,8 +71,9 @@ const readStatus = async (projectName) => {
  * Read the ecosystem config file to get the list of apps
  */
 const lsApps = async () => {
-    const pm2File = path.join(appsContainer, './ecosystem.config.json');
-    const pm2EcosystemFile = JSON.parse(fs.readFileSync(pm2File).toString());
+    const pm2EcosystemFile = loadPm2EcosystemFile(
+        path.join(appsContainer, pm2EcosystemFileName)
+    );
     return pm2EcosystemFile.apps.map(a => a.name);
 };
 
@@ -409,7 +423,7 @@ const deploy = async () => {
             console.error('Errore: ' + pm2EcosystemFileName + ' non trovato. Impossibile avviare pm2');
             error = true;
         } else {
-            const ecosystemConfig = JSON.parse(fs.readFileSync(pm2EcosystemFile).toString());
+            const ecosystemConfig = loadPm2EcosystemFile(pm2EcosystemFile);
             const app = (ecosystemConfig.apps || []).find(app => app.name === projectName);
             if (!app) {
                 console.error('Errore: impossibile avviare l\'app. Entry in ' + pm2EcosystemFileName + ' non trovata');

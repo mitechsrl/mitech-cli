@@ -29,15 +29,25 @@ const exec = async (argv) => {
         return;
     (0, targets_1.printTarget)(target);
     const nodeUser = target.nodeUser || 'node';
-    const filename = 'ecosystem.config.json';
-    const ecosystemConfigJsonPath = path_1.default.join(process.cwd(), filename);
-    if (!(0, fs_1.existsSync)(ecosystemConfigJsonPath)) {
-        logger_1.logger.error('Nessun ecosystem.config.json trovato in questa directory');
-        return;
+    let filename = 'ecosystem.config.json';
+    let ecosystemConfigFilePath = path_1.default.join(process.cwd(), filename);
+    if (!(0, fs_1.existsSync)(ecosystemConfigFilePath)) {
+        filename = 'ecosystem.config.js';
+        ecosystemConfigFilePath = path_1.default.join(process.cwd(), filename);
+        if (!(0, fs_1.existsSync)(ecosystemConfigFilePath)) {
+            logger_1.logger.error('Nessun ecosystem.config.js(on) trovato in questa directory');
+            return;
+        }
     }
-    // just check json syntax
+    // just check js(on) syntax.
+    // THis avoid uploading a broken file 
     try {
-        JSON.parse((0, fs_1.readFileSync)(ecosystemConfigJsonPath).toString());
+        if (ecosystemConfigFilePath.endsWith('.json')) {
+            JSON.parse((0, fs_1.readFileSync)(ecosystemConfigFilePath).toString());
+        }
+        if (ecosystemConfigFilePath.endsWith('.js')) {
+            require(ecosystemConfigFilePath);
+        }
     }
     catch (error) {
         logger_1.logger.error('Errore di sintassi nel file ' + filename);
@@ -55,13 +65,13 @@ const exec = async (argv) => {
     const remoteFilename = remoteDeployBasePath + filename;
     logger_1.logger.info('Upload: ' + filename + ' in ' + remoteFilename);
     if (session.os.linux) {
-        await session.uploadFile(ecosystemConfigJsonPath, remoteTmpFilename);
+        await session.uploadFile(ecosystemConfigFilePath, remoteTmpFilename);
         await session.commandAs(nodeUser, ['cp', remoteTmpFilename, remoteFilename]);
         await session.command(['sudo chown ' + nodeUser + ':' + nodeUser, remoteFilename]);
         await session.command(['sudo chmod 700', remoteFilename]);
     }
     else {
-        await session.uploadFile(ecosystemConfigJsonPath, remoteFilename);
+        await session.uploadFile(ecosystemConfigFilePath, remoteFilename);
     }
     logger_1.logger.info('Upload completato.');
     const restart = argv.restart;

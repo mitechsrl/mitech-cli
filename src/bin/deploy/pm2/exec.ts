@@ -29,17 +29,27 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
     printTarget(target);
 
     const nodeUser = target.nodeUser || 'node';
-    const filename = 'ecosystem.config.json';
-    const ecosystemConfigJsonPath = path.join(process.cwd(), filename);
+    let filename = 'ecosystem.config.json';
+    let ecosystemConfigFilePath = path.join(process.cwd(), filename);
 
-    if (!existsSync(ecosystemConfigJsonPath)) {
-        logger.error('Nessun ecosystem.config.json trovato in questa directory');
-        return;
+    if (!existsSync(ecosystemConfigFilePath)) {
+        filename='ecosystem.config.js';
+        ecosystemConfigFilePath = path.join(process.cwd(), filename);
+        if (!existsSync(ecosystemConfigFilePath)) {
+            logger.error('Nessun ecosystem.config.js(on) trovato in questa directory');
+            return;
+        }
     }
 
-    // just check json syntax
+    // just check js(on) syntax.
+    // THis avoid uploading a broken file 
     try {
-        JSON.parse(readFileSync(ecosystemConfigJsonPath).toString());
+        if(ecosystemConfigFilePath.endsWith('.json')){
+            JSON.parse(readFileSync(ecosystemConfigFilePath).toString());
+        }
+        if(ecosystemConfigFilePath.endsWith('.js')){
+            require(ecosystemConfigFilePath);
+        }
     } catch (error) {
         logger.error('Errore di sintassi nel file ' + filename);
         throw error;
@@ -60,12 +70,12 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
     logger.info('Upload: ' + filename + ' in ' + remoteFilename);
 
     if (session.os.linux) {
-        await session.uploadFile(ecosystemConfigJsonPath, remoteTmpFilename);
+        await session.uploadFile(ecosystemConfigFilePath, remoteTmpFilename);
         await session.commandAs(nodeUser, ['cp', remoteTmpFilename, remoteFilename]);
         await session.command(['sudo chown ' + nodeUser + ':' + nodeUser, remoteFilename]);
         await session.command(['sudo chmod 700', remoteFilename]);
     } else {
-        await session.uploadFile(ecosystemConfigJsonPath, remoteFilename);
+        await session.uploadFile(ecosystemConfigFilePath, remoteFilename);
     }
 
     logger.info('Upload completato.');
