@@ -13,6 +13,7 @@ const appsContainer = path.join(os.homedir(), '/apps/');
 process.chdir(appsContainer);
 const pm2 = isWindows ? 'pm2.cmd' : 'pm2';
 const npm = isWindows ? 'npm.cmd' : 'npm';
+const dockerBinPath = '/usr/bin/docker';
 
 let backupDir = path.join(os.tmpdir(), './deploy-backups');
 
@@ -76,6 +77,8 @@ const spawn = (cmd, params, options) => {
 
         const silent = _opt.silent || false;
         delete _opt.silent;
+        
+        if (!silent) console.log(`Eseguo <${cmd} ${params.join(' ')}>`);
 
         const proc = _spawn(cmd, params, _opt);
 
@@ -225,7 +228,8 @@ const cleanBackups = async (projectName = null) => {
 };
 
 /**
- * Esegue il restore di un progetto
+ * Esegue il restore di un progetto in environemtn basato su pm2.
+ * 
  */
 const restoreBackup = async () => {
     const tar = require('tar');
@@ -304,7 +308,7 @@ const restoreBackup = async () => {
 };
 
 /**
- * deploy function
+ * Esegue deploy applicazione in environment basato du pm2
  */
 const deploy = async () => {
     const tar = require('tar');
@@ -464,19 +468,138 @@ const deploy = async () => {
     cleanOnExit();
 };
 
+/**
+ * Rollout docker service.
+ * Crea o aggiorna un servizio con logica zero-downtime.
+ * Inspirato da https://github.com/Wowu/docker-rollout, ma reimplementato in node per 
+ * migliore chiarezza.
+ * 
+ * Logica: senza toccare le istanze dell servizio esistente, tira su un container con nuova versione.
+ * Se ok, smonta i container vecchi e rigenera un numero pari a quelli presenti prima del rollout.
+ * NOTA: una volta smontata la versione vecchia, rimane una sola istanza dell'app aggiornata per qualche momento,
+ * fintantochè le nuove istanza non vengono generate.
+ */
+const dockerRollout = async () => {
+    let serviceName = argvParam('-s');
+    if (serviceName.startsWith('"')) serviceName = serviceName.substring(1);
+    if (serviceName.endsWith('"')) serviceName = serviceName.substring(0, serviceName-length-1);
+
+    // list of containers for this service.
+    console.log("Verifico container presenti");
+    const _oldContainerIds = await spawn(dockerBinPath, ['compose','ps','--quiet', serviceName], {silent:true})
+    const oldContainerIds = _oldContainerIds.data.toString().match(/[a-f0-9]+/gm) ?? [];
+
+    let composeUpResult = null;
+    if (oldContainerIds.length>0){
+        // old version available. Scale the number of instances
+        console.log(`Presenti ${oldContainerIds.length} istanze`);
+        console.log(`Ids: ${oldContainerIds.join(',' )}`);
+        console.log("");
+        console.log("Creo un nuovo container con immagine aggiornata");
+
+        // Create a single new container for the new version
+        composeUpResult  = await spawn(dockerBinPath, [
+            'compose','up', // tira su i nuovi container
+            '-d', // detached, dopo il comando esci e lascia il contenitore in background
+            '--scale', `${serviceName}=${oldContainerIds.length+1}`,
+            '--no-recreate' // Non ricrearele istanze già presenti
+        ])
+    }else{
+        // no old version available. Create a brand new instance
+        console.log("Creo nuovo container");
+
+        // Create a single new container for the new app
+        // Effectively instantiate another container
+        composeUpResult  = await spawn(dockerBinPath, [
+            'compose','up',
+            '-d',
+            serviceName
+        ])
+    }
+
+    if (composeUpResult.code !== 0){
+        throw new Error("Impossibile caricare nuovo container")
+    }
+
+    // cerca gli id dei nuovi container.. saranno da eliminare tutti gli altri
+    // NOTA: lo tratto come array ma contiene 1 solo elemento
+    const _newContainerIds = await spawn(dockerBinPath,['compose','ps','--quiet', serviceName],  {silent:true})
+    const newContainerIds = (_newContainerIds.data.toString().match(/[a-f0-9]+/gm) ?? []).filter(i => !oldContainerIds.includes(i));
+
+    // HEALTHCHECKS
+    // docker-rollout: https://github.com/Wowu/docker-rollout/blob/main/docker-rollout#L101
+    // https://docs.docker.com/engine/reference/builder/#healthcheck
+
+    console.log("Attendo stato nuovo container...");
+    let isHealthy = false;
+    let healthCountdown = 60;
+    console.log(`Countdown (${healthCountdown}): `);
+    while(1){
+        process.stdout.write('/'+healthCountdown);
+        const inspectResult = await spawn(dockerBinPath,['inspect', newContainerIds[0]],  {silent:true});
+        const inspectJson = JSON.parse(inspectResult.data.toString());
+        const health = (inspectJson[0].State || {}).Health;
+        const status = (inspectJson[0].State || {}).Status || '';
+        if (!health){
+            // container does not includes healtchecks. Use basic status
+            if (status === 'running') {isHealthy = true; break;}
+            if (status === 'exited') {isHealthy = false; break;}
+            if (status === 'dead') {isHealthy = false; break;}
+        }else{
+            // container does includes healtchecks. Use them (more accuracy)
+            isHealthy = isHealthy || health.Status === 'healthy';
+        }
+
+        if (isHealthy) break;
+
+        // try for healthCountdown times, then exit regardless of status 
+        await new Promise(r => setTimeout(r,1000));
+        healthCountdown--;
+        if (healthCountdown === 0) break;
+    }
+    
+    console.log("");
+    if (!isHealthy){
+        throw new Error("Il nuovo container non è ok. Interrompo");
+    }
+
+    console.log("Il nuovo container è ok.");
+    console.log("Ids: "+newContainerIds.join(',' ));
+
+    if (oldContainerIds.length>0){
+        console.log("Fermo tutti i vecchi containers");
+        for (const oldContainerId of oldContainerIds){
+            await spawn(dockerBinPath,['stop',oldContainerId], {silent:true});
+            await spawn(dockerBinPath,['rm',oldContainerId], {silent:true});
+        }
+    }
+    
+    if (oldContainerIds.length >0 && (newContainerIds.length !== oldContainerIds.length)){
+        console.log("Rigenero il numero corretto di containers nuovi")
+        // Updating the number of containers to the previous amount
+        await spawn(dockerBinPath, [
+            'compose','up',
+            '--detach',
+            '--scale', `${serviceName}=${oldContainerIds.length}`,
+            '--no-recreate'
+        ])
+    }
+}
+
 /** *******************  flags swicth section *******************/
 const operation = argvParam('-o');
 let promise = Promise.resolve();
 switch (operation) {
 case 'install': promise = install(); break;
 case 'deploy': promise = deploy(); break;
+case 'docker-rollout': promise = dockerRollout(); break;
 case 'restoreBackup': promise = restoreBackup(); break;
 case 'files': promise = deployFiles(); break;
 case 'rm': promise = rmTmp(); break;
 case 'lsApps': promise = lsApps().then(apps => console.log(JSON.stringify(apps, null, 4))); break;
 case 'lsBackups': promise = lsBackups().then(files => console.log(JSON.stringify(files, null, 4))); break;
 case 'cleanBackups': promise = cleanBackups(); break;
-default: console.error('Mmmh.. What did you mean by <-o ' + operation + '>?'); break;
+default: console.error('Mmmh.. non hai passato "-o" ??'); break;
 }
 
 promise

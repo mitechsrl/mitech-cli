@@ -11,9 +11,9 @@ export type SshTarget = {
     // Targte host
     host: string,
     // targte ssh port
-    port: 22,
+    port: number,
     // default sh username
-    username: 'root',
+    username: string,
     // access type
     accessType: 'sshKey' | 'password',
     // Path of the ssh file. Defined only if accessType = sshKey
@@ -22,7 +22,7 @@ export type SshTarget = {
     password?: EncryptedPassword | string,
     // User for node processes
     // UPDATE IV 20-07-2023: this value may refer to a generic user to run app, not just node! 
-    nodeUser: 'node',
+    nodeUser: string,
     // Whick environment expect on remote server.
     // This will run different commands for different environments
     environment: 'pm2'|'docker'

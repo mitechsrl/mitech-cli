@@ -6,12 +6,12 @@ export type EncryptedPassword = {
 export type SshTarget = {
     name: string;
     host: string;
-    port: 22;
-    username: 'root';
+    port: number;
+    username: string;
     accessType: 'sshKey' | 'password';
     sshKey?: string;
     password?: EncryptedPassword | string;
-    nodeUser: 'node';
+    nodeUser: string;
     environment: 'pm2' | 'docker';
 };
 export type MitechCliFileContentProjectDeployment = {

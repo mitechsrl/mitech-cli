@@ -17,8 +17,11 @@ import path from 'path';
 import yargs from 'yargs';
 import { logger } from '../../../../lib/logger';
 import { createSshSession } from '../../../../lib/ssh';
-import { SshTarget, StringError } from '../../../../types';
+import { GenericObject, SshTarget, StringError } from '../../../../types';
 import { parse } from 'yaml';
+import { uploadAndInstallDeployScript } from '../../_lib/deployScript';
+import inquirer from 'inquirer';
+import { throwOnFatalError } from '../../_lib/fatalError';
 
 export type DeployResult = {
     aborted?: boolean,
@@ -42,36 +45,47 @@ export async function deploy (target: SshTarget, params: yargs.ArgumentsCamelCas
         throw new StringError('Nessun file '+dockerComposeFileName+' trovato in questa directory.');
     }
 
+    let dockerComposeConfig: GenericObject = {};
     try{
         // Just check for file malformations. Stop deploy in this case!
-        const dcf = readFileSync(dockerComposeFile).toString();
-        parse(dcf);
+        dockerComposeConfig = parse(readFileSync(dockerComposeFile).toString());
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }catch(e:any){
         throw new StringError('File '+dockerComposeFileName+' malformato: '+e.message);
     }
 
+    // ask the user which service to launch/rollout
+    const answers = await inquirer.prompt([ {
+        type: 'list',
+        name: 'service',
+        message: 'Service docker',
+        choices: Object.keys(dockerComposeConfig.services ?? {})
+    }]);
+   
     const appUser = target.nodeUser || 'onit';
 
     // connect to ssh remote target
     const session = await createSshSession(target);
+    // upload script deploy
+    const deployScript = await uploadAndInstallDeployScript(session, appUser);
 
-    // tmp filenames for upload
+    // path for filenames used during compose file upload
     const remoteTempDir = await session.getRemoteTmpDir(appUser);
     const remoteTempFile = remoteTempDir.trim() + dockerComposeFileName;
-
-    // Final compose file position
     const remoteDockerComposeFileName = `/home/${appUser}/apps/${dockerComposeFileName}`;
-    
-    // upload files
+
     logger.info('Upload ' + dockerComposeFileName);
-    
     await session.uploadFile(dockerComposeFile, remoteTempFile);
     await session.command(`sudo cp ${remoteTempFile} ${remoteDockerComposeFileName}`);
     await session.command(`sudo chown ${appUser}:${appUser} ${remoteDockerComposeFileName}`);
 
-    // Reload docker compose
-    await session.command(`cd /home/${appUser}/apps/; sudo /usr/bin/docker compose up -d --remove-orphans`);
+    // use the server-side node script to effectively perform the service rollout
+    logger.info('Eseguo rollout');
+    const result = await deployScript.call(['-o','docker-rollout','-s',`"${answers.service}"`], true);
+    // await session.command(`cd /home/${appUser}/apps/; sudo /usr/bin/docker compose up -d --remove-orphans`);
+
+    // throw on deployScript call error
+    throwOnFatalError(result.output);
 
     session.disconnect();
 

@@ -40,8 +40,13 @@ export declare class SshSession {
     /**
      * Esegue comando e risolve con l'output
      * @param {*} cmd comando (stringa o array di 'pezzi' poi concatenati con spazio)
+     * @param print Stampa su console local l'output del comando in tempo reale. default true
      */
     command(cmd: string | string[], print?: boolean): Promise<SshCommandResult>;
+    /**
+     * Run sudo apt-get update, then sudo apt-get upgrade
+     */
+    updateAndUpgrade(): Promise<void>;
     /**
      * Try to detect the remote OS version
      * @returns

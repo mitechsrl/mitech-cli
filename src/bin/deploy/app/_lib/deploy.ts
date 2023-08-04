@@ -13,7 +13,6 @@
  */
 
 import { existsSync, readFileSync } from 'fs';
-import inquirer from 'inquirer';
 import path from 'path';
 import yargs from 'yargs';
 import { logger } from '../../../../lib/logger';

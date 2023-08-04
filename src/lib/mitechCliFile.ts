@@ -15,7 +15,6 @@
 import fs from 'fs';
 import path from 'path';
 import { GenericObject, MitechCliFile, StringError } from '../types';
-import { logger } from './logger.js';
 
 /*
 Example of mitechcli file
@@ -106,14 +105,6 @@ function ensureNameUniqueness(f: MitechCliFile) {
     });
 }
 
-// Make sure the environment type is set
-function ensureEnvironmentType(f: MitechCliFile) {
-
-    (f.content.targets ?? []).forEach(t => {
-        if (!t.environment) t.environment = 'pm2';
-    });
-}
-
 /**
  * Read the mitechCli file. Searhc for different filenames, extensions and paths. The first found is the one used.
  * @returns
@@ -126,7 +117,12 @@ export function getMitechCliFile() {
     }
 
     ensureNameUniqueness(f);
-    ensureEnvironmentType(f);
+   
+    (f.content.targets ?? []).forEach(t => {
+        if (!t.environment) t.environment = 'pm2';
+        if (!t.nodeUser) t.nodeUser='onit';
+        if (!t.port) t.port=22;
+    });
     return f;
 }
 

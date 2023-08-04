@@ -65,20 +65,18 @@ export class SshSession {
     /**
      * Esegue comando e risolve con l'output
      * @param {*} cmd comando (stringa o array di 'pezzi' poi concatenati con spazio)
+     * @param print Stampa su console local l'output del comando in tempo reale. default true
      */
     public async command(cmd: string | string[], print?: boolean): Promise<SshCommandResult> {
-        let _cmd: string;
-        if (Array.isArray(cmd)) {
-            _cmd = cmd.join(' ');
-        } else {
-            _cmd = cmd;
-        }
+        const _print = print !== false;
+        const _cmd: string = Array.isArray(cmd) ? cmd.join(' ') : cmd;
 
         return new Promise((resolve, reject) => {
             this.conn.exec(_cmd, {}, function (err, stream) {
                 if (err) return reject(err);
 
                 let _data = Buffer.from('');
+             
                 stream.on('close', function (code: number,) {
                     return resolve({
                         exitCode: code,
@@ -87,20 +85,24 @@ export class SshSession {
                 });
                 stream.on('data', function (data: Buffer) {
                     _data = Buffer.concat([_data, data]);
-                    if (print !== false) {
-                        logger.rawLog(data.toString());
-                    }
+                    if (_print) logger.rawLog(data);
                 });
-                stream.stderr.on('data', function (data) {
+  
+                stream.stderr.on('data', function (data: Buffer) {
                     _data = Buffer.concat([_data, data]);
-                    if (print !== false) {
-                        logger.rawLog(data.toString());
-                    }
+                    if (_print) logger.rawLog(data); 
                 });
             });
         });
     }
 
+    /**
+     * Run sudo apt-get update, then sudo apt-get upgrade
+     */
+    public async updateAndUpgrade(){
+        await this.command('sudo apt update');
+        await this.command('sudo apt upgrade -y');
+    }
     /**
      * Try to detect the remote OS version
      * @returns 
@@ -334,7 +336,7 @@ export function interativeClient(target: SshTarget, params: string[]){
         } else if (target.accessType === 'sshKey') {
             const ppkFile = target.sshKey + '.ppk';
             if (!fs.existsSync(ppkFile)) {
-                const proc = spawn(path.join(__dirname, '../../putty/puttygen.exe'), [target.sshKey!], { detached:true});
+                const proc = spawn(path.join(__dirname, '../../putty/puttygen.exe'), [target.sshKey!], { detached:true });
                 proc.unref();
                 throw new Error('Putty richiede la chiave in formato ppk. Convertila con puttygen e salvala in ' + ppkFile + ', con lo stesso nome ma aggiungi l\'estensione .ppk. Lancio Puttygen in auto, clicca su -save private key-');
             }
