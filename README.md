@@ -99,8 +99,10 @@ NOTA 1: E' richiesta configurazione specifica di nginx, creata in automatico nei
 
 NOTA 2: la pagina web caricata e mostrata all'utente è modificabile, i files risiedono nella directory **src\bin\vm\maintenance\enable\_html_files**
 
+NOTA 3: Il comando abilita la modalità manutenzione sia per environments pm2 che docker. Si avvale del valore definito in **.mitechcli.json** per sapere quale setup eseguire.
+
 ### mitech vm maintenance disable
-Disattiva la modalità manutenzione.
+Disattiva la modalità manutenzione. Valido sia per environments pm2 che docker.
 
 ### mitech vm os
 Visualizza sistema operativo di un [target](#concetto-del-target) remoto.
@@ -116,6 +118,14 @@ Tipicamente questo corrisponde a:
 - install+setup nginx
 - install pm2
 - creazione utente dedicato a apps node (username onit tipicamente)
+
+### mitech vm setup docker
+Esegue setup dell'environment docker su un [target](#concetto-del-target) remoto.
+
+Corrisponde a:
+- install docker
+- install node (solo per uso e consumo di script interni)
+- creazione utente dedicato (username onit tipicamente)
 
 ### mitech vm setup mongodb
 Esegue setup mongodb su [target](#concetto-del-target) remoto.
@@ -156,6 +166,11 @@ Mostra uptime di un [target](#concetto-del-target) remoto.
 Esegue il deploy dell'app NodeJS alla directory corrente su un [target](#concetto-del-target).
 
 NOTA: L'app deve essere descritta nel corrispettivo file **ecosystem.conig.json** altrimenti non verrà avviata. Si consiglia pertanrto di eseguire questo comando DOPO il deploy del file pm2.
+
+### mitech deploy docker
+Esegue deploy di applicazioni docker.
+
+NOTA: Il comando deve essere eseguito in una directory con file **docker-compose.yml**.
 
 ### mitech deploy backups list
 Visualizza la lista di backup di apps disponibili su [target](#concetto-del-target) remoto.
@@ -269,6 +284,7 @@ Array di oggetti, ognuno dei quali definisce un [target](#concetto-del-target) c
     },
     "nodeUser": "onit", // user processi onit
     "activate": false // Non ricordo a cosa serve?????
+    "environment":"pm2" // oppure "docker". Determina che tipo di environment è installato su server, per eseguire comandi di conseguenza.
 },
 ```
 
