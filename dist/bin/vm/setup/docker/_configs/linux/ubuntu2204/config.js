@@ -1,3 +1,4 @@
+"use strict";
 /**
  * DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
  * Version 2, December 2004
@@ -11,16 +12,12 @@
  * TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION:
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
-
+Object.defineProperty(exports, "__esModule", { value: true });
 const config = {
-    name: 'Ubuntu 22.04, Node 16.X, Nginx, pm2 5.2.2',
+    name: 'Docker su ubuntu 22.04',
     value: {
-        questions: [{
-            type: 'input',
-            name: 'MITECH_HOSTNAME',
-            message: 'FQDN hostname (solo ip/dns senza http(s)://)'
-        }]
+        questions: []
     }
 };
-
-export default config;
+exports.default = config;
+//# sourceMappingURL=config.js.map

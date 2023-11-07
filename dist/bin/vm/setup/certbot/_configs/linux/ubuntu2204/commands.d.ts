@@ -1,4 +1,3 @@
-"use strict";
 /**
  * DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
  * Version 2, December 2004
@@ -12,16 +11,7 @@
  * TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION:
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-const config = {
-    name: 'Ubuntu 22.04, Node 16.X, Nginx, pm2 5.2.2',
-    value: {
-        questions: [{
-                type: 'input',
-                name: 'MITECH_HOSTNAME',
-                message: 'FQDN hostname (solo ip/dns senza http(s)://)'
-            }]
-    }
-};
-exports.default = config;
-//# sourceMappingURL=config.js.map
+import { SshSession } from '../../../../../../../lib/ssh';
+import { GenericObject } from '../../../../../../../types';
+declare function command(session: SshSession, answers: GenericObject): Promise<void>;
+export default command;

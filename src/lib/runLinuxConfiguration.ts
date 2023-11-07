@@ -48,7 +48,7 @@ export async function runLinuxConfiguration(session:SshSession, configDirectory:
         {
             type: 'list',
             name: 'mode',
-            message: 'Modalità di setup',
+            message: 'Modalità di setup (Attenzione, non sono eseguiti controlli. Scegli con saggezza)',
             choices: configs
         }
     ];

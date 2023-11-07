@@ -11,17 +11,19 @@ fi
 
 timedatectl set-timezone Europe/Rome
 
-######## install nginx, node and deps
-# installo curl. Dovrebbe essere gia' installato ma non si sa mai
-apt install -y curl
-
-# vado nella mia home e setto i repository di node(altre versioni cambiare _16.x con rispettiva)
+# vado nella mia home
 cd ~
-curl -sL https://deb.nodesource.com/setup_18.x -o nodesource_setup.sh
-chmod +x nodesource_setup.sh
-./nodesource_setup.sh
+# installo alcuni pacchetti preliminari
+apt install -y curl gnupg apt-transport-https ca-certificates software-properties-common
+
+# Aggiungo repo per node.
+NODE_MAJOR=18
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
 
 # install di pacchetti vari (tra cui gcc e python per poter compilare le dipendenze node)
+sudo apt-get update
 apt install -y nodejs gcc g++ make nginx python3
 apt autoremove -y
 
@@ -32,7 +34,7 @@ systemctl enable nginx.service
 npm install -g node-gyp
 
 # install pm2
-npm install pm2@5.2.2 -g
+npm install pm2@5.3.0 -g
 
 ######## setup nginx
 # per prima cosa creo il file geo_dyn che serve per la modalità maintenance

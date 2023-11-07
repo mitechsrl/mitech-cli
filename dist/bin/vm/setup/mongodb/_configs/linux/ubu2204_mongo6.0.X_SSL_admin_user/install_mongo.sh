@@ -9,6 +9,8 @@ else
   MONGOPATH=$1
 fi
 
+apt-get install -y curl
+
 #Remove all old stuff
 #apt-get remove --purge mongodb* -y;
 #rm -rf /etc/mongodb/;
@@ -25,7 +27,7 @@ systemctl daemon-reload
 # create the ssl key. this will not prompt for data
 openssl rand -base64 48 > /tmp/passphrase.txt
 openssl genrsa -aes128 -passout file:/tmp/passphrase.txt -out /tmp/server.key 2048
-openssl req -new -passin file:/tmp/passphrase.txt -key /tmp/server.key -out /tmp/server.csr -subj "/C=IT/O=mitechsrl/OU=Integration/CN="
+openssl req -new -passin file:/tmp/passphrase.txt -key /tmp/server.key -out /tmp/server.csr -subj "/C=IT/O=mitechsrl/OU=Integration/CN=mitechsrl"
 openssl rsa -in /tmp/server.key -passin file:/tmp/passphrase.txt -out /tmp/mongodb-cert.key
 openssl x509 -req -days 46500 -in /tmp/server.csr -signkey /tmp/mongodb-cert.key -out /tmp/mongodb-cert.crt
 
@@ -65,7 +67,9 @@ fi
 # launch service
 systemctl start mongod.service
 
-echo "Aspetto 20 secondi per avvio mongodb"; sleep 20
+# Aspetto che parta il process, devo connettermi per creare gli utenti
+echo "Aspetto 20 secondi per avvio mongodb";
+sleep 20
 
 #reset cwd for security (make next step easier)
 cd $PWD;

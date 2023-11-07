@@ -22,11 +22,6 @@ import { CommandExecFunction } from '../../../../types';
 import { presetupCheckConfirm } from '../../pre-setup/presetupCheckConfirm';
    
 const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>) => {
-    logger.warn('ATTENZIONE! Questa procedura configura un disco aggiuntivo NUOVO, ed esegue una FORMATTAZIONE del disco in questione. Non usare questa procedura per connettere un disco già popolato!!');
-    if (!await confirm(argv, 'Continuare?')){
-        return;
-    }
-    
     const target = await getTarget();
     printTarget(target);
 
@@ -34,6 +29,14 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
 
     // always make sure you can run sudo commands without entering password
     await presetupCheckConfirm();
+    
+    // Double check
+    for (let i = 1;i<3; i++){
+        logger.warn(''+i+'/2 ATTENZIONE! Questa procedura configura un disco aggiuntivo NUOVO, ed esegue una FORMATTAZIONE del disco in questione. Non usare questa procedura per connettere un disco già popolato! Per connettere un disco popolato, vedi https://learn.microsoft.com/en-us/azure/virtual-machines/linux/attach-disk-portal?tabs=ubuntu#attach-an-existing-disk');
+        if (!await confirm(argv, 'Continuare?')){
+            return;
+        }
+    }
     
     await runTargetConfiguration(target, path.join(__dirname, './_configs'));
 };

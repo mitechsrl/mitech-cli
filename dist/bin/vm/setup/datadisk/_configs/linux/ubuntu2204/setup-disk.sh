@@ -22,6 +22,7 @@ sudo mkdir -p $2
 sudo mount $PARTITION $2
 sudo df -h | grep $2 
 
+
 # Fallback: non cambiare fstab se non c'è UUID, rischio detonazione VM
 BLOCKIDCOUNT=`blkid -s UUID -o value $PARTITION | wc -l`
 if [ "$BLOCKIDCOUNT" -eq "0" ]; then
@@ -37,12 +38,13 @@ FSTAB="UUID=$BLOCKID   $2   xfs   defaults,nofail   1   2 "
 sudo sh -c "echo \"$FSTAB\" >> /etc/fstab"
 
 # Final check: unmount the temporary mounted disk and remount using fstab definition
-# if before == 1 then everything is ok
+# if AFTER == 1 then everything is ok
 sudo umount $2
 BEFORE=`df -h | grep $2 | wc -l`
 sudo mount -a
 AFTER=`df -h | grep $2 | wc -l`
 
+# Lasciare questi output. Lo script chiamante li verifica per determinare cosa è successo.
 echo "BEFORE=$BEFORE"
 echo "AFTER=$AFTER"
 exit 0
