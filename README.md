@@ -273,7 +273,7 @@ Prestare attenzione caso per caso alla fatibilità o meno della cosa.
 Array di oggetti, ognuno dei quali definisce un [target](#concetto-del-target) configurato in questa directory. Ogni target segue la struttura definita come:
 ```json
 {
-    "name": "ferroli-db-server", // stringa generica
+    "name": "some-db-server", // stringa generica
     "host": "name.server.com", // hostname del server remoto 
     "port": 22, // porta ssh
     "username": "server-username", // server username. Deve supportare sudo senza password.
@@ -311,7 +311,7 @@ Ogni elemento dell'array presenta la seguente struttura:
     // L'ordine è quello in cui compaiono qui.
     // Le chiavi di questo oggetto sono nomi arbitrari, non è necessario che eseguano match con altri valori
     "deployments": {
-        "dab": {
+        "deployment1": {
             // Nome del target da utilizzare per la connessione ssh.
             // Deve eseguire match letterale con i nomi definiti nell'array targets del file .mitechcli
             "target": "vm local",
@@ -322,11 +322,11 @@ Ogni elemento dell'array presenta la seguente struttura:
                 "debug": "4.3.4"
             },
             // path dell'app da deployare. Questa directory contiene il package.json + eventuali files da caricare sul server
-            "path": "./onit-material-certificates-dab-deployment/onit-next"
+            "path": "./deployment1/onit-next"
         },
-        "marelli": {
+        "deployment2": {
             "target": "vm local",
-            "path": "./onit-material-certificates-marelli-deployment/onit-next"
+            "path": "./deployment2/onit-next"
         }
     }
 }
