@@ -21,21 +21,21 @@ module.exports = {
             // o script chiee quali di questi deploy eseguire. e si seleziona "tutti", vengono eseguiti tutti in sequenza.
             // l'ordine è quello in cui compaiono qui
             "deployments": {
-                "dab": {
+                "deployment1": {
                     // nome del target in .mitechCli.
                     // NOTA: siccome questo file è committato, cambiare il valore nel proprio .mitechcli in modo da
                     // non continuare a cambiare e committare ogni volta che qualcuno deve fare deploy
                     "target": "vm local",
                     "dependencies": {
-                        // dipendenze specifiche opzionali. Queste vengono aggiunte al package.json "./dab/onit-next/package.json"
+                        // dipendenze specifiche opzionali. Queste vengono aggiunte al package.json "./deployment1/onit-next/package.json"
                         "debug": "4.3.4"
                     },
                     // path dell'app da deployare, locale a partire dalla directory del file .mitechcli
-                    "path": "./dab/onit-next"
+                    "path": "./deployment1/onit-next"
                 },
-                "zpc": {
+                "deployment2": {
                     "targetId": "vm local",,
-                    "path": "./dab/onit-next"
+                    "path": "./deployment2/onit-next"
                 }
             }
         }

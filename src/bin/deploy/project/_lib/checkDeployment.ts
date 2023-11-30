@@ -10,10 +10,6 @@ import { GenericObject, MitechCliFileContent, StringError } from '../../../../ty
  * @param deployment 
  */
 export function checkDeployment(basePath:string, mitechCliFileContent: MitechCliFileContent, deployment: GenericObject){
-    /* {
-        "target":"id-dab"
-        "path":"./dab/onit-next"
-    } */
 
     const packageJsonPath = path.join(basePath, deployment.path, 'package.json');
     if (!existsSync(packageJsonPath)) {
