@@ -18,6 +18,7 @@ process.chdir(appsContainer);
 const pm2 = isWindows ? 'pm2.cmd' : 'pm2';
 const npm = isWindows ? 'npm.cmd' : 'npm';
 const dockerBinPath = '/usr/bin/docker';
+const notationBinPath = '/usr/bin/notation';
 
 let backupDir = path.join(os.tmpdir(), './deploy-backups');
 
@@ -42,6 +43,16 @@ const argvParam = (name) => {
     const index = process.argv.findIndex(p => p === name);
     if (index <= 0) return null;
     return process.argv[index + 1];
+};
+
+/**
+ * Check parameters from command line presence
+ * @param {*} name
+ * @returns null or string
+ */
+const hasArgvParam = (name) => {
+    const index = process.argv.findIndex(p => p === name);
+    return  (index <= 0)
 };
 
 /**
@@ -497,11 +508,30 @@ const deploy = async () => {
  */
 const dockerRollout = async () => {
     let serviceName = argvParam('-s');
-    if (serviceName.startsWith('"')) serviceName = serviceName.substring(1);
-    if (serviceName.endsWith('"')) serviceName = serviceName.substring(0, serviceName-length-1);
+    let verifyImage = argvParam('--verify-image');
 
+    if (serviceName.startsWith('"')) serviceName = serviceName.substring(1);
+    if (serviceName.endsWith('"')) serviceName = serviceName.substring(0, serviceName.length-1);
+
+    if (verifyImage){
+        // Verify image using notation
+        // https://github.com/notaryproject/notation
+        if (verifyImage.startsWith('"')) verifyImage = verifyImage.substring(1);
+        if (verifyImage.endsWith('"')) verifyImage = verifyImage.substring(0, verifyImage.length-1);
+        const verifyResult = await spawn(notationBinPath, ['verify',verifyImage], {silent:false});
+        if (verifyResult.code !== 0){
+            throw new Error([
+                "!!WARNING!! Verifica firma immagine fallita: "+verifyResult.data,
+                "Controlla questi elementi: Accesso a contariner registry, certificato, file trustpolicy.json.",
+                "Se tutto è ok, allora l'immagine docker E' STATA ALTERATA! NON FARE DEPLOY!"
+            ])
+        }else{
+            console.log("Verifica firma immagine completata con successo!");
+        }
+    }
+    
     // list of containers for this service.
-    console.log("Verifico container presenti");
+    console.log("Check container presenti");
     const _oldContainerIds = await spawn(dockerBinPath, ['compose','ps','--quiet', serviceName], {silent:true})
     const oldContainerIds = _oldContainerIds.data.toString().match(/[a-f0-9]+/gm) ?? [];
 

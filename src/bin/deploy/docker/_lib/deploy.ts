@@ -61,7 +61,15 @@ export async function deploy (target: SshTarget, params: yargs.ArgumentsCamelCas
         message: 'Service docker',
         choices: Object.keys(dockerComposeConfig.services ?? {})
     }]);
-   
+    
+    const image = dockerComposeConfig.services[answers.service].image;
+    if (!image) throw new Error('Unknown image');
+    
+    // custom flag to trigger image validation via notation
+    // Expected the server to already have a valid notation setup
+    const verifyImage = dockerComposeConfig.services[answers.service]['x-verify-image'] ?? false;
+
+
     const appUser = target.nodeUser || 'onit';
 
     // connect to ssh remote target
@@ -81,7 +89,15 @@ export async function deploy (target: SshTarget, params: yargs.ArgumentsCamelCas
 
     // use the server-side node script to effectively perform the service rollout
     logger.info('Eseguo rollout');
-    const result = await deployScript.call(['-o','docker-rollout','-s',`"${answers.service}"`], true);
+    
+    const deployParams = [
+        '-o','docker-rollout',
+        '-s',`"${answers.service}"`
+    ];
+    if (verifyImage){
+        deployParams.push(...['--verify-image', image]);
+    }
+    const result = await deployScript.call(deployParams, true);
     // await session.command(`cd /home/${appUser}/apps/; sudo /usr/bin/docker compose up -d --remove-orphans`);
 
     // throw on deployScript call error

@@ -15,10 +15,6 @@ const types_1 = require("../../../../types");
  * @param deployment
  */
 function checkDeployment(basePath, mitechCliFileContent, deployment) {
-    /* {
-        "target":"id-dab"
-        "path":"./dab/onit-next"
-    } */
     const packageJsonPath = path_1.default.join(basePath, deployment.path, 'package.json');
     if (!(0, fs_1.existsSync)(packageJsonPath)) {
         throw new types_1.StringError(`File ${packageJsonPath} not found`);

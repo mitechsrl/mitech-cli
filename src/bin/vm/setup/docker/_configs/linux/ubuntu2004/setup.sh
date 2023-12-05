@@ -52,5 +52,17 @@ usermod -a -G docker $ADMINUSER
 # Abilito service docker al boot
 systemctl enable docker
 
-# clean finale
+# clean packages
 apt autoremove -y
+
+
+# install notation, for docker image sign verification
+# Also install azure plugin
+cd /home/$APPUSER
+curl -LO https://github.com/notaryproject/notation/releases/download/v1.0.1/notation_1.0.1\_linux_amd64.tar.gz
+tar xvzf notation_1.0.1_linux_amd64.tar.gz -C /usr/bin/ notation
+AZURE_KV_PLUGIN_PATH="/home/$APPUSER/.config/notation/plugins/azure-kv"
+AZURE_KV_PLUGIN_TAR_FILE="notation-azure-kv_1.0.1_linux_amd64.tar.gz"
+curl -Lo ${AZURE_KV_PLUGIN_TAR_FILE} "https://github.com/Azure/notation-azure-kv/releases/download/v1.0.1/${AZURE_KV_PLUGIN_TAR_FILE}"
+mkdir -p ${AZURE_KV_PLUGIN_PATH}
+tar xvzf ${AZURE_KV_PLUGIN_TAR_FILE} -C ${AZURE_KV_PLUGIN_PATH} notation-azure-kv

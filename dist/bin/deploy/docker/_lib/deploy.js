@@ -35,7 +35,7 @@ const fatalError_1 = require("../../_lib/fatalError");
  * @returns  A object, { aborted: bool, complete: bool}
  */
 async function deploy(target, params) {
-    var _a;
+    var _a, _b;
     const dockerComposeFileName = 'docker-compose.yml';
     const dockerComposeFile = path_1.default.join(process.cwd(), dockerComposeFileName);
     if (!(0, fs_1.existsSync)(dockerComposeFile)) {
@@ -57,6 +57,12 @@ async function deploy(target, params) {
             message: 'Service docker',
             choices: Object.keys((_a = dockerComposeConfig.services) !== null && _a !== void 0 ? _a : {})
         }]);
+    const image = dockerComposeConfig.services[answers.service].image;
+    if (!image)
+        throw new Error('Unknown image');
+    // custom flag to trigger image validation via notation
+    // Expected the server to already have a valid notation setup
+    const verifyImage = (_b = dockerComposeConfig.services[answers.service]['x-verify-image']) !== null && _b !== void 0 ? _b : false;
     const appUser = target.nodeUser || 'onit';
     // connect to ssh remote target
     const session = await (0, ssh_1.createSshSession)(target);
@@ -72,7 +78,14 @@ async function deploy(target, params) {
     await session.command(`sudo chown ${appUser}:${appUser} ${remoteDockerComposeFileName}`);
     // use the server-side node script to effectively perform the service rollout
     logger_1.logger.info('Eseguo rollout');
-    const result = await deployScript.call(['-o', 'docker-rollout', '-s', `"${answers.service}"`], true);
+    const deployParams = [
+        '-o', 'docker-rollout',
+        '-s', `"${answers.service}"`
+    ];
+    if (verifyImage) {
+        deployParams.push(...['--verify-image', image]);
+    }
+    const result = await deployScript.call(deployParams, true);
     // await session.command(`cd /home/${appUser}/apps/; sudo /usr/bin/docker compose up -d --remove-orphans`);
     // throw on deployScript call error
     (0, fatalError_1.throwOnFatalError)(result.output);

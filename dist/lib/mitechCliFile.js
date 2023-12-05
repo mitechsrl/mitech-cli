@@ -27,27 +27,27 @@ Example of mitechcli file
         "name": "onit-next"
         "commonDependencies": {}, // stesso formato del package.json
         "deployments":{   // selezione multipla con anche "tutti"
-            "dab": {
-                    "target":"id-dab", //target ssh
+            "deployment1": {
+                    "target":"id-target1", //target ssh
                     "dependencies":{} // stesso formato del package.json. Avvisare conflict dipendenze o versioni piu vecchie. Queste hanno priorità su commonDependencies
-                    "path":"./dab/onit-next" // aggiornare package json di questo path
+                    "path":"./deployment1/onit-next" // aggiornare package json di questo path
                 }
             }
-            "zpc": {
-                "target":"id-dab"
-                "path":"./dab/onit-next"
+            "deployment2": {
+                "target":"id-target-2"
+                "path":"./deployment2/onit-next"
             }
         }
     }],
     targets: [
         {
-            id:"id-zpc",
-            host:"zpc.....azure.com"
+            id:"id-target1",
+            host:"....azure.com"
             sshKey:"......"
         },
         {
-            id:"id-zpc",
-            host:"zpc.....azure.com"
+            id:"id-target-2",
+            host:".....azure.com"
             sshKey:"......"
         }
     ]
