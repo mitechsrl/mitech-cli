@@ -533,7 +533,7 @@ const dockerRollout = async () => {
     // list of containers for this service.
     console.log("Check container presenti");
     const _oldContainerIds = await spawn(dockerBinPath, ['compose','ps','--quiet', serviceName], {silent:true})
-    const oldContainerIds = _oldContainerIds.data.toString().match(/[a-f0-9]+/gm) ?? [];
+    const oldContainerIds = _oldContainerIds.data.toString().match(/[a-f0-9]+/gm) || [];
 
     let composeUpResult = null;
     if (oldContainerIds.length>0){
@@ -570,7 +570,7 @@ const dockerRollout = async () => {
     // cerca gli id dei nuovi container.. saranno da eliminare tutti gli altri
     // NOTA: lo tratto come array ma contiene 1 solo elemento
     const _newContainerIds = await spawn(dockerBinPath,['compose','ps','--quiet', serviceName],  {silent:true})
-    const newContainerIds = (_newContainerIds.data.toString().match(/[a-f0-9]+/gm) ?? []).filter(i => !oldContainerIds.includes(i));
+    const newContainerIds = (_newContainerIds.data.toString().match(/[a-f0-9]+/gm) || []).filter(i => !oldContainerIds.includes(i));
 
     // HEALTHCHECKS
     // docker-rollout: https://github.com/Wowu/docker-rollout/blob/main/docker-rollout#L101
