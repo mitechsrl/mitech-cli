@@ -341,7 +341,7 @@ const deploy = async () => {
     const tar = require('tar');
     const projectName = argvParam('-p');
     const archivePath = argvParam('-a');
-    const doBackup = process.argv.findIndex(p => p === '-nb') < 0;
+    const doBackup = process.argv.findIndex(p => p === '--nobackup') < 0;
 
     if (!projectName) {
         console.error('Nome progetto non definito. Usa <-p name>');

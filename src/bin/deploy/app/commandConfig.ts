@@ -37,6 +37,13 @@ const config: Command = {
             type: 'string',
             description: 'Nome target per autoselezione target'
         }
+    },
+    {
+        name:'nobackup',
+        config:{
+            type: 'boolean',
+            description: 'Non eseguire backup deployment remoto'
+        }
     }
     ]
 };

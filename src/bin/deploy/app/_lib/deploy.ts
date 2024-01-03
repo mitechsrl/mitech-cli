@@ -45,6 +45,8 @@ export async function deploy (target: SshTarget, params: yargs.ArgumentsCamelCas
     const nodeUser = target.nodeUser || 'node';
     const packageJsonPath = path.join(process.cwd(), 'package.json');
 
+    const noBackup = params.nobackup;
+
     if (!existsSync(packageJsonPath)) {
         throw new Error('Nessun package.json trovato in questa directory');
     }
@@ -91,7 +93,12 @@ export async function deploy (target: SshTarget, params: yargs.ArgumentsCamelCas
 
     // run the server deploy utility
     logger.info('Eseguo deploy app...');
-    const result = await deployScript.call(['-o', 'deploy', '-p', packageName, '-a', '"' + remoteTempFile + '"'], true);
+    const result = await deployScript.call([
+        '-o', 'deploy', 
+        '-p', packageName,
+        '-a', '"' + remoteTempFile + '"',
+        ...(noBackup === true ? ['--nobackup']: [])
+    ], true);
 
     // Do we need to download the entire app backup?
     // If yes, check if we have a backup file and download it

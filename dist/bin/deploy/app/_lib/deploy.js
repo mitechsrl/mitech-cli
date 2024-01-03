@@ -45,6 +45,7 @@ async function deploy(target, params) {
     };
     const nodeUser = target.nodeUser || 'node';
     const packageJsonPath = path_1.default.join(process.cwd(), 'package.json');
+    const noBackup = params.nobackup;
     if (!(0, fs_1.existsSync)(packageJsonPath)) {
         throw new Error('Nessun package.json trovato in questa directory');
     }
@@ -85,7 +86,12 @@ async function deploy(target, params) {
     const deployScript = await (0, deployScript_1.uploadAndInstallDeployScript)(session, nodeUser);
     // run the server deploy utility
     logger_1.logger.info('Eseguo deploy app...');
-    const result = await deployScript.call(['-o', 'deploy', '-p', packageName, '-a', '"' + remoteTempFile + '"'], true);
+    const result = await deployScript.call([
+        '-o', 'deploy',
+        '-p', packageName,
+        '-a', '"' + remoteTempFile + '"',
+        ...(noBackup === true ? ['--nobackup'] : [])
+    ], true);
     // Do we need to download the entire app backup?
     // If yes, check if we have a backup file and download it
     const downloadBackup = params.d;
