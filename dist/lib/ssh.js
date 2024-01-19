@@ -301,7 +301,7 @@ function interativeClient(target, params) {
         else if (target.accessType === 'sshKey') {
             const ppkFile = target.sshKey + '.ppk';
             if (!fs_1.default.existsSync(ppkFile)) {
-                const proc = (0, child_process_1.spawn)(path_1.default.join(__dirname, '../../putty/puttygen.exe'), [target.sshKey], { detached: true });
+                const proc = (0, child_process_1.spawn)(path_1.default.join(__dirname, '../../binaries/putty/puttygen.exe'), [target.sshKey], { detached: true });
                 proc.unref();
                 throw new Error('Putty richiede la chiave in formato ppk. Convertila con puttygen e salvala in ' + ppkFile + ', con lo stesso nome ma aggiungi l\'estensione .ppk. Lancio Puttygen in auto, clicca su -save private key-');
             }
@@ -310,7 +310,7 @@ function interativeClient(target, params) {
         }
         logger_1.logger.log('Avvio putty in corso... ');
         // TODO: verificare pipe VS inherit
-        const ssh = (0, child_process_1.spawn)(path_1.default.join(__dirname, '../../putty/putty.exe'), finalCmd, { stdio: 'inherit', detached: true });
+        const ssh = (0, child_process_1.spawn)(path_1.default.join(__dirname, '../../binaries/putty/putty.exe'), finalCmd, { stdio: 'inherit', detached: true });
         ssh.unref();
         return;
     }
