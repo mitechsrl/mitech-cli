@@ -481,7 +481,7 @@ Esegui i comandi seguenti in bash/cmd
 $> mitech ssh targets add
 # verifica eventuali problemi da risolvere manualmente prima di eseguire il setup 
 $> mitech vm pre-setup
-# installa ambiente node su server. Seguire le domande a prompt
+# installa ambiente docker su server. Seguire le domande a prompt (viene installato anche node per script interni fyi)
 $> mitech vm setup docker
 # installa crowdsec sul server
 $> mitech vm setup crowdsec
