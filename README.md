@@ -489,7 +489,7 @@ $> mitech vm setup crowdsec
 
 Il server così configurato è pronto per accettare deploy di applicazione via docker
 
-### Deply app su VM con schema Docker
+### Deploy app su VM con schema Docker
 
 Prerequisiti:
 
