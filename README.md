@@ -213,6 +213,8 @@ Esegue deploy di applicazioni docker.
 
 NOTA: Il comando deve essere eseguito in una directory con file **docker-compose.yml**.
 
+Vedi [riferimento #docker](#docker) per maggiori dettagli
+
 ### mitech deploy backups list
 
 Visualizza la lista di backup di apps disponibili su [target](#concetto-del-target) remoto.
@@ -248,6 +250,8 @@ Vedi [documentazione docker](https://docs.docker.com/engine/reference/commandlin
 
 **esempio**
 ```mitech docker ps``` esegue il comando ```docker``` su un target remoto via ssh e ne mostra il risultato su console locale
+
+Vedi [riferimento #docker](#docker) per maggiori dettagli
 
 ### mitech db dump
 
@@ -502,7 +506,7 @@ Eseguire le seguenti operazioni:
    $> miteh deploy docker
    ```
 
-Digitare i seguenti comandi
+Vedi [riferimento #docker](#docker) per maggiori dettagli
 
 ### Setup nuova VM e deploy app con schema PM2
 
@@ -540,6 +544,12 @@ $> mitech deploy pm2
 $> cd hello-world-app
 $> mitech deploy app
 ```
+
+## Riferimenti
+
+### Docker
+
+Vedi <https://github.com/mitechsrl/onit-next/issues/68> per maggiori info su environment docker. Considerare principalmente i messaggi piu recenti.
 
 ## Licenza
 
