@@ -241,6 +241,14 @@ Esegue il deploy multiplo di un progetto, automatizzando il deploy di più app s
 
 Questo comando necessita della configurazione **projects** nel [file .mitechcli](#file-mitechcli). Vedi sezione [projects](#projects) per maggiori info
 
+### mitech docker
+
+Proxy per eseguire comandi arbitrari docker su target remoto. Digita un qualsiasi comando dopo *docker* ed esso viene eseguito su un target remoto. Il comando digitato deve essere un comando docker valido.
+Vedi [documentazione docker](https://docs.docker.com/engine/reference/commandline/docker/) su comandi utilizzabili.
+
+**esempio**
+```mitech docker ps``` esegue il comando ```docker``` su un target remoto via ssh e ne mostra il risultato su console locale
+
 ### mitech db dump
 
 Esegue dump di un database. Necessita di configurazione **dbs** nel file [file .mitechcli](#file-mitechcli). Vedi sezione [dbs](#dbs) per maggiori info.
@@ -460,7 +468,43 @@ Committa anche i files nella directory dist, in modo da non dover rendere obblig
 
 ## Howto's
 
-### Da server nuovo, senza nulla di installato, ad app deploy
+### Setup environment Docker su VM nuova
+
+Esegui i comandi seguenti in bash/cmd
+
+```bash
+# aggiungi target rispondendo alle domande del cli
+$> mitech ssh targets add
+# verifica eventuali problemi da risolvere manualmente prima di eseguire il setup 
+$> mitech vm pre-setup
+# installa ambiente node su server. Seguire le domande a prompt
+$> mitech vm setup docker
+# installa crowdsec sul server
+$> mitech vm setup crowdsec
+```
+
+Il server così configurato è pronto per accettare deploy di applicazione via docker
+
+### Deply app su VM con schema Docker
+
+Prerequisiti:
+
+- Eseguito setup Docker su vm
+- Si ha a disposizione un file **docker-compose.yml** descrivente le app da caricare
+- E' già stata eseguita build dell'immagine docker da deployare
+
+Eseguire le seguenti operazioni:
+
+- Aggiornare il file **docker-compose.yml**, in particolare la voce **image** deve essere aggiornata per puntare al tag della nuova versione
+- Eseguire il comando di deploy e rispondere alle domende della CLI
+
+   ```bash
+   $> miteh deploy docker
+   ```
+
+Digitare i seguenti comandi
+
+### Setup nuova VM e deploy app con schema PM2
 
 Presupposti:
 
@@ -479,15 +523,22 @@ Presupposti:
 
 Digitare quindi i seguenti comandi per installare l'ambiente node ed eseguire il deploy di una app node:
 
-```
-mitech ssh targets add // aggiungi target rispondendo alle domande del cli
-mitech vm pre-setup // verifica eventuali problemi da risolvere manualmente prima di eseguire il setup 
-mitech vm setup node // installa ambiente node su server. Seguire le domande a prompt
-mitech vm setup crowdsec // installa crowdsec sul server. 
-mitech vm setup mongodb // installa mongodb su server. Seguire le domande a prompt
-mitech deploy pm2 // carica il file ecosystem.config.js senza fare nient'altro
-cd hello-world-app
-mitech deploy app // carica l'app hello-world-app e la avvia (o riavvia se già presente)
+```bash
+# aggiungi target rispondendo alle domande del cli
+$> mitech ssh targets add
+# verifica eventuali problemi da risolvere manualmente prima di eseguire il setup 
+$> mitech vm pre-setup
+# installa ambiente node su server. Seguire le domande a prompt
+$> mitech vm setup node
+# installa crowdsec sul server
+$> mitech vm setup crowdsec
+# installa mongodb su server. Seguire le domande a prompt
+$> mitech vm setup mongodb
+# carica il file ecosystem.config.js senza fare nient'altro
+$> mitech deploy pm2
+# carica l'app hello-world-app e la avvia (o riavvia se già presente)
+$> cd hello-world-app
+$> mitech deploy app
 ```
 
 ## Licenza
