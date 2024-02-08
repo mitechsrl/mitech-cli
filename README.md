@@ -91,7 +91,7 @@ Pacchettizza la directory locale e pusha il tutto su un registry configurato.
 
 Elimina un pacchetto da un registry configurato
 
-ATTENZIONE: Eliminando il pacchetto, eventuali oeprazioni di ```npm install``` che dipendono da tale pacchetto falliranno in quanto non troveranno piu il pacchetto!
+ATTENZIONE: Eliminando il pacchetto, eventuali operazioni di ```npm install``` che dipendono da tale pacchetto falliranno in quanto non troveranno piu il pacchetto!
 
 ### mitech npm authorize
 
@@ -503,7 +503,7 @@ Eseguire le seguenti operazioni:
 - Eseguire il comando di deploy e rispondere alle domende della CLI
 
    ```bash
-   $> miteh deploy docker
+   $> mitech deploy docker
    ```
 
 Vedi [riferimento #docker](#docker) per maggiori dettagli
