@@ -495,6 +495,99 @@ const deploy = async () => {
     cleanOnExit();
 };
 
+
+
+/**
+ * Esegue update container docker senza uptime
+ */
+const dockerUpdate = async () => {
+    let serviceName = argvParam('-s');
+    let verifyImage = argvParam('--verify-image');
+
+    if (serviceName.startsWith('"')) serviceName = serviceName.substring(1);
+    if (serviceName.endsWith('"')) serviceName = serviceName.substring(0, serviceName.length-1);
+
+    if (verifyImage){
+        // Verify image using notation
+        // https://github.com/notaryproject/notation
+        if (verifyImage.startsWith('"')) verifyImage = verifyImage.substring(1);
+        if (verifyImage.endsWith('"')) verifyImage = verifyImage.substring(0, verifyImage.length-1);
+        const verifyResult = await spawn(notationBinPath, ['verify',verifyImage], {silent:false});
+        if (verifyResult.code !== 0){
+            throw new Error([
+                "!!WARNING!! Verifica firma immagine fallita: "+verifyResult.data,
+                "Controlla questi elementi: Accesso a contariner registry, certificato, file trustpolicy.json.",
+                "Se tutto è ok, allora l'immagine docker E' STATA ALTERATA! NON FARE DEPLOY!"
+            ])
+        }else{
+            console.log("Verifica firma immagine completata con successo!");
+        }
+    }
+    
+    composeUpResult  = await spawn(dockerBinPath, [
+        'compose','up',
+        '-d',
+        serviceName
+    ])
+
+    if (composeUpResult.code !== 0){
+        throw new Error("Impossibile caricare nuovo container")
+    }
+
+    // cerca gli id dei nuovi container.. saranno da eliminare tutti gli altri
+    // NOTA: lo tratto come array ma contiene 1 solo elemento
+    const _containerIds = await spawn(dockerBinPath,['compose','ps','--quiet', serviceName],  {silent:true})
+    const containerIds = _containerIds.data.toString().match(/[a-f0-9]+/gm) || [];
+
+    // HEALTHCHECKS
+    // docker-rollout: https://github.com/Wowu/docker-rollout/blob/main/docker-rollout#L101
+    // https://docs.docker.com/engine/reference/builder/#healthcheck
+    console.log("Attendo stato nuovo container...");
+    let isHealthy = false;
+    let healthCountdown = 60;
+    console.log(`Countdown (${healthCountdown}): `);
+    while(1){
+        process.stdout.write('/'+healthCountdown);
+        const inspectResult = await spawn(dockerBinPath,['inspect', containerIds[0]],  {silent:true});
+        let inspectJson =  [{}];
+        try{
+            inspectJson = JSON.parse(inspectResult.data.toString());
+        }catch(e){
+        }
+
+        const health = (inspectJson[0].State || {}).Health;
+        const status = (inspectJson[0].State || {}).Status || '';
+        if (!health){
+            // container does not includes healtchecks. Use basic status
+            if (status === 'running') {isHealthy = true; break;}
+            if (status === 'exited') {isHealthy = false; break;}
+            if (status === 'dead') {isHealthy = false; break;}
+        }else{
+            // container does includes healtchecks. Use them (more accuracy)
+            isHealthy = isHealthy || health.Status === 'healthy';
+        }
+
+        if (isHealthy) break;
+
+        // try for healthCountdown times, then exit regardless of status.
+        // In that case, consider it unhealthy
+        await new Promise(r => setTimeout(r,1000));
+        healthCountdown--;
+        if (healthCountdown === 0) break;
+    }
+    
+    // Il nuovo container non è su.
+    // Eliminalo e interrompi il deploy
+    if (!isHealthy){
+        const error = "Il nuovo container non è ok. Interrompo";
+        console.log(error);
+        throw new Error(error);
+    }
+
+    console.log("Il nuovo container è ok.");
+    console.log("Ids: "+containerIds.join(',' ));
+}
+
 /**
  * Rollout docker service.
  * Crea o aggiorna un servizio con logica zero-downtime.
@@ -647,6 +740,7 @@ switch (operation) {
 case 'install': promise = install(); break;
 case 'deploy': promise = deploy(); break;
 case 'docker-rollout': promise = dockerRollout(); break;
+case 'docker-update': promise = dockerUpdate(); break;
 case 'restoreBackup': promise = restoreBackup(); break;
 case 'files': promise = deployFiles(); break;
 case 'rm': promise = rmTmp(); break;

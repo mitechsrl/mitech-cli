@@ -22,11 +22,13 @@ import { parse } from 'yaml';
 import { uploadAndInstallDeployScript } from '../../_lib/deployScript';
 import inquirer from 'inquirer';
 import { throwOnFatalError } from '../../_lib/fatalError';
+import { checkProperties } from './checkProperties';
 
 export type DeployResult = {
     aborted?: boolean,
     complete?: boolean
 };
+
 /**
  * deploy the app at the proces.cwd() path to the remote target
  * Throws an error in case of fail
@@ -35,7 +37,6 @@ export type DeployResult = {
  * @param {*} params optional parameters object
  * @returns  A object, { aborted: bool, complete: bool}
  */
-
 export async function deploy (target: SshTarget, params: yargs.ArgumentsCamelCase<unknown>): Promise<DeployResult>{
 
     const dockerComposeFileName='docker-compose.yml'; 
@@ -54,6 +55,9 @@ export async function deploy (target: SshTarget, params: yargs.ArgumentsCamelCas
         throw new StringError('File '+dockerComposeFileName+' malformato: '+e.message);
     }
 
+    // Check file for properties correctness
+    checkProperties(dockerComposeConfig);
+
     // ask the user which service to launch/rollout
     const answers = await inquirer.prompt([ {
         type: 'list',
@@ -68,7 +72,8 @@ export async function deploy (target: SshTarget, params: yargs.ArgumentsCamelCas
     // custom flag to trigger image validation via notation
     // Expected the server to already have a valid notation setup
     const verifyImage = dockerComposeConfig.services[answers.service]['x-verify-image'] ?? false;
-
+    // Custom flag to enable zero downtime rollout
+    const zeroDowntimeRollout = dockerComposeConfig.services[answers.service]['x-zero-downtime'] ?? false;
 
     const appUser = target.nodeUser || 'onit';
 
@@ -90,10 +95,20 @@ export async function deploy (target: SshTarget, params: yargs.ArgumentsCamelCas
     // use the server-side node script to effectively perform the service rollout
     logger.info('Eseguo rollout');
     
-    const deployParams = [
-        '-o','docker-rollout',
-        '-s',`"${answers.service}"`
-    ];
+    let deployParams = [];
+    if (zeroDowntimeRollout){
+        // rollout with zero downtime
+        deployParams = [
+            '-o','docker-rollout',
+            '-s',`"${answers.service}"`
+        ];
+    }else{
+        // update with downtime
+        deployParams = [
+            '-o','docker-update',
+            '-s',`"${answers.service}"`
+        ];
+    }
     if (verifyImage){
         deployParams.push(...['--verify-image', image]);
     }

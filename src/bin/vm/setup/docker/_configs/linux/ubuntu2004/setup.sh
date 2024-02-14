@@ -24,7 +24,7 @@ chmod +x nodesource_setup.sh
 ./nodesource_setup.sh
 
 # installo vari pacchetti
-apt install -y curl apt-transport-https ca-certificates software-properties-common nodejs
+apt install -y curl apt-transport-https ca-certificates software-properties-common nodejs nano net-tools
 # Aggiungo repo ufficiale docker, poi installo docker
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"

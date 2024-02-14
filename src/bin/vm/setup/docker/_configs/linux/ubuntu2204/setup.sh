@@ -18,7 +18,7 @@ cd ~
 timedatectl set-timezone Europe/Rome
 
 # installo alcuni pacchetti preliminari
-apt install -y curl gnupg apt-transport-https ca-certificates software-properties-common
+apt install -y curl gnupg apt-transport-https ca-certificates software-properties-common nano net-tools
 
 # Aggiungo repo per node. Sarà da installare perchè alcuni comandi eseguono node
 # per fare delle operazioni complesse
