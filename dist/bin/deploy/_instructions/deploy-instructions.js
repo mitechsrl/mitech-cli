@@ -494,67 +494,44 @@ const deploy = async () => {
 
     cleanOnExit();
 };
+    
+/**
+ * Verify image using notation. See https://github.com/notaryproject/notation
+ * This method throws in cse of verification failure
+ * 
+ * @param {*} verifyImageParam 
+ */
+const verifyDockerImage = async (verifyImageParam) => {
 
-
+    if (verifyImageParam.startsWith('"')) verifyImageParam = verifyImageParam.substring(1);
+    if (verifyImageParam.endsWith('"')) verifyImageParam = verifyImageParam.substring(0, verifyImageParam.length-1);
+    const verifyResult = await spawn(notationBinPath, ['verify',verifyImageParam], {silent:false});
+    if (verifyResult.code !== 0){
+        throw new Error([
+            "!!WARNING!! Verifica firma immagine fallita: "+verifyResult.data,
+            "Controlla questi elementi: Accesso a contariner registry, certificato, file trustpolicy.json.",
+            "Se tutto è ok, allora l'immagine docker E' STATA ALTERATA! NON FARE DEPLOY!"
+        ])
+    }else{
+        console.log("Verifica firma immagine completata con successo!");
+    }
+}
 
 /**
- * Esegue update container docker senza uptime
+ * Check a docker container health by id.
+ * Either use docker healthcheck or just checks the container status as fallback
+ * 
+ * @param {*} containerId 
+ * @returns 
  */
-const dockerUpdate = async () => {
-    let serviceName = argvParam('-s');
-    let verifyImage = argvParam('--verify-image');
-
-    if (serviceName.startsWith('"')) serviceName = serviceName.substring(1);
-    if (serviceName.endsWith('"')) serviceName = serviceName.substring(0, serviceName.length-1);
-
-    if (verifyImage){
-        // Verify image using notation
-        // https://github.com/notaryproject/notation
-        if (verifyImage.startsWith('"')) verifyImage = verifyImage.substring(1);
-        if (verifyImage.endsWith('"')) verifyImage = verifyImage.substring(0, verifyImage.length-1);
-        const verifyResult = await spawn(notationBinPath, ['verify',verifyImage], {silent:false});
-        if (verifyResult.code !== 0){
-            throw new Error([
-                "!!WARNING!! Verifica firma immagine fallita: "+verifyResult.data,
-                "Controlla questi elementi: Accesso a contariner registry, certificato, file trustpolicy.json.",
-                "Se tutto è ok, allora l'immagine docker E' STATA ALTERATA! NON FARE DEPLOY!"
-            ])
-        }else{
-            console.log("Verifica firma immagine completata con successo!");
-        }
-    }
-    
-    composeUpResult  = await spawn(dockerBinPath, [
-        'compose','up',
-        '-d',
-        serviceName
-    ])
-
-    if (composeUpResult.code !== 0){
-        throw new Error("Impossibile caricare nuovo container")
-    }
-
-    // cerca gli id dei nuovi container.. saranno da eliminare tutti gli altri
-    // NOTA: lo tratto come array ma contiene 1 solo elemento
-    const _containerIds = await spawn(dockerBinPath,['compose','ps','--quiet', serviceName],  {silent:true})
-    const containerIds = _containerIds.data.toString().match(/[a-f0-9]+/gm) || [];
-
-    // HEALTHCHECKS
-    // docker-rollout: https://github.com/Wowu/docker-rollout/blob/main/docker-rollout#L101
-    // https://docs.docker.com/engine/reference/builder/#healthcheck
-    console.log("Attendo stato nuovo container...");
+const dockerHealtCheck = async (containerId) => {
     let isHealthy = false;
     let healthCountdown = 60;
     console.log(`Countdown (${healthCountdown}): `);
     while(1){
         process.stdout.write('/'+healthCountdown);
-        const inspectResult = await spawn(dockerBinPath,['inspect', containerIds[0]],  {silent:true});
-        let inspectJson =  [{}];
-        try{
-            inspectJson = JSON.parse(inspectResult.data.toString());
-        }catch(e){
-        }
-
+        const inspectResult = await spawn(dockerBinPath,['inspect', containerId],  {silent:true});
+        const inspectJson = JSON.parse(inspectResult.data.toString());
         const health = (inspectJson[0].State || {}).Health;
         const status = (inspectJson[0].State || {}).Status || '';
         if (!health){
@@ -575,10 +552,70 @@ const dockerUpdate = async () => {
         healthCountdown--;
         if (healthCountdown === 0) break;
     }
+
+    return {isHealthy: isHealthy, id: containerId}
+}
+
+/**
+ * 
+ */
+const fullDockerUpdate = async () => {
+    // Nota: "compose up -d" potrebbe anche non fare nulla se non vi sono cambiamenti rispetto 
+
+    let composeUpResult  = await spawn(dockerBinPath, ['compose','up', '-d'])
+    if (composeUpResult.code !== 0) throw new Error("Impossibile caricare nuovo container");
+
+    // Controllo health dei contenitori
+    const _containerIds = await spawn(dockerBinPath,['compose','ps','--quiet'],  {silent:true})
+    const containerIds = _containerIds.data.toString().match(/[a-f0-9]+/gm) || [];
+
+    console.log("Attendo stato containers...");
+    const healts = await Promise.all(containerIds.map(id => dockerHealtCheck(id)));
+
+    const failed = healts.filter(h => h.isHealthy === false);
+    if (failed.length>0){
+        const error = "Il/i containers "+failed.map(f => f.containerId).join(', ') +" non sono ok. Interrompo";
+        console.log(error);
+        throw new Error(error);
+    }
+
+    console.log("Tutti i containers sono ok.");
+    console.log("Ids: "+containerIds.join(',' ));
+
+}
+/**
+ * Esegue update docker standard (con downtime).
+ * Attenzione: questa procedura esegue un semplice update di docker compose con healthcheck sul contenitore.
+ * L'update di docker-compose non garantisce il reload del container, ma lo fa se vi sono cambiamenti, pertanto
+ * non usare questa procedura per fare un restart semplice.
+ */
+const dockerUpdate = async () => {
+    let serviceName = argvParam('-s');
+    if (serviceName.startsWith('"')) serviceName = serviceName.substring(1);
+    if (serviceName.endsWith('"')) serviceName = serviceName.substring(0, serviceName.length-1);
+
+    let verifyImageParam = argvParam('--verify-image');
+    if (verifyImageParam) await verifyDockerImage(verifyImageParam);
+    
+    // Nota: "compose up -d NOME" potrebbe anche non fare nulla se non vi sono cambiamenti rispetto 
+    // alla situazione attuale. In quel caso il resto del codice comunque non da problemi (ad esempio 
+    // verifica lo stato di un container che è già ok), ma semplicemente non accade nulla sul deployment.
+    let composeUpResult  = await spawn(dockerBinPath, ['compose','up', '-d', serviceName])
+    if (composeUpResult.code !== 0) throw new Error("Impossibile caricare nuovo container")
+
+    // cerca id container
+    // NOTA: lo tratto come array ma contiene 1 solo elemento
+    const _containerIds = await spawn(dockerBinPath,['compose','ps','--quiet', serviceName],  {silent:true})
+    const containerIds = _containerIds.data.toString().match(/[a-f0-9]+/gm) || [];
+
+    // HEALTHCHECKS
+    // https://docs.docker.com/engine/reference/builder/#healthcheck
+    console.log("Attendo stato nuovo container...");
+    let healthcheck = await dockerHealtCheck(containerIds[0]);
     
     // Il nuovo container non è su.
     // Eliminalo e interrompi il deploy
-    if (!isHealthy){
+    if (!healthcheck.isHealthy){
         const error = "Il nuovo container non è ok. Interrompo";
         console.log(error);
         throw new Error(error);
@@ -601,30 +638,16 @@ const dockerUpdate = async () => {
  */
 const dockerRollout = async () => {
     let serviceName = argvParam('-s');
-    let verifyImage = argvParam('--verify-image');
-
     if (serviceName.startsWith('"')) serviceName = serviceName.substring(1);
     if (serviceName.endsWith('"')) serviceName = serviceName.substring(0, serviceName.length-1);
 
-    if (verifyImage){
-        // Verify image using notation
-        // https://github.com/notaryproject/notation
-        if (verifyImage.startsWith('"')) verifyImage = verifyImage.substring(1);
-        if (verifyImage.endsWith('"')) verifyImage = verifyImage.substring(0, verifyImage.length-1);
-        const verifyResult = await spawn(notationBinPath, ['verify',verifyImage], {silent:false});
-        if (verifyResult.code !== 0){
-            throw new Error([
-                "!!WARNING!! Verifica firma immagine fallita: "+verifyResult.data,
-                "Controlla questi elementi: Accesso a contariner registry, certificato, file trustpolicy.json.",
-                "Se tutto è ok, allora l'immagine docker E' STATA ALTERATA! NON FARE DEPLOY!"
-            ])
-        }else{
-            console.log("Verifica firma immagine completata con successo!");
-        }
+    let verifyImageParam = argvParam('--verify-image');
+    if (verifyImageParam){
+        await verifyDockerImage(verifyImageParam);
     }
     
     // list of containers for this service.
-    console.log("Check container presenti");
+    console.log("Verifico container presenti");
     const _oldContainerIds = await spawn(dockerBinPath, ['compose','ps','--quiet', serviceName], {silent:true})
     const oldContainerIds = _oldContainerIds.data.toString().match(/[a-f0-9]+/gm) || [];
 
@@ -645,64 +668,35 @@ const dockerRollout = async () => {
         ])
     }else{
         // no old version available. Create a brand new instance
-        console.log("Creo nuovo container");
+        console.log("Nessun container precedente. Creo nuovo container");
 
         // Create a single new container for the new app
         // Effectively instantiate another container
         composeUpResult  = await spawn(dockerBinPath, [
-            'compose','up',
-            '-d',
+            'compose','up', // tira su i nuovi container
+            '-d', // detached, dopo il comando esci e lascia il contenitore in background
             serviceName
         ])
     }
 
-    if (composeUpResult.code !== 0){
-        throw new Error("Impossibile caricare nuovo container")
-    }
+    if (composeUpResult.code !== 0) throw new Error("Impossibile caricare nuovo container");
 
     // cerca gli id dei nuovi container.. saranno da eliminare tutti gli altri
     // NOTA: lo tratto come array ma contiene 1 solo elemento
     const _newContainerIds = await spawn(dockerBinPath,['compose','ps','--quiet', serviceName],  {silent:true})
     const newContainerIds = (_newContainerIds.data.toString().match(/[a-f0-9]+/gm) || []).filter(i => !oldContainerIds.includes(i));
 
+
     // HEALTHCHECKS
     // docker-rollout: https://github.com/Wowu/docker-rollout/blob/main/docker-rollout#L101
     // https://docs.docker.com/engine/reference/builder/#healthcheck
-
     console.log("Attendo stato nuovo container...");
-    let isHealthy = false;
-    let healthCountdown = 60;
-    console.log(`Countdown (${healthCountdown}): `);
-    while(1){
-        process.stdout.write('/'+healthCountdown);
-        const inspectResult = await spawn(dockerBinPath,['inspect', newContainerIds[0]],  {silent:true});
-        const inspectJson = JSON.parse(inspectResult.data.toString());
-        const health = (inspectJson[0].State || {}).Health;
-        const status = (inspectJson[0].State || {}).Status || '';
-        if (!health){
-            // container does not includes healtchecks. Use basic status
-            if (status === 'running') {isHealthy = true; break;}
-            if (status === 'exited') {isHealthy = false; break;}
-            if (status === 'dead') {isHealthy = false; break;}
-        }else{
-            // container does includes healtchecks. Use them (more accuracy)
-            isHealthy = isHealthy || health.Status === 'healthy';
-        }
-
-        if (isHealthy) break;
-
-        // try for healthCountdown times, then exit regardless of status.
-        // In that case, consider it unhealthy
-        await new Promise(r => setTimeout(r,1000));
-        healthCountdown--;
-        if (healthCountdown === 0) break;
-    }
-    
+    let healthcheck = await dockerHealtCheck(newContainerIds[0]);
     console.log("");
 
     // Il nuovo container non è su.
     // Eliminalo e interrompi il deploy
-    if (!isHealthy){
+    if (!healthcheck.isHealthy){
         const error = "Il nuovo container non è ok. Interrompo";
         console.log(error);
         await spawn(dockerBinPath,['stop', newContainerIds[0]]);
@@ -741,6 +735,7 @@ case 'install': promise = install(); break;
 case 'deploy': promise = deploy(); break;
 case 'docker-rollout': promise = dockerRollout(); break;
 case 'docker-update': promise = dockerUpdate(); break;
+case 'full-docker-update': promise = fullDockerUpdate(); break;
 case 'restoreBackup': promise = restoreBackup(); break;
 case 'files': promise = deployFiles(); break;
 case 'rm': promise = rmTmp(); break;

@@ -58,16 +58,19 @@ async function deploy(target, params) {
             type: 'list',
             name: 'service',
             message: 'Service docker',
-            choices: Object.keys((_a = dockerComposeConfig.services) !== null && _a !== void 0 ? _a : {})
+            choices: [{ name: 'Tutti', value: '_all_' }, ...Object.keys((_a = dockerComposeConfig.services) !== null && _a !== void 0 ? _a : {}).map(v => ({ name: v, value: v }))]
         }]);
-    const image = dockerComposeConfig.services[answers.service].image;
-    if (!image)
-        throw new Error('Unknown image');
-    // custom flag to trigger image validation via notation
-    // Expected the server to already have a valid notation setup
-    const verifyImage = (_b = dockerComposeConfig.services[answers.service]['x-verify-image']) !== null && _b !== void 0 ? _b : false;
-    // Custom flag to enable zero downtime rollout
-    const zeroDowntimeRollout = (_c = dockerComposeConfig.services[answers.service]['x-zero-downtime']) !== null && _c !== void 0 ? _c : false;
+    let image = '';
+    let allImages = false; // Bota sœ tot!
+    if (answers.service === '_all_') {
+        allImages = true;
+        console.warn('ATTENZIONE: L\'update di tutte le app NON prevede zero downtime.');
+    }
+    else {
+        image = dockerComposeConfig.services[answers.service].image;
+        if (!image)
+            throw new Error('Unknown image');
+    }
     const appUser = target.nodeUser || 'onit';
     // connect to ssh remote target
     const session = await (0, ssh_1.createSshSession)(target);
@@ -81,28 +84,35 @@ async function deploy(target, params) {
     await session.uploadFile(dockerComposeFile, remoteTempFile);
     await session.command(`sudo cp ${remoteTempFile} ${remoteDockerComposeFileName}`);
     await session.command(`sudo chown ${appUser}:${appUser} ${remoteDockerComposeFileName}`);
-    // use the server-side node script to effectively perform the service rollout
-    logger_1.logger.info('Eseguo rollout');
     let deployParams = [];
-    if (zeroDowntimeRollout) {
-        // rollout with zero downtime
-        deployParams = [
-            '-o', 'docker-rollout',
-            '-s', `"${answers.service}"`
-        ];
+    if (!allImages) {
+        // custom flag to trigger image validation via notation
+        // Expected the server to already have a valid notation setup
+        const verifyImage = (_b = dockerComposeConfig.services[answers.service]['x-verify-image']) !== null && _b !== void 0 ? _b : false;
+        // Custom flag to enable zero downtime rollout
+        const zeroDowntimeRollout = (_c = dockerComposeConfig.services[answers.service]['x-zero-downtime']) !== null && _c !== void 0 ? _c : false;
+        if (zeroDowntimeRollout) {
+            // use the server-side node script to effectively perform the service rollout
+            logger_1.logger.info('Eseguo rollout');
+            // rollout with zero downtime
+            deployParams = ['-o', 'docker-rollout'];
+        }
+        else {
+            // update with downtime
+            logger_1.logger.info('Eseguo update');
+            deployParams = ['-o', 'docker-update'];
+        }
+        deployParams.push(...['-s', `"${answers.service}"`]);
+        if (verifyImage)
+            deployParams.push(...['--verify-image', image]);
     }
     else {
+        // NOTE: Verification not implemented for full update
         // update with downtime
-        deployParams = [
-            '-o', 'docker-update',
-            '-s', `"${answers.service}"`
-        ];
-    }
-    if (verifyImage) {
-        deployParams.push(...['--verify-image', image]);
+        logger_1.logger.info('Eseguo update completo');
+        deployParams = ['-o', 'full-docker-update'];
     }
     const result = await deployScript.call(deployParams, true);
-    // await session.command(`cd /home/${appUser}/apps/; sudo /usr/bin/docker compose up -d --remove-orphans`);
     // throw on deployScript call error
     (0, fatalError_1.throwOnFatalError)(result.output);
     session.disconnect();
