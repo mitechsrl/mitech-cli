@@ -9,8 +9,9 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
     const target = await getTarget();
     printTarget(target);
 
-    // rimuovi il primo pezzo (docker)
-    const command = argv._.slice(1).map(p => p.toString());
+    // rimuovi il primo pezzo (fino a "docker")
+    const command = process.argv.slice(3);
+    
     if (command.length === 0) {
         logger.warn('Nessun comando eseguito. Digita <mitech docker -h>  per info');
         return;
