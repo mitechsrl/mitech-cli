@@ -16,19 +16,29 @@ import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import yargs from 'yargs';
 import { logger } from '../../../../lib/logger';
-import { createSshSession } from '../../../../lib/ssh';
+import { SshSession, createSshSession } from '../../../../lib/ssh';
 import { GenericObject, SshTarget, StringError } from '../../../../types';
 import { parse } from 'yaml';
 import { uploadAndInstallDeployScript } from '../../_lib/deployScript';
-import inquirer from 'inquirer';
 import { throwOnFatalError } from '../../_lib/fatalError';
-import { checkProperties } from './checkProperties';
+import { validateComposeConfig } from './validateComposeConfig';
 
 export type DeployResult = {
     aborted?: boolean,
     complete?: boolean
 };
 
+async function uploadDockerComposeFile(session: SshSession, appUser:string, localDockerComposeFilePath: string, dockerComposeFileName: string){
+    // path for filenames used during compose file upload
+    const remoteTempDir = await session.getRemoteTmpDir(appUser);
+    const remoteTempFile = remoteTempDir.trim() + dockerComposeFileName;
+    const remoteDockerComposeFileName = `/home/${appUser}/apps/${dockerComposeFileName}`;
+   
+    logger.info('Upload ' + dockerComposeFileName);
+    await session.uploadFile(localDockerComposeFilePath, remoteTempFile);
+    await session.command(`sudo cp ${remoteTempFile} ${remoteDockerComposeFileName}`);
+    await session.command(`sudo chown ${appUser}:${appUser} ${remoteDockerComposeFileName}`);
+}
 /**
  * deploy the app at the proces.cwd() path to the remote target
  * Throws an error in case of fail
@@ -56,25 +66,7 @@ export async function deploy (target: SshTarget, params: yargs.ArgumentsCamelCas
     }
 
     // Check file for properties correctness
-    checkProperties(dockerComposeConfig);
-
-    // ask the user which service to launch/rollout
-    const answers = await inquirer.prompt([ {
-        type: 'list',
-        name: 'service',
-        message: 'Service docker',
-        choices: [{ name:'Tutti', value:'_all_' }, ...Object.keys(dockerComposeConfig.services ?? {}).map(v => ({ name:v, value:v }))]
-    }]);
-
-    let image = '';
-    let allImages = false; // Bota sœ tot!
-    if (answers.service === '_all_'){
-        allImages = true;
-        console.warn('ATTENZIONE: L\'update di tutte le app NON prevede zero downtime.');
-    }else{
-        image = dockerComposeConfig.services[answers.service].image;
-        if (!image) throw new Error('Unknown image');
-    }
+    validateComposeConfig(dockerComposeConfig);
 
     const appUser = target.nodeUser || 'onit';
 
@@ -82,48 +74,12 @@ export async function deploy (target: SshTarget, params: yargs.ArgumentsCamelCas
     const session = await createSshSession(target);
     // upload script deploy
     const deployScript = await uploadAndInstallDeployScript(session, appUser);
-
-    // path for filenames used during compose file upload
-    const remoteTempDir = await session.getRemoteTmpDir(appUser);
-    const remoteTempFile = remoteTempDir.trim() + dockerComposeFileName;
-    const remoteDockerComposeFileName = `/home/${appUser}/apps/${dockerComposeFileName}`;
-   
-    logger.info('Upload ' + dockerComposeFileName);
-    await session.uploadFile(dockerComposeFile, remoteTempFile);
-    await session.command(`sudo cp ${remoteTempFile} ${remoteDockerComposeFileName}`);
-    await session.command(`sudo chown ${appUser}:${appUser} ${remoteDockerComposeFileName}`);
-
-    let deployParams = [];
+    // Upload the docker-compose file to server and place it in correct position
+    await uploadDockerComposeFile(session, appUser, dockerComposeFile, dockerComposeFileName);
     
-    if (!allImages){
-        // custom flag to trigger image validation via notation
-        // Expected the server to already have a valid notation setup
-        const verifyImage = dockerComposeConfig.services[answers.service]['x-verify-image'] ?? false;
-        // Custom flag to enable zero downtime rollout
-        const zeroDowntimeRollout = dockerComposeConfig.services[answers.service]['x-zero-downtime'] ?? false;
-        
-        if (zeroDowntimeRollout){
-            // use the server-side node script to effectively perform the service rollout
-            logger.info('Eseguo rollout');
-            // rollout with zero downtime
-            deployParams = [ '-o','docker-rollout'];
-        }else{
-            // update with downtime
-            logger.info('Eseguo update');
-            deployParams = [ '-o','docker-update'];
-        }
-
-        deployParams.push(...['-s',`"${answers.service}"`]);
-
-        if (verifyImage) deployParams.push(...['--verify-image', image]);
-    }else{
-        // NOTE: Verification not implemented for full update
-        // update with downtime
-        logger.info('Eseguo update completo');
-        deployParams = [ '-o','full-docker-update'];
-    }
-    
-    const result = await deployScript.call(deployParams, true);
+    // Call the deploy script on server to perform all the needed operations.
+    // This run the docker swarm deploy using the docker-compose file uploaded before, which is expected to be in correct position
+    const result = await deployScript.call([ '-o','deploy-docker-swarm' ], true);
   
     // throw on deployScript call error
     throwOnFatalError(result.output);

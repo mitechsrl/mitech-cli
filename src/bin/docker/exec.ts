@@ -18,7 +18,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
 
     const session = await createSshSession(target);
     const appUser = target.nodeUser || 'onit';
-    await session.commandAs(appUser, ['docker', ...command]);
+    await session.commandAs(appUser, ['sudo', 'docker', ...command]);
     session.disconnect();
 };
 

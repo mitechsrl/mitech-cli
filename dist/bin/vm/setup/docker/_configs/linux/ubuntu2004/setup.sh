@@ -52,9 +52,12 @@ usermod -a -G docker $ADMINUSER
 # Abilito service docker al boot
 systemctl enable docker
 
+# enable docker swarm. We use it to manage containerson top of compose-files
+# see https://docs.docker.com/engine/swarm/
+docker swarm init
+
 # clean packages
 apt autoremove -y
-
 
 # install notation, for docker image sign verification
 # Also install azure plugin

@@ -1,6 +1,7 @@
-## Script deploy
+# Script deploy
 
 Entry point: deploy-instructions.js
 
-Le dipendenze vanno aggiunte al file deploy_package
-Mantenere i due file cosi come sono oppure rinominare i puntamenti nel file deployScript.js
+Le dipendenze vanno aggiunte al file package.json
+
+"install-deploy-instructions.ts" triggera npm install su server per dipendenze di package.json

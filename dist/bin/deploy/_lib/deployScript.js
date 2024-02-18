@@ -27,7 +27,7 @@ async function uploadAndInstallDeployScript(session, nodeUser) {
     const remoteDeployInstructionsFile = remoteDeployBasePath + 'deploy-instructions.js';
     let files = await fs_1.default.promises.readdir(path_1.default.join(__dirname, '../_instructions'));
     files = files.filter(f => {
-        const skipExtensions = ['md'];
+        const skipExtensions = ['.md', '.d.ts', '.map'];
         return !skipExtensions.find(ext => f.toLowerCase().endsWith(ext));
     });
     if (session.os.linux) {
@@ -36,15 +36,16 @@ async function uploadAndInstallDeployScript(session, nodeUser) {
         for (const file of files) {
             const _f = remoteTempDir.trim() + file;
             await session.uploadFile(path_1.default.join(__dirname, '../_instructions/', file), _f);
-            await session.commandAs(nodeUser, ['cp', _f, remoteDeployBasePath + file]);
+            await session.commandAs(nodeUser, `cp ${_f} ${remoteDeployBasePath + file}`);
             await session.command(['rm', _f]);
         }
     }
     else {
         throw new types_1.StringError('Implementazione per piattaforma ' + JSON.stringify(session.os) + ' non implementata');
     }
+    console.log('installo dipendenze script deploy...');
     // install the dependencies for the deploy script
-    await session.commandAs(nodeUser, ['node', remoteDeployInstructionsFile, '-o', 'install'], false);
+    await session.commandAs(nodeUser, `cd ${remoteDeployBasePath}; npm install`, true);
     return {
         // Run the remote deploy script
         // @param {*} args un script parameters

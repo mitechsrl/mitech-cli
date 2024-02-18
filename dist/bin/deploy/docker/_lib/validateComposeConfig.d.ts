@@ -5,4 +5,4 @@ import { GenericObject } from '../../../../types';
  * @param json
  * @param path
  */
-export declare function checkProperties(json: GenericObject, path?: string[]): void;
+export declare function validateComposeConfig(json: GenericObject, path?: string[]): void;

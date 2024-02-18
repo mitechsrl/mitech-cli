@@ -1,11 +1,13 @@
 {
-    "name": "deploy-insteller",
+    "name": "deploy-installer",
     "version": "0.0.1",
     "license": "ISC",
     "repository": "-",
-    "description": "deploy project",
+    "description": "Node script to assist onit-cli on server-side. This scritpt is uploaded and executed on server",
     "dependencies": {
         "tar": "^6.0.5",
-        "fs-extra": "^9.0.1"
+        "fs-extra": "^9.0.1",
+        "@types/tar": "^6.1.0",
+        "yaml": "^2.3.1"
     }
 }
