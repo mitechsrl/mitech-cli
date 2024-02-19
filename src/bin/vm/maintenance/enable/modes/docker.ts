@@ -24,10 +24,7 @@ import tar from 'tar';
 import { uploadAndRunShFile } from '../../../../../lib/uploadShFile';
 
 export async function enableMaintenanceDocker(session: SshSession, target: SshTarget){
-
-    const response = await fetch('https://api.ipify.org');
-    const body = (await response.text()).trim();
-
+    
     // tmp filenames for upload
     const appUser = target.nodeUser || 'onit';
     const remoteTempDir = await session.getRemoteTmpDir(appUser);
@@ -35,14 +32,25 @@ export async function enableMaintenanceDocker(session: SshSession, target: SshTa
     const remoteNginxVolumeDir = remoteAppDir+'/nginx';
     const remoteTempDirGeoDynFile = remoteTempDir+'geo_dyn.conf';
     const remoteNginxGeoDynFile = remoteNginxVolumeDir+'/geo_dyn.conf';
+    // contiene files html per pagina manutenzione
     const remoteNginxMaintenanceVolumeDir = remoteNginxVolumeDir+'/maintenance';
-    const remoteNginxMaintmodeVolumeDir = remoteNginxVolumeDir+'/maintmode';
-
+    // contiene files per attivare la modalità manutenzione
+    const remoteNginxMaintenanceModeVolumeDir = remoteNginxVolumeDir+'/maintenancemode';
+    
+    logger.warn('ATTENZIONE: Il maintenance mode presuppone il volume docker di nginx sia montato in  '+remoteNginxVolumeDir);
+    
+    logger.log('Cerco ip locale...');
+    const response = await fetch('https://api.ipify.org');
+    const body = (await response.text()).trim();
+    
     //  Update geo_dyn.conf
     if (!validateIPaddress(body)) {
         console.warn('Impossibile settare indirizzo ip locale come abilitato. Il portale è visibile solo tramite vpn mitech');
     } else {
-        logger.log('Setto l\'ip locale ' + body + ' tra gli indirizzi ammessi al web service...');
+        // ho l'ip locale... mecojoni!!
+        logger.log('Complimenti! Il tuo ip locale è: ' + body);
+    
+        logger.log('Setto l\'ip tra gli indirizzi ammessi al web service...');
         const tmpFile = await file({ discardDescriptor: true, postfix: '.conf' });
         await session.downloadFile(remoteNginxGeoDynFile, tmpFile.path);
         await fs.promises.appendFile(tmpFile.path, '\n' + body + ' allowed;\n');
@@ -71,7 +79,7 @@ export async function enableMaintenanceDocker(session: SshSession, target: SshTa
         [
             appUser,
             remoteNginxMaintenanceVolumeDir,
-            remoteNginxMaintmodeVolumeDir
+            remoteNginxMaintenanceModeVolumeDir
         ]
     );
     

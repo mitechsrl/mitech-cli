@@ -25,7 +25,6 @@ import { removeMyIpAddressFromGeoDyn } from '../_lib/removeMyIpAddressFromGeoDyn
  * @param target 
  */
 export async function disableMaintenanceDocker(session: SshSession, target: SshTarget){
-    
 
     const appUser = target.nodeUser || 'onit';
     const remoteTempDir = await session.getRemoteTmpDir(appUser);
@@ -35,7 +34,7 @@ export async function disableMaintenanceDocker(session: SshSession, target: SshT
     const remoteTempDirGeoDynFile = remoteTempDir+geoDynFileName;
     const remoteNginxGeoDynFile = remoteNginxVolumeDir+'/'+geoDynFileName;
     const remoteNginxMaintenanceVolumeDir = remoteNginxVolumeDir+'/maintenance';
-    const remoteNginxMaintmodeVolumeDir = remoteNginxVolumeDir+'/maintmode';
+    const remoteNginxMaintenanceModeVolumeDir = remoteNginxVolumeDir+'/maintenancemode';
 
     // L'ip che ha abilitato la modalità manutenzione deve essere rimosso dalla lista geo_dyn
     await removeMyIpAddressFromGeoDyn(session, geoDynFileName, remoteNginxGeoDynFile, remoteTempDirGeoDynFile );
@@ -49,7 +48,7 @@ export async function disableMaintenanceDocker(session: SshSession, target: SshT
         [
             appUser,
             remoteNginxMaintenanceVolumeDir,
-            remoteNginxMaintmodeVolumeDir
+            remoteNginxMaintenanceModeVolumeDir
         ]
     );
 }

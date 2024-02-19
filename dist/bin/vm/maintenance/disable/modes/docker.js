@@ -35,7 +35,7 @@ async function disableMaintenanceDocker(session, target) {
     const remoteTempDirGeoDynFile = remoteTempDir + geoDynFileName;
     const remoteNginxGeoDynFile = remoteNginxVolumeDir + '/' + geoDynFileName;
     const remoteNginxMaintenanceVolumeDir = remoteNginxVolumeDir + '/maintenance';
-    const remoteNginxMaintmodeVolumeDir = remoteNginxVolumeDir + '/maintmode';
+    const remoteNginxMaintenanceModeVolumeDir = remoteNginxVolumeDir + '/maintenancemode';
     // L'ip che ha abilitato la modalità manutenzione deve essere rimosso dalla lista geo_dyn
     await (0, removeMyIpAddressFromGeoDyn_1.removeMyIpAddressFromGeoDyn)(session, geoDynFileName, remoteNginxGeoDynFile, remoteTempDirGeoDynFile);
     // La serie (medio-lunga) di  comandi sono implementati via script bash, in modo da essere più veloce la scrittura del codice
@@ -43,7 +43,7 @@ async function disableMaintenanceDocker(session, target) {
     await (0, uploadShFile_1.uploadAndRunShFile)(session, path_1.default.join(__dirname, './docker.sh'), '/tmp/docker-maintenance-mode-disable.sh', [
         appUser,
         remoteNginxMaintenanceVolumeDir,
-        remoteNginxMaintmodeVolumeDir
+        remoteNginxMaintenanceModeVolumeDir
     ]);
 }
 exports.disableMaintenanceDocker = disableMaintenanceDocker;

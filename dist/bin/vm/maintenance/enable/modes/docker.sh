@@ -1,10 +1,11 @@
 #!/bin/bash
 
-APPUSER="onit"
-NGINXMAINTENANCEVOLUMEDIR="/home/onit/apps/nginx/maintenance"
-NGINXMAINTMODEVOLUMEDIR="/home/onit/apps/nginx/maintmode"
+APPUSER=""
+NGINXMAINTENANCEVOLUMEDIR=""
+NGINXMAINTMODEVOLUMEDIR=""
+
 if [ $# -ne 3 ]; then
-     echo "ERROR: You must pass APPUSER NGINXMAINTENANCEVOLUMEDIR NGINXMAINTMODEVOLUMEDIR values"
+    echo "ERROR: You must pass APPUSER NGINXMAINTENANCEVOLUMEDIR NGINXMAINTMODEVOLUMEDIR values"
 	echo "Usage: docker.sh APPUSER NGINXMAINTENANCEVOLUMEDIR NGINXMAINTMODEVOLUMEDIR"
 	exit -1
 else
@@ -31,4 +32,7 @@ touch $NGINXMAINTMODEVOLUMEDIR/maintmode
 
 
 echo "Reload nginx..."
-docker exec "nginx-proxy" /usr/sbin/nginx -s reload
+# ATTENZIONE: questo comando presuppone che il container docker contenga il nome "nginx"
+# Non è matematico che ci sia solo questo ma se ci sono 2 nginx forse c'è qualcosa di strano
+NGINX_CONTAINER=`sudo docker ps -f "name=nginx" | grep nginx | awk '{print $1}'`
+sudo docker exec $NGINX_CONTAINER /usr/sbin/nginx -s reload
