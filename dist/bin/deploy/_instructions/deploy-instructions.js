@@ -463,7 +463,7 @@ async function deployDockerSwarm() {
     // o impostazioni. Una volta eseguito, lancia i task ncessari internamente.
     // Vedi https://docs.docker.com/engine/reference/commandline/stack_deploy/
     console.log('Eseguo deploy del file docker-compose.yml...');
-    const deployResult = await spawn('sudo', [dockerBinPath, 'stack', 'deploy', '--with-registry-auth', '--prune', '--compose-file', 'docker-compose.yml', 'default_stack'], { cwd: appsContainer, silent: true });
+    const deployResult = await spawn('sudo', [dockerBinPath, 'stack', 'deploy', '--with-registry-auth', '--prune', '--compose-file', 'docker-compose.yml', 'default_stack'], { cwd: appsContainer, silent: false });
     if (deployResult.code !== 0) {
         throw new Error('Deploy fallito. ' + deployResult.data.toString());
     }
@@ -492,7 +492,7 @@ async function deployDockerSwarm() {
                         console.log('ps image', ps.Image);
                         throw new Error('Servizio ' + service + ' non in stato running con immagine corretta');
                     }
-                    lastOkMessages.push('Servizio ' + service + ' in esecuzione su ' + ps.Node + ' con immagine ' + ps.Image + ' in stato ' + ps.CurrentState);
+                    lastOkMessages.push('Servizio <defalt_stack_' + service + '> in esecuzione su <' + ps.Node + '> con immagine <' + ps.Image + '> in stato <' + ps.CurrentState + '>');
                 });
             }
             okCount++;
