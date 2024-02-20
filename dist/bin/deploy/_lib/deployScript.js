@@ -45,7 +45,10 @@ async function uploadAndInstallDeployScript(session, nodeUser) {
     }
     console.log('installo dipendenze script deploy...');
     // install the dependencies for the deploy script
-    await session.commandAs(nodeUser, `cd ${remoteDeployBasePath}; npm install`, true);
+    // FIXME: Da node 17, si preferisce ipv6.
+    // Se il server però ha lo stack non abilitato ipv6, npm non va maremma ladrona!
+    // Setto un flag che fa preferire ipv4
+    await session.commandAs(nodeUser, `cd ${remoteDeployBasePath}; export NODE_OPTIONS=--dns-result-order=ipv4first; npm install`, true);
     return {
         // Run the remote deploy script
         // @param {*} args un script parameters

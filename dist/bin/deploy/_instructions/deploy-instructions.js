@@ -443,7 +443,7 @@ async function deployDockerSwarm() {
     const dockerComposeFileName = 'docker-compose.yml';
     const composeFileContent = fs_1.default.readFileSync(dockerComposeFileName).toString();
     const composeConfig = (0, yaml_1.parse)(composeFileContent);
-    const _images = await spawn('sudo', [dockerBinPath, 'image', 'ls', '--format', 'json'], { silent: true });
+    const _images = await spawn(dockerBinPath, ['image', 'ls', '--format', 'json'], { silent: true });
     const alreadyDownloadedImages = parseDockerJsonOutput(_images.data);
     // Faccio pull priuma così poi il countdown successivo non deve anche includere
     // le tempistiche di download delle immagini
@@ -456,14 +456,14 @@ async function deployDockerSwarm() {
         const found = alreadyDownloadedImages.find(i => `${i.Repository}:${i.Tag}` === image);
         if (!found) {
             console.log('Pull preventivo di ', image, '...');
-            await spawn('sudo', [dockerBinPath, 'pull', image], { silent: false });
+            await spawn(dockerBinPath, ['pull', image], { silent: false });
         }
     }
     // Comando principlae di deploy. Questo triggera update di swarm in modo da aggiornare i servizi con le nuove immagini
     // o impostazioni. Una volta eseguito, lancia i task ncessari internamente.
     // Vedi https://docs.docker.com/engine/reference/commandline/stack_deploy/
     console.log('Eseguo deploy del file docker-compose.yml...');
-    const deployResult = await spawn('sudo', [dockerBinPath, 'stack', 'deploy', '--with-registry-auth', '--prune', '--compose-file', 'docker-compose.yml', 'default_stack'], { cwd: appsContainer, silent: false });
+    const deployResult = await spawn(dockerBinPath, ['stack', 'deploy', '--with-registry-auth', '--prune', '--compose-file', 'docker-compose.yml', 'default_stack'], { cwd: appsContainer, silent: false });
     if (deployResult.code !== 0) {
         throw new Error('Deploy fallito. ' + deployResult.data.toString());
     }
@@ -479,7 +479,7 @@ async function deployDockerSwarm() {
         process.stdout.write(`${i} `);
         try {
             for (const service of Object.keys(composeConfig.services)) {
-                const _servicePs = await spawn('sudo', [dockerBinPath, 'service', 'ps', '--format', 'json', '--filter', 'desired-state=running', 'default_stack_' + service], { silent: true });
+                const _servicePs = await spawn(dockerBinPath, ['service', 'ps', '--format', 'json', '--filter', 'desired-state=running', 'default_stack_' + service], { silent: true });
                 const servicePs = parseDockerJsonOutput(_servicePs.data);
                 if (servicePs.length === 0)
                     throw new Error('Nessun servizio ' + service + ' trovato');

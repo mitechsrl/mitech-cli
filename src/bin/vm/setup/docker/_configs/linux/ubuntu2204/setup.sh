@@ -47,6 +47,7 @@ useradd -m $APPUSER -s /usr/bin/bash
 mkdir /home/$APPUSER/apps
 chown $APPUSER:$APPUSER /home/$APPUSER/apps
 chmod 755 /home/$APPUSER/apps
+echo "export NODE_OPTIONS=--dns-result-order=ipv4first" >>  /home/$APPUSER/.bashrc
 
 # Aggiunto sia ADMINUSER che APPUSER al gruppo docker, in modo da potergli far fare le operazioni
 # Senza arzigogoli strani di permessi

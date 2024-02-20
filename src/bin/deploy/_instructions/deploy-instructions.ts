@@ -530,7 +530,7 @@ async function deployDockerSwarm(){
     const composeFileContent = fs.readFileSync(dockerComposeFileName).toString();
     const composeConfig = parse(composeFileContent) as GenericObject;
 
-    const _images = await spawn('sudo', [dockerBinPath, 'image','ls','--format','json'], { silent:true });
+    const _images = await spawn(dockerBinPath, ['image','ls','--format','json'], { silent:true });
     const alreadyDownloadedImages = parseDockerJsonOutput(_images.data) as { Repository:string,Tag:string }[];
 
     // Faccio pull priuma così poi il countdown successivo non deve anche includere
@@ -544,7 +544,7 @@ async function deployDockerSwarm(){
         const found = alreadyDownloadedImages.find(i => `${i.Repository}:${i.Tag}` === image);
         if (!found){
             console.log('Pull preventivo di ',image,'...');
-            await spawn('sudo', [dockerBinPath, 'pull',image], { silent:false });
+            await spawn(dockerBinPath, ['pull',image], { silent:false });
         }
     }
 
@@ -553,8 +553,8 @@ async function deployDockerSwarm(){
     // Vedi https://docs.docker.com/engine/reference/commandline/stack_deploy/
     console.log('Eseguo deploy del file docker-compose.yml...');
     const deployResult = await spawn(
-        'sudo', 
-        [dockerBinPath, 'stack','deploy','--with-registry-auth','--prune','--compose-file','docker-compose.yml','default_stack'],
+        dockerBinPath, 
+        ['stack','deploy','--with-registry-auth','--prune','--compose-file','docker-compose.yml','default_stack'],
         { cwd: appsContainer, silent: false }
     );
     if (deployResult.code !== 0){
@@ -572,7 +572,7 @@ async function deployDockerSwarm(){
         process.stdout.write(`${i} `);
         try{
             for(const service of Object.keys(composeConfig.services)){
-                const _servicePs = await spawn('sudo', [dockerBinPath, 'service','ps','--format','json', '--filter','desired-state=running','default_stack_'+service], { silent:true });
+                const _servicePs = await spawn(dockerBinPath, ['service','ps','--format','json', '--filter','desired-state=running','default_stack_'+service], { silent:true });
                 const servicePs = parseDockerJsonOutput(_servicePs.data) as { CurrentState:string,DesiredState:string, Error:string,ID:string, Image:string, Name:string,Node:string }[];
                 if (servicePs.length === 0) throw new Error('Nessun servizio '+service+' trovato');
                 servicePs.forEach(ps => {
