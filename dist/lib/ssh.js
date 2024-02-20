@@ -268,13 +268,13 @@ async function createSshSession(target) {
         const _t = {
             host: target.host,
             port: target.port,
-            username: target.username
+            username: target.username,
         };
         if (target.accessType === 'sshKey') {
             _t.privateKey = fs_1.default.readFileSync(target.sshKey);
         }
         else {
-            _t.password = target.password;
+            _t.password = target.password; // Non è sicuramente piu' EncryptedPassword, è già stata decriptata
         }
         conn.connect(_t);
     });

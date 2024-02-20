@@ -12,7 +12,7 @@
  * 0. You just DO WHAT THE FUCK YOU WANT TO.
  */
 
-import { Client, ExecOptions } from 'ssh2';
+import { Client, ConnectConfig, ExecOptions } from 'ssh2';
 import fs from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
@@ -297,16 +297,16 @@ export async function createSshSession(target: SshTarget): Promise<SshSession> {
         // reject on connection error
         conn.on('error', error => reject(error));
 
-        const _t: GenericObject = {
+        const _t: ConnectConfig = {
             host: target.host,
             port: target.port,
-            username: target.username
+            username: target.username,
         };
 
         if (target.accessType === 'sshKey') {
             _t.privateKey = fs.readFileSync(target.sshKey!);
         } else {
-            _t.password = target.password;
+            _t.password = target.password as (string | undefined); // Non è sicuramente piu' EncryptedPassword, è già stata decriptata
         }
         conn.connect(_t);
     });
