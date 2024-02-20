@@ -22,7 +22,6 @@ sudo mkdir -p $2
 sudo mount $PARTITION $2
 sudo df -h | grep $2 
 
-
 # Fallback: non cambiare fstab se non c'è UUID, rischio detonazione VM
 BLOCKIDCOUNT=`blkid -s UUID -o value $PARTITION | wc -l`
 if [ "$BLOCKIDCOUNT" -eq "0" ]; then
