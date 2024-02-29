@@ -25,11 +25,12 @@ apt install -y curl gnupg apt-transport-https ca-certificates software-propertie
 # Aggiungo repo per node.
 NODE_MAJOR=18
 if ! [ -x "$(command -v node)" ]; then
+    echo "Installo node..."
     sudo mkdir -p /etc/apt/keyrings
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
     echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
 else
-    echo "Node already installed. Skip this step."
+    echo "Node già installato. Salto setup repository e install..."
 fi
 
 # Aggiungo repo ufficiale docker
@@ -40,17 +41,26 @@ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubun
 sudo apt-get update
 apt install -y nodejs docker-ce docker-ce-cli
 
-# crea utente dedicato a apps. NOTA: non gli si assegna alcuna password,
-# l'utente non potrà accedere via ssh.
-useradd -m $APPUSER -s /usr/bin/bash
-# creo la dir di destinazione delle app di onit (e lo assegno all'user $APPUSER)
-mkdir /home/$APPUSER/apps
-chown $APPUSER:$APPUSER /home/$APPUSER/apps
-chmod 755 /home/$APPUSER/apps
+HAS_USER=`cat /etc/passwd | grep $APPUSER | wc -l`
+if [ $HAS_USER -eq 0 ]; then
+    # crea utente dedicato a apps. NOTA: non gli si assegna alcuna password,
+    # l'utente non potrà accedere via ssh.
+    echo "Creo utente $APPUSER..."
+    useradd -m $APPUSER -s /usr/bin/bash
+    # creo la dir di destinazione delle app di onit (e lo assegno all'user $APPUSER)
+    mkdir /home/$APPUSER/apps
+    chown $APPUSER:$APPUSER /home/$APPUSER/apps
+    chmod 755 /home/$APPUSER/apps
+else
+    echo "Utente $APPUSER già esistente. Non lo ricreo."
+fi
+
+# setto config node per usare ipv4 come prima scelta
 echo "export NODE_OPTIONS=--dns-result-order=ipv4first" >>  /home/$APPUSER/.bashrc
 
 # Aggiunto sia ADMINUSER che APPUSER al gruppo docker, in modo da potergli far fare le operazioni
 # Senza arzigogoli strani di permessi
+echo "Aggiungi gruppi..."
 usermod -a -G docker $APPUSER
 usermod -a -G docker $ADMINUSER
 
@@ -61,10 +71,12 @@ usermod -a -G docker $ADMINUSER
 # NOTA: Commentato perchè admin dovrebbe già avere nopasswd per tutti i comandi
 
 # Abilito service docker al boot
+echo "Abilito service docker al boot..."
 systemctl enable docker
 
 # enable docker swarm. We use it to manage containerson top of compose-files
 # see https://docs.docker.com/engine/swarm/
+echo "avvio docker swarm..."
 docker swarm init
 
 # clean packages
@@ -72,11 +84,12 @@ apt autoremove -y
 
 # install notation, for docker image sign verification
 # Also install azure plugin
-cd /home/$APPUSER
-curl -LO https://github.com/notaryproject/notation/releases/download/v1.0.1/notation_1.0.1\_linux_amd64.tar.gz
-tar xvzf notation_1.0.1_linux_amd64.tar.gz -C /usr/bin/ notation
-AZURE_KV_PLUGIN_PATH="/home/$APPUSER/.config/notation/plugins/azure-kv"
-AZURE_KV_PLUGIN_TAR_FILE="notation-azure-kv_1.0.1_linux_amd64.tar.gz"
-curl -Lo ${AZURE_KV_PLUGIN_TAR_FILE} "https://github.com/Azure/notation-azure-kv/releases/download/v1.0.1/${AZURE_KV_PLUGIN_TAR_FILE}"
-mkdir -p ${AZURE_KV_PLUGIN_PATH}
-tar xvzf ${AZURE_KV_PLUGIN_TAR_FILE} -C ${AZURE_KV_PLUGIN_PATH} notation-azure-kv
+# IV: Rimosso, usiamo image sign di dokcer
+# cd /home/$APPUSER
+# curl -LO https://github.com/notaryproject/notation/releases/download/v1.0.1/notation_1.0.1\_linux_amd64.tar.gz
+# tar xvzf notation_1.0.1_linux_amd64.tar.gz -C /usr/bin/ notation
+# AZURE_KV_PLUGIN_PATH="/home/$APPUSER/.config/notation/plugins/azure-kv"
+# AZURE_KV_PLUGIN_TAR_FILE="notation-azure-kv_1.0.1_linux_amd64.tar.gz"
+# curl -Lo ${AZURE_KV_PLUGIN_TAR_FILE} "https://github.com/Azure/notation-azure-kv/releases/download/v1.0.1/${AZURE_KV_PLUGIN_TAR_FILE}"
+# mkdir -p ${AZURE_KV_PLUGIN_PATH}
+# tar xvzf ${AZURE_KV_PLUGIN_TAR_FILE} -C ${AZURE_KV_PLUGIN_PATH} notation-azure-kv

@@ -28,15 +28,26 @@ apt install -y curl apt-transport-https ca-certificates software-properties-comm
 # Aggiungo repo ufficiale docker, poi installo docker
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+
+# install node e docker
+sudo apt-get update
 apt install -y docker-ce docker-ce-cli
 
-# crea utente dedicato a apps. NOTA: non gli si assegna alcuna password,
-# l'utente non potrà accedere via ssh.
-useradd -m $APPUSER -s /usr/bin/bash
-# creo la dir di destinazione delle app di onit (e lo assegno all'user $APPUSER)
-mkdir /home/$APPUSER/apps
-chown $APPUSER:$APPUSER /home/$APPUSER/apps
-chmod 755 /home/$APPUSER/apps
+HAS_USER=`cat /etc/passwd | grep $APPUSER | wc -l`
+if [ $HAS_USER -eq 0 ]; then
+    # crea utente dedicato a apps. NOTA: non gli si assegna alcuna password,
+    # l'utente non potrà accedere via ssh.
+    echo "Creo utente $APPUSER"
+    useradd -m $APPUSER -s /usr/bin/bash
+    # creo la dir di destinazione delle app di onit (e lo assegno all'user $APPUSER)
+    mkdir /home/$APPUSER/apps
+    chown $APPUSER:$APPUSER /home/$APPUSER/apps
+    chmod 755 /home/$APPUSER/apps
+else
+    echo "Utente $APPUSER già esistente. Non lo ricreo."
+fi
+
+# setto config node per usare ipv4 come prima scelta
 echo "export NODE_OPTIONS=--dns-result-order=ipv4first" >>  /home/$APPUSER/.bashrc
 
 # Aggiunto sia ADMINUSER che APPUSER al gruppo docker, in modo da potergli far fare le operazioni
@@ -62,11 +73,12 @@ apt autoremove -y
 
 # install notation, for docker image sign verification
 # Also install azure plugin
-cd /home/$APPUSER
-curl -LO https://github.com/notaryproject/notation/releases/download/v1.0.1/notation_1.0.1\_linux_amd64.tar.gz
-tar xvzf notation_1.0.1_linux_amd64.tar.gz -C /usr/bin/ notation
-AZURE_KV_PLUGIN_PATH="/home/$APPUSER/.config/notation/plugins/azure-kv"
-AZURE_KV_PLUGIN_TAR_FILE="notation-azure-kv_1.0.1_linux_amd64.tar.gz"
-curl -Lo ${AZURE_KV_PLUGIN_TAR_FILE} "https://github.com/Azure/notation-azure-kv/releases/download/v1.0.1/${AZURE_KV_PLUGIN_TAR_FILE}"
-mkdir -p ${AZURE_KV_PLUGIN_PATH}
-tar xvzf ${AZURE_KV_PLUGIN_TAR_FILE} -C ${AZURE_KV_PLUGIN_PATH} notation-azure-kv
+# IV: Rimosso, usiamo image sign di dokcer
+# cd /home/$APPUSER
+# curl -LO https://github.com/notaryproject/notation/releases/download/v1.0.1/notation_1.0.1\_linux_amd64.tar.gz
+# tar xvzf notation_1.0.1_linux_amd64.tar.gz -C /usr/bin/ notation
+# AZURE_KV_PLUGIN_PATH="/home/$APPUSER/.config/notation/plugins/azure-kv"
+# AZURE_KV_PLUGIN_TAR_FILE="notation-azure-kv_1.0.1_linux_amd64.tar.gz"
+# curl -Lo ${AZURE_KV_PLUGIN_TAR_FILE} "https://github.com/Azure/notation-azure-kv/releases/download/v1.0.1/${AZURE_KV_PLUGIN_TAR_FILE}"
+# mkdir -p ${AZURE_KV_PLUGIN_PATH}
+# tar xvzf ${AZURE_KV_PLUGIN_TAR_FILE} -C ${AZURE_KV_PLUGIN_PATH} notation-azure-kv
