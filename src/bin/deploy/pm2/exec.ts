@@ -61,7 +61,6 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
     }
 
     const session = await createSshSession(target);
-    const pm2 = session.os.windows ? 'pm2.cmd' : 'pm2';        
     const remoteDeployBasePath = await session.getRemoteHomeDir(nodeUser, '.' + appsContainer);
     const remoteTmpPath = await session.getRemoteTmpDir(nodeUser);
     const remoteTmpFilename = remoteTmpPath + filename;
@@ -83,7 +82,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
     const restart = argv.restart as boolean;
     const only = argv.only as string;
     if (restart) {
-        const restartCmd = ['cd', remoteDeployBasePath + ';', pm2, 'restart', '"' + remoteFilename + '"', '--update-env'];
+        const restartCmd = ['cd', remoteDeployBasePath + ';', 'pm2', 'restart', '"' + remoteFilename + '"', '--update-env'];
         if (only) {
             restartCmd.push('--only');
             restartCmd.push(only);

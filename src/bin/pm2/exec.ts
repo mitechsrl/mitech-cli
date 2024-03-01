@@ -18,8 +18,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
 
     const session = await createSshSession(target);
     const nodeUser = target.nodeUser || 'node';
-    const pm2 = session.os.windows ? 'pm2.cmd' : 'pm2';
-    await session.commandAs(nodeUser, [pm2, ...pm2Command]);
+    await session.commandAs(nodeUser, ['pm2', ...pm2Command]);
     session.disconnect();
 };
 

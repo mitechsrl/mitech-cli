@@ -58,7 +58,6 @@ const exec = async (argv) => {
         return;
     }
     const session = await (0, ssh_1.createSshSession)(target);
-    const pm2 = session.os.windows ? 'pm2.cmd' : 'pm2';
     const remoteDeployBasePath = await session.getRemoteHomeDir(nodeUser, '.' + appsContainer_1.appsContainer);
     const remoteTmpPath = await session.getRemoteTmpDir(nodeUser);
     const remoteTmpFilename = remoteTmpPath + filename;
@@ -77,7 +76,7 @@ const exec = async (argv) => {
     const restart = argv.restart;
     const only = argv.only;
     if (restart) {
-        const restartCmd = ['cd', remoteDeployBasePath + ';', pm2, 'restart', '"' + remoteFilename + '"', '--update-env'];
+        const restartCmd = ['cd', remoteDeployBasePath + ';', 'pm2', 'restart', '"' + remoteFilename + '"', '--update-env'];
         if (only) {
             restartCmd.push('--only');
             restartCmd.push(only);

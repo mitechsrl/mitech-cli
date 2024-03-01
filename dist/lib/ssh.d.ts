@@ -24,10 +24,16 @@ export type SshCommandResult = {
  *
  */
 export type SshOsDetectorResult = {
-    windows: boolean;
     linux: boolean;
     name: string;
     version: string;
+};
+export type SshSessionShell = {
+    exec: (command: string) => Promise<{
+        exitCode: number;
+    }>;
+    end: () => Promise<void>;
+    sudoSu: (user: string) => Promise<void>;
 };
 /**
  *
@@ -95,6 +101,11 @@ export declare class SshSession {
      * @param {*} nodeUser
      */
     getRemoteTmpDir(nodeUser: string): Promise<string>;
+    /**
+     *
+     * @param onOpen
+     */
+    openShell(onOpen: (session: SshSessionShell) => Promise<void>): Promise<void>;
     /**
      * Direct ssh exec command
      *

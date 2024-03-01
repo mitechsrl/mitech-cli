@@ -19,6 +19,8 @@ import { spawn } from 'child_process';
 import { GenericObject, SshTarget } from '../types';
 import { logger } from './logger';
 import os from 'os';
+import crypto from 'crypto';
+
 /**
  * 
  */
@@ -31,10 +33,15 @@ export type SshCommandResult = {
  * 
  */
 export type SshOsDetectorResult = {
-    windows: boolean,
     linux: boolean,
     name: string,
     version: string
+};
+
+export type SshSessionShell = {
+    exec: (command:string) => Promise<{ exitCode: number }>,
+    end: () => Promise<void>,
+    sudoSu: (user:string) => Promise<void>,
 };
 
 /**
@@ -111,7 +118,6 @@ export class SshSession {
         if (this.os) return this.os;
 
         this.os = {
-            windows: false,
             linux: false,
             name: '',
             version: ''
@@ -139,37 +145,6 @@ export class SshSession {
             }
         } catch (error) { /* */ }
 
-        // windows on powershell.
-        try {
-            const cmdResponse = await this.command('[System.Environment]::OSVersion', false);
-            if (cmdResponse.exitCode === 0) {
-                if (cmdResponse.output.toLowerCase().indexOf('windows') >= 0) {
-                    this.os.windows = true;
-                    const regex = /^.+Windows[^0-9]+([0-9]+).+$/gm;
-                    let m;
-                    if ((m = regex.exec(cmdResponse.output)) !== null) {
-                        this.os.version = m[1];
-                    }
-                    return this.os;
-                }
-            }
-        } catch (error) { /* */ }
-
-        // windows with cmd
-        try {
-            const cmdResponse = await this.command('ver', false);
-            if (cmdResponse.exitCode === 0) {
-                if (cmdResponse.output.toLowerCase().indexOf('windows') >= 0) {
-                    this.os.windows = true;
-                    const m = cmdResponse.output.match(/^.+Windows[^0-9]+([0-9]+).+$/g);
-                    if (m) {
-                        this.os.version = m[1];
-                    }
-                    return this.os;
-                }
-            }
-        } catch (error) { /* */ }
-
         return this.os;
     }
 
@@ -185,13 +160,8 @@ export class SshSession {
      * @returns 
      */
     public async commandAs(user: string, cmd: string | string[], print?: boolean): Promise<SshCommandResult> {
-        if (this.os!.linux) {
-            const su = ['sudo su', user, '-c', '"cd; ' + escapeCmd(cmd) + '"'];
-            return this.command(su, print);
-        } else if (this.os!.windows) {
-            return this.command(escapeCmd(cmd), print);
-        }
-        return Promise.reject(new Error('Not implemented for this OS'));
+        const su = ['sudo su', user, '-c', '"cd; ' + escapeCmd(cmd) + '"'];
+        return this.command(su, print);
     }
 
     /** 
@@ -244,7 +214,7 @@ export class SshSession {
      * @param {*} nodeUser
      * @param {*} appsContainer Appendi questo path al valore ritornato
      */
-    public async getRemoteHomeDir(nodeUser: string, appsContainer: string): Promise<string> {
+    public async getRemoteHomeDir(nodeUser: string , appsContainer: string): Promise<string> {
         const cmd = escapeCmd('console.log(require(\'path\').join(require(\'os\').homedir(),\'' + appsContainer + '\'))');
         const hd = await this.commandAs(nodeUser, 'node -e "' + cmd + '"', false);
         return hd.output.trim();
@@ -258,6 +228,88 @@ export class SshSession {
         const cmd = escapeCmd('console.log(require(\'path\').join(require(\'os\').tmpdir(),\'./\'))');
         const hd = await this.commandAs(nodeUser, 'node -e "' + cmd + '"', false);
         return hd.output.trim();
+    }
+
+    /**
+     * 
+     * @param onOpen 
+     */
+    public async openShell(onOpen: (session: SshSessionShell) => Promise<void> ){
+        await new Promise<void>((resolve,reject) => {
+            this.conn.shell({ 
+                term: 'xterm-256color',
+                height: (process.stdout as GenericObject).height,
+                width: (process.stdout as GenericObject).width
+            }, (err, stream) => {
+                if (err) return reject(err);
+                
+                /*const resizeEvent = () => stream.setWindow(
+                    process.stdout.rows, 
+                    process.stdout.columns, 
+                    process.stdout.height,
+                    process.stdout.width 
+                );
+                process.stdout.on('resize', resizeEvent);
+            **/
+                const onCloseEvent = (/*code, signal*/) => {
+                    stream.removeAllListeners();
+                    // process.stdout.removeListener('resize', resizeEvent);
+                    resolve();
+                };
+                stream.on('close', onCloseEvent );    
+                
+                async function end(){
+                    stream.close();
+                }
+
+                function exec(command:string) {
+                    return new Promise<{ exitCode: number }>(resolve => {
+                        // Trucco: con ".shell" non si sa bene quando le cose finiscono perchè 
+                        // si interagisce solo tramite uno stream senza eventi ne comandi. PErsapere 
+                        // quando un comando finisce, accodo sempre un "echo QUALCOSA"
+                        // e poi processo lo stream in ingresso alla ricerca di quell'echo.
+                        // Quando lo trovo significa che il comando è finito e posso proseguire.
+                        // Ulteriore trucco: ci accodo il codice di uscita per sapere come è andato il comando.
+                        const endCommandTag = 'COMMAND-COMPLETED-'+crypto.createHash('md5').update(command).digest('hex');
+                        const endCommandTagMatchRegex = new RegExp(endCommandTag+'-([a-f0-1]+)$', 'm');
+
+                        const matchEndCommand =(data: Buffer) => {
+                            const match = data.toString().match(endCommandTagMatchRegex);
+                            if (match){
+                                stream.stdout.removeListener('data', onData);
+                                stream.stderr.removeListener('data', onError);
+                                process.stdout.write('\n');
+                                resolve({ exitCode: parseInt(match[1]) });
+                            }
+                        };
+                        const onData = (data: Buffer) => {
+                            process.stdout.write(data);
+                            matchEndCommand(data);
+                        };
+                        const onError = (data:Buffer) => {
+                            process.stderr.write(data);
+                            matchEndCommand(data);
+                        };
+                        stream.stdout.on('data', onData);
+                        stream.stderr.on('data',onError);
+
+                        stream.write(command+`; echo ${endCommandTag}-$?\n`);
+                    });
+                }
+
+                const sudoSu = async (user:string) => {
+                    stream.write('sudo su '+user+'\n');
+                    await new Promise(resolve => setTimeout(resolve, 1000));    
+                };
+
+                onOpen({
+                    exec: exec,
+                    end: end,
+                    sudoSu: sudoSu,
+                });
+                
+            });
+        });
     }
 
     /**
@@ -283,7 +335,10 @@ export async function createSshSession(target: SshTarget): Promise<SshSession> {
         const conn = new Client();
         conn.on('ready', async function () {
             const session = new SshSession(conn, target);
-            await session.osDetetcor();
+            const os = await session.osDetetcor();
+            if (!os.linux){
+                throw new Error('OS non supportato. Solo linux è supportato per ora.');
+            }
 
             // intercetta SIGINT (ctrl+c) per disconnettere ssh in modo normale anzichè brutale
             process.on('SIGINT', () => {

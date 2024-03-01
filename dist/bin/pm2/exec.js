@@ -14,8 +14,7 @@ const exec = async (argv) => {
     }
     const session = await (0, ssh_1.createSshSession)(target);
     const nodeUser = target.nodeUser || 'node';
-    const pm2 = session.os.windows ? 'pm2.cmd' : 'pm2';
-    await session.commandAs(nodeUser, [pm2, ...pm2Command]);
+    await session.commandAs(nodeUser, ['pm2', ...pm2Command]);
     session.disconnect();
 };
 exports.default = exec;

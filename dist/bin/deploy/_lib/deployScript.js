@@ -8,7 +8,6 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const logger_1 = require("../../../lib/logger");
 const appsContainer_1 = require("./appsContainer");
-const types_1 = require("../../../types");
 /**
  * Upload the deploy script and return a helper object to call it.
  *
@@ -30,18 +29,13 @@ async function uploadAndInstallDeployScript(session, nodeUser) {
         const skipExtensions = ['.md', '.d.ts', '.map'];
         return !skipExtensions.find(ext => f.toLowerCase().endsWith(ext));
     });
-    if (session.os.linux) {
-        // on linux upload will store the files into tmp then copy them in their final position with the appropriate user.
-        // this is to avoid permission problems between the uploading user and the target directory user.
-        for (const file of files) {
-            const _f = remoteTempDir.trim() + file;
-            await session.uploadFile(path_1.default.join(__dirname, '../_instructions/', file), _f);
-            await session.commandAs(nodeUser, `cp ${_f} ${remoteDeployBasePath + file}`);
-            await session.command(['rm', _f]);
-        }
-    }
-    else {
-        throw new types_1.StringError('Implementazione per piattaforma ' + JSON.stringify(session.os) + ' non implementata');
+    // on linux upload will store the files into tmp then copy them in their final position with the appropriate user.
+    // this is to avoid permission problems between the uploading user and the target directory user.
+    for (const file of files) {
+        const _f = remoteTempDir.trim() + file;
+        await session.uploadFile(path_1.default.join(__dirname, '../_instructions/', file), _f);
+        await session.commandAs(nodeUser, `cp ${_f} ${remoteDeployBasePath + file}`);
+        await session.command(['rm', _f]);
     }
     console.log('installo dipendenze script deploy...');
     // install the dependencies for the deploy script

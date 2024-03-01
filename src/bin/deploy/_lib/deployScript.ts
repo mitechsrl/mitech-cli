@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import { logger } from '../../../lib/logger';
 import { appsContainer } from './appsContainer';
-import { StringError } from '../../../types';
 
 /**
  * Upload the deploy script and return a helper object to call it.
@@ -16,6 +15,7 @@ import { StringError } from '../../../types';
  *        To know the parameters, see ./_instructions/deploy_instructions.js (at the end of file)
  */
 export async function uploadAndInstallDeployScript(session:SshSession, nodeUser:string){
+
     logger.info('Upload e preparazione deploy script...');
 
     // get destination paths from the remote target
@@ -28,18 +28,14 @@ export async function uploadAndInstallDeployScript(session:SshSession, nodeUser:
         const skipExtensions = ['.md','.d.ts','.map'];
         return !skipExtensions.find(ext => f.toLowerCase().endsWith(ext));
     });  
-    
-    if (session.os.linux) {
-        // on linux upload will store the files into tmp then copy them in their final position with the appropriate user.
-        // this is to avoid permission problems between the uploading user and the target directory user.
-        for (const file of files) {
-            const _f = remoteTempDir.trim() + file;
-            await session.uploadFile(path.join(__dirname, '../_instructions/', file), _f);
-            await session.commandAs(nodeUser, `cp ${_f} ${remoteDeployBasePath + file}`);
-            await session.command(['rm', _f]);
-        }
-    } else {
-        throw new StringError('Implementazione per piattaforma '+JSON.stringify(session.os)+ ' non implementata');
+   
+    // on linux upload will store the files into tmp then copy them in their final position with the appropriate user.
+    // this is to avoid permission problems between the uploading user and the target directory user.
+    for (const file of files) {
+        const _f = remoteTempDir.trim() + file;
+        await session.uploadFile(path.join(__dirname, '../_instructions/', file), _f);
+        await session.commandAs(nodeUser, `cp ${_f} ${remoteDeployBasePath + file}`);
+        await session.command(['rm', _f]);
     }
 
     console.log('installo dipendenze script deploy...');

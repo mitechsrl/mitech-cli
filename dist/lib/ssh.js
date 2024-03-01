@@ -23,6 +23,7 @@ const path_1 = __importDefault(require("path"));
 const child_process_1 = require("child_process");
 const logger_1 = require("./logger");
 const os_1 = __importDefault(require("os"));
+const crypto_1 = __importDefault(require("crypto"));
 /**
  * Esegue escaping di un comando doppi abici e backslash per essere usabili innestati in altri comandi
  */
@@ -87,7 +88,6 @@ class SshSession {
         if (this.os)
             return this.os;
         this.os = {
-            windows: false,
             linux: false,
             name: '',
             version: ''
@@ -112,37 +112,6 @@ class SshSession {
             }
         }
         catch (error) { /* */ }
-        // windows on powershell.
-        try {
-            const cmdResponse = await this.command('[System.Environment]::OSVersion', false);
-            if (cmdResponse.exitCode === 0) {
-                if (cmdResponse.output.toLowerCase().indexOf('windows') >= 0) {
-                    this.os.windows = true;
-                    const regex = /^.+Windows[^0-9]+([0-9]+).+$/gm;
-                    let m;
-                    if ((m = regex.exec(cmdResponse.output)) !== null) {
-                        this.os.version = m[1];
-                    }
-                    return this.os;
-                }
-            }
-        }
-        catch (error) { /* */ }
-        // windows with cmd
-        try {
-            const cmdResponse = await this.command('ver', false);
-            if (cmdResponse.exitCode === 0) {
-                if (cmdResponse.output.toLowerCase().indexOf('windows') >= 0) {
-                    this.os.windows = true;
-                    const m = cmdResponse.output.match(/^.+Windows[^0-9]+([0-9]+).+$/g);
-                    if (m) {
-                        this.os.version = m[1];
-                    }
-                    return this.os;
-                }
-            }
-        }
-        catch (error) { /* */ }
         return this.os;
     }
     /**
@@ -157,14 +126,8 @@ class SshSession {
      * @returns
      */
     async commandAs(user, cmd, print) {
-        if (this.os.linux) {
-            const su = ['sudo su', user, '-c', '"cd; ' + escapeCmd(cmd) + '"'];
-            return this.command(su, print);
-        }
-        else if (this.os.windows) {
-            return this.command(escapeCmd(cmd), print);
-        }
-        return Promise.reject(new Error('Not implemented for this OS'));
+        const su = ['sudo su', user, '-c', '"cd; ' + escapeCmd(cmd) + '"'];
+        return this.command(su, print);
     }
     /**
      * Disconnette la sessione ssh
@@ -232,6 +195,80 @@ class SshSession {
         return hd.output.trim();
     }
     /**
+     *
+     * @param onOpen
+     */
+    async openShell(onOpen) {
+        await new Promise((resolve, reject) => {
+            this.conn.shell({
+                term: 'xterm-256color',
+                height: process.stdout.height,
+                width: process.stdout.width
+            }, (err, stream) => {
+                if (err)
+                    return reject(err);
+                /*const resizeEvent = () => stream.setWindow(
+                    process.stdout.rows,
+                    process.stdout.columns,
+                    process.stdout.height,
+                    process.stdout.width
+                );
+                process.stdout.on('resize', resizeEvent);
+            **/
+                const onCloseEvent = ( /*code, signal*/) => {
+                    stream.removeAllListeners();
+                    // process.stdout.removeListener('resize', resizeEvent);
+                    resolve();
+                };
+                stream.on('close', onCloseEvent);
+                async function end() {
+                    stream.close();
+                }
+                function exec(command) {
+                    return new Promise(resolve => {
+                        // Trucco: con ".shell" non si sa bene quando le cose finiscono perchè 
+                        // si interagisce solo tramite uno stream senza eventi ne comandi. PErsapere 
+                        // quando un comando finisce, accodo sempre un "echo QUALCOSA"
+                        // e poi processo lo stream in ingresso alla ricerca di quell'echo.
+                        // Quando lo trovo significa che il comando è finito e posso proseguire.
+                        // Ulteriore trucco: ci accodo il codice di uscita per sapere come è andato il comando.
+                        const endCommandTag = 'COMMAND-COMPLETED-' + crypto_1.default.createHash('md5').update(command).digest('hex');
+                        const endCommandTagMatchRegex = new RegExp(endCommandTag + '-([a-f0-1]+)$', 'm');
+                        const matchEndCommand = (data) => {
+                            const match = data.toString().match(endCommandTagMatchRegex);
+                            if (match) {
+                                stream.stdout.removeListener('data', onData);
+                                stream.stderr.removeListener('data', onError);
+                                process.stdout.write('\n');
+                                resolve({ exitCode: parseInt(match[1]) });
+                            }
+                        };
+                        const onData = (data) => {
+                            process.stdout.write(data);
+                            matchEndCommand(data);
+                        };
+                        const onError = (data) => {
+                            process.stderr.write(data);
+                            matchEndCommand(data);
+                        };
+                        stream.stdout.on('data', onData);
+                        stream.stderr.on('data', onError);
+                        stream.write(command + `; echo ${endCommandTag}-$?\n`);
+                    });
+                }
+                const sudoSu = async (user) => {
+                    stream.write('sudo su ' + user + '\n');
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                };
+                onOpen({
+                    exec: exec,
+                    end: end,
+                    sudoSu: sudoSu,
+                });
+            });
+        });
+    }
+    /**
      * Direct ssh exec command
      *
      * @param command
@@ -255,7 +292,10 @@ async function createSshSession(target) {
         const conn = new ssh2_1.Client();
         conn.on('ready', async function () {
             const session = new SshSession(conn, target);
-            await session.osDetetcor();
+            const os = await session.osDetetcor();
+            if (!os.linux) {
+                throw new Error('OS non supportato. Solo linux è supportato per ora.');
+            }
             // intercetta SIGINT (ctrl+c) per disconnettere ssh in modo normale anzichè brutale
             process.on('SIGINT', () => {
                 logger_1.logger.error('Disconnecting...');
