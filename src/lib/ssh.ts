@@ -278,11 +278,11 @@ export class SshSession {
                 function exec(command:string) {
                     return new Promise<{ exitCode: number }>(resolve => {
                         // Trucco: con ".shell" non si sa bene quando le cose finiscono perchè 
-                        // si interagisce solo tramite uno stream senza eventi ne comandi. PErsapere 
+                        // da server il tutto arriva tramite uno stream senza eventi (solo stdout). Per sapere 
                         // quando un comando finisce, accodo sempre un "echo QUALCOSA"
                         // e poi processo lo stream in ingresso alla ricerca di quell'echo.
                         // Quando lo trovo significa che il comando è finito e posso proseguire.
-                        // Ulteriore trucco: ci accodo il codice di uscita per sapere come è andato il comando.
+                        // Ulteriore trucco: ci accodo il codice di uscita (cerca online per $?) per sapere come è andato il comando.
                         const endCommandTag = 'COMMAND-COMPLETED-'+crypto.createHash('md5').update(command).digest('hex');
                         const endCommandTagMatchRegex = new RegExp(endCommandTag+'-([-0-9]+)$', 'm');
 
@@ -312,6 +312,9 @@ export class SshSession {
 
                 const sudoSu = async (user:string) => {
                     stream.write('sudo su '+user+'\n');
+                    // Qui non possousare il trucco dell'echo perchè quello arriverebbe alla fine della shell del "sudo su".
+                    // Mi arrangio lanciando il comando e speriamo vada bene
+                    // https://www.youtube.com/watch?v=UgSY9U4ZSjE
                     await new Promise(resolve => setTimeout(resolve, 1000));    
                 };
 
