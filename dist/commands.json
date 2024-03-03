@@ -204,11 +204,6 @@
                 ]
             },
             {
-                "cmd": "os",
-                "file": "bin/vm/os/commandConfig.js",
-                "children": []
-            },
-            {
                 "cmd": "pre-setup",
                 "file": "bin/vm/pre-setup/commandConfig.js",
                 "children": []

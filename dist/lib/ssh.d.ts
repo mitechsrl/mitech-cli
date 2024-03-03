@@ -45,6 +45,7 @@ export declare class SshSession {
     constructor(conn: Client, target: SshTarget);
     /**
      * Esegue comando e risolve con l'output
+     *
      * @param {*} cmd comando (stringa o array di 'pezzi' poi concatenati con spazio)
      * @param print Stampa su console local l'output del comando in tempo reale. default true
      */
@@ -57,12 +58,10 @@ export declare class SshSession {
      * Try to detect the remote OS version
      * @returns
      */
-    osDetetcor(): Promise<SshOsDetectorResult>;
+    getOs(): Promise<SshOsDetectorResult>;
     /**
-     * /**
-     * SU TARGET LINUX: Esegue un comando spacciandosi per un altro utente. Questo comando presuppone
-     *                  che l'utente effettivo di esecuzione sia root e quindi in grado di eseguire 'su utente'
-     * SU TARGET WINDOWS: equivalente a command
+     * Esegue un comando spacciandosi per un altro utente. Questo comando presuppone
+     * che l'utente effettivo di esecuzione sia root e quindi in grado di eseguire 'su utente'
      *
      * @param user The user which must run the command
      * @param cmd Command or array or command parts to be joined with space
@@ -92,22 +91,29 @@ export declare class SshSession {
     downloadFile(remoteFilename: string, localFilename: string): Promise<unknown>;
     /**
      * Ottiene la homeDir del sistema remoto.
-     * @param {*} nodeUser
+     * @param {*} user
      * @param {*} appsContainer Appendi questo path al valore ritornato
      */
-    getRemoteHomeDir(nodeUser: string, appsContainer: string): Promise<string>;
+    home(user: string): Promise<string>;
     /**
      * Ottiene il path alla cartella temporanea del sistema remoto
      * @param {*} nodeUser
      */
-    getRemoteTmpDir(nodeUser: string): Promise<string>;
+    tmp(): Promise<string>;
     /**
+     * Genera una nuova shell. La shell è un po limitata, nel senso che è possibile fare poche operazioni, ma
+     * supporta tutte le caratteristiche di colorazione, newline e clearscreen, pertanto è estremamente simile
+     * ad una shell vera.
+     * I comandi che spippolano con l'output ritornando indietro sulla stessa riga funzioneranno correttamente
+     * ad esempio i comandi docker di pull, sarano bellini e fighi da vedere.
      *
+     * La shell avrà il suo comando exec con cui daoveranno essere eseguiti i comandi. é possibile inoltre switchare
+     * utente o directory che questi vengono mantenutoi
      * @param onOpen
      */
     openShell(onOpen: (session: SshSessionShell) => Promise<void>): Promise<void>;
     /**
-     * Direct ssh exec command
+     * Esegue un comando
      *
      * @param command
      * @param options

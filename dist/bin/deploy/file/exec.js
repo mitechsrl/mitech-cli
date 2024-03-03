@@ -32,7 +32,7 @@ const exec = async (argv) => {
     if (!target)
         return;
     (0, targets_1.printTarget)(target);
-    const nodeUser = target.nodeUser || 'node';
+    const appUser = target.nodeUser || 'node';
     const toUpload = argv.s;
     if (!toUpload) {
         throw new types_1.StringError('Nessun file da caricare definito. Usa <-s fileOrPath>.');
@@ -43,7 +43,7 @@ const exec = async (argv) => {
     // connect to ssh remote target
     const session = await (0, ssh_1.createSshSession)(target);
     const remoteErase = path_1.default.relative('./', toUpload);
-    const defaultDestination = await session.getRemoteHomeDir(nodeUser, 'apps');
+    const defaultDestination = path_1.default.posix.join(await session.home(appUser), 'apps');
     let destination = (_a = argv.d) !== null && _a !== void 0 ? _a : defaultDestination;
     if (!destination) {
         logger_1.logger.warn(`Destination dir non definita, uso il default ${defaultDestination}`);
@@ -58,19 +58,18 @@ const exec = async (argv) => {
     // compress the cwd() folder
     const projectTar = await (0, createPackage_1.createPackage)(toUpload);
     // get destination paths from the remote target
-    const remoteTempDir = await session.getRemoteTmpDir(nodeUser);
-    const remoteTempFile = remoteTempDir.trim() + (0, uuid_1.v4)() + '.tgz';
+    const remoteTempFile = path_1.default.posix.join(await session.tmp(), (0, uuid_1.v4)() + '.tgz');
     // upload files
     logger_1.logger.info('Upload: ' + toUpload + '.tgz');
     await session.uploadFile(projectTar.path, remoteTempFile);
-    await session.command(['sudo', 'chown', nodeUser + ':' + nodeUser, remoteTempFile]);
+    await session.command(['sudo', 'chown', appUser + ':' + appUser, remoteTempFile]);
     // upload script deploy
-    const deployScript = await (0, deployScript_1.uploadAndInstallDeployScript)(session, nodeUser);
+    const deployScript = await (0, deployScript_1.uploadAndInstallDeployScript)(session, appUser);
     // run the server deploy utility
     logger_1.logger.info('Copia files');
     await deployScript.call(['-o', 'files', '-e', remoteErase, '-d', destination, '-a', '"' + remoteTempFile + '"'], true);
     // questo command vuoto perchè c'era??
-    // await session.commandAs(nodeUser);
+    // await session.commandAs(appUser);
     logger_1.logger.log('Deploy files terminato');
     session.disconnect();
 };

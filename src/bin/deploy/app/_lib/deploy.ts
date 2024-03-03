@@ -80,8 +80,7 @@ export async function deploy (target: SshTarget, params: yargs.ArgumentsCamelCas
     const session = await createSshSession(target);
 
     // get destination paths from the remote target
-    const remoteTempDir = await session.getRemoteTmpDir(nodeUser);
-    const remoteTempFile = remoteTempDir.trim() + uuidv4() + '.tgz';
+    const remoteTempFile = path.posix.join(await session.tmp(), uuidv4() + '.tgz');
 
     // upload files
     logger.info('Upload: ' + packageName + '.tgz');

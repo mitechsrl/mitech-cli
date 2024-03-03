@@ -58,9 +58,8 @@ const exec = async (argv) => {
         return;
     }
     const session = await (0, ssh_1.createSshSession)(target);
-    const remoteDeployBasePath = await session.getRemoteHomeDir(nodeUser, '.' + appsContainer_1.appsContainer);
-    const remoteTmpPath = await session.getRemoteTmpDir(nodeUser);
-    const remoteTmpFilename = remoteTmpPath + filename;
+    const remoteDeployBasePath = path_1.default.posix.join(await session.home(nodeUser), '.' + appsContainer_1.appsContainer);
+    const remoteTmpFilename = path_1.default.posix.join(await session.tmp(), filename);
     const remoteFilename = remoteDeployBasePath + filename;
     logger_1.logger.info('Upload: ' + filename + ' in ' + remoteFilename);
     if (session.os.linux) {

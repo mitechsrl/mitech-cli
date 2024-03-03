@@ -5,7 +5,7 @@ const player = require('node-wav-player');
 /**
  * Play a bell sound.
  * When walking around in the office, use --sound to get sounds on events.
- * 
+ * https://www.youtube.com/watch?v=jW3_txSfIAQ&t=960s
  */
 export async function soundBell(){
     if (process.argv.find(p => p === '--sounds')){

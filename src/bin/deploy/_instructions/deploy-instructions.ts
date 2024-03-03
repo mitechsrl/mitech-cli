@@ -6,7 +6,7 @@ import tar from 'tar';
 import { parse } from 'yaml';
 
 type GenericObject = { [key: string]: any };
-
+/*
 type DockerEvent = {
     status: string,
     id: string,
@@ -32,7 +32,7 @@ type DockerServiceStatus = { [serviceName: string]: {
     actualReplicas: number,
     expectedReplicas: number,
     processes: Set<string>  
-} };
+} };*/
 
 // Set the current working dir to apps container
 const appsContainer = path.join(os.homedir(), '/apps/');
@@ -48,7 +48,7 @@ if (!fs.existsSync(path.join(appsContainer, pm2EcosystemFileName))){
 const pm2 = isWindows ? 'pm2.cmd' : 'pm2';
 const npm = isWindows ? 'npm.cmd' : 'npm';
 const dockerBinPath = '/usr/bin/docker';
-const notationBinPath = '/usr/bin/notation';
+//const notationBinPath = '/usr/bin/notation';
 let backupDir = path.join(os.tmpdir(), './deploy-backups');
 const keepBackupsCount = 4; // keep these backups
 
@@ -332,11 +332,12 @@ async function deploy() {
  * @param {*} params
  * @param {*} options
  */
-const spawn = (cmd:string, params:string[], options?: SpawnOptions & { silent?:boolean }): Promise<{ code: number|null, data:Buffer }> => {
+const spawn = (
+    cmd:string,
+    params:string[],
+    options?: SpawnOptions & { silent?:boolean }): Promise<{ code: number|null, data:Buffer }> => {
     return new Promise((resolve, reject) => {
-        const _opt = Object.assign({
-            stdio: 'pipe'
-        }, options || {});
+        const _opt = Object.assign({ stdio: 'pipe' }, options || {});
 
         const silent = _opt.silent || false;
         delete _opt.silent;
@@ -348,16 +349,16 @@ const spawn = (cmd:string, params:string[], options?: SpawnOptions & { silent?:b
         let _data = Buffer.from('');
         proc.stdout?.on('data', (data) => {
             _data = Buffer.concat([_data, data]);
-            if (!silent) process.stdout.write(data.toString());
+            if (!silent) process.stdout.write(data);
         });
 
         proc.stderr?.on('data', (data) => {
             _data = Buffer.concat([_data, data]);
-            if (!silent) process.stdout.write(data.toString());
+            if (!silent) process.stdout.write(data);
         });
 
+        // Note: with stdio inherit, the resolve will not contain data
         proc.on('close', (code) => resolve({ code: code, data: _data }));
-
         proc.on('error', (err) => reject(err));
     });
 };
@@ -543,8 +544,8 @@ async function deployDockerSwarm(){
         }
         const found = alreadyDownloadedImages.find(i => `${i.Repository}:${i.Tag}` === image);
         if (!found){
-            console.log('Pull preventivo di ',image,'...');
-            await spawn(dockerBinPath, ['pull',image], { silent:false });
+            console.log(`Pull preventivo di ${image}...`);
+            await spawn(dockerBinPath, ['pull',image], { stdio: 'inherit' });
         }
     }
 
@@ -555,10 +556,11 @@ async function deployDockerSwarm(){
     const deployResult = await spawn(
         dockerBinPath, 
         ['stack','deploy','--with-registry-auth','--prune','--compose-file','docker-compose.yml','default_stack'],
-        { cwd: appsContainer, silent: false }
+        { cwd: appsContainer, stdio: 'inherit' }
     );
+    
     if (deployResult.code !== 0){
-        throw new Error('Deploy fallito. '+deployResult.data.toString());
+        throw new Error('Deploy fallito!');
     }else{
         console.log('Deploy di docker-compose.yml completato');
     }
@@ -567,9 +569,13 @@ async function deployDockerSwarm(){
     let ok = false;
     let okCount = 0;
     let lastOkMessages: string[] = [];
+    // Monitoro per 120 secondi
     for (let i = 120; i>0; i--){  
         lastOkMessages = [];
-        process.stdout.write(`${i} `);
+        // Trick to overwrite same line 
+        process.stdout.cursorTo(0);
+        process.stdout.write(`${['-','\\','|','/'][i%4]} ${i} `);
+        process.stdout.cursorTo(6);
         try{
             for(const service of Object.keys(composeConfig.services)){
                 const _servicePs = await spawn(dockerBinPath, ['service','ps','--format','json', '--filter','desired-state=running','default_stack_'+service], { silent:true });
@@ -596,7 +602,7 @@ async function deployDockerSwarm(){
                 break;
             }
         }catch(e: any){
-            process.stdout.write(e.message + ' ');
+            process.stdout.write( `${(e ?? {}).message??''}`.padEnd(80).substring(0,80));
             ok = false;
             okCount = 0;
         }

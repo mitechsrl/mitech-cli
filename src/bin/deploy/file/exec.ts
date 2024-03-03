@@ -29,7 +29,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
     if (!target) return;
     printTarget(target);
 
-    const nodeUser = target.nodeUser || 'node';
+    const appUser = target.nodeUser || 'node';
 
     const toUpload = argv.s as string;
     if (!toUpload) {
@@ -44,7 +44,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
     const session = await createSshSession(target);
     
     const remoteErase = path.relative('./', toUpload);
-    const defaultDestination = await session.getRemoteHomeDir(nodeUser, 'apps' );
+    const defaultDestination = path.posix.join(await session.home(appUser), 'apps' );
 
     let destination = argv.d as string ?? defaultDestination;
     if (!destination) {
@@ -64,15 +64,14 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
     const projectTar = await createPackage(toUpload);
 
     // get destination paths from the remote target
-    const remoteTempDir = await session.getRemoteTmpDir(nodeUser);
-    const remoteTempFile = remoteTempDir.trim() + uuidv4() + '.tgz';
+    const remoteTempFile = path.posix.join(await session.tmp(), uuidv4() + '.tgz');
 
     // upload files
     logger.info('Upload: ' + toUpload + '.tgz');
     await session.uploadFile(projectTar.path, remoteTempFile);
-    await session.command(['sudo', 'chown', nodeUser + ':' + nodeUser, remoteTempFile]);
+    await session.command(['sudo', 'chown', appUser + ':' + appUser, remoteTempFile]);
     // upload script deploy
-    const deployScript = await uploadAndInstallDeployScript(session, nodeUser);
+    const deployScript = await uploadAndInstallDeployScript(session, appUser);
 
     // run the server deploy utility
     logger.info('Copia files');
@@ -80,7 +79,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
         ['-o', 'files', '-e', remoteErase, '-d', destination, '-a', '"' + remoteTempFile + '"'], 
         true);
     // questo command vuoto perchè c'era??
-    // await session.commandAs(nodeUser);
+    // await session.commandAs(appUser);
 
     logger.log('Deploy files terminato');
     session.disconnect();

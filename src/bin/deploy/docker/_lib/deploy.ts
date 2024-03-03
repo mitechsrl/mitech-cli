@@ -20,7 +20,6 @@ import { SshSession, createSshSession } from '../../../../lib/ssh';
 import { GenericObject, SshTarget, StringError } from '../../../../types';
 import { parse } from 'yaml';
 import { uploadAndInstallDeployScript } from '../../_lib/deployScript';
-import { throwOnFatalError } from '../../_lib/fatalError';
 import { validateComposeConfig } from './validateComposeConfig';
 
 export type DeployResult = {
@@ -29,16 +28,19 @@ export type DeployResult = {
 };
 
 async function uploadDockerComposeFile(session: SshSession, appUser:string, localDockerComposeFilePath: string, dockerComposeFileName: string){
-    // path for filenames used during compose file upload
-    const remoteTempDir = await session.getRemoteTmpDir(appUser);
-    const remoteTempFile = remoteTempDir.trim() + dockerComposeFileName;
-    const remoteDockerComposeFileName = `/home/${appUser}/apps/${dockerComposeFileName}`;
-   
+    
     logger.info('Upload ' + dockerComposeFileName);
+    
+    // Carico il file in una dir temporanea per questioni di permessi, poi lo
+    // metto nella posizione definitiva e gli do i permessi giusti
+    const remoteTempFile = path.posix.join(await session.tmp(), dockerComposeFileName);
+    const remoteDockerComposeFileName = path.posix.join(await session.home(appUser),`/apps/${dockerComposeFileName}`);
+
     await session.uploadFile(localDockerComposeFilePath, remoteTempFile);
     await session.command(`sudo cp ${remoteTempFile} ${remoteDockerComposeFileName}`);
     await session.command(`sudo chown ${appUser}:${appUser} ${remoteDockerComposeFileName}`);
 }
+
 /**
  * deploy the app at the proces.cwd() path to the remote target
  * Throws an error in case of fail
@@ -79,10 +81,12 @@ export async function deploy (target: SshTarget, params: yargs.ArgumentsCamelCas
     
     // Call the deploy script on server to perform all the needed operations.
     // This run the docker swarm deploy using the docker-compose file uploaded before, which is expected to be in correct position
-    const result = await deployScript.call([ '-o','deploy-docker-swarm' ], true);
+    const result = await deployScript.shellCall([ '-o','deploy-docker-swarm' ]);
   
     // throw on deployScript call error
-    throwOnFatalError(result.output);
+    if (result.exitCode !== 0) {
+        throw new StringError('Deploy fallito');
+    }
 
     session.disconnect();
 

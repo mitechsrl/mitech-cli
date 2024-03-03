@@ -43,6 +43,7 @@ class SshSession {
     }
     /**
      * Esegue comando e risolve con l'output
+     *
      * @param {*} cmd comando (stringa o array di 'pezzi' poi concatenati con spazio)
      * @param print Stampa su console local l'output del comando in tempo reale. default true
      */
@@ -84,7 +85,7 @@ class SshSession {
      * Try to detect the remote OS version
      * @returns
      */
-    async osDetetcor() {
+    async getOs() {
         if (this.os)
             return this.os;
         this.os = {
@@ -115,10 +116,8 @@ class SshSession {
         return this.os;
     }
     /**
-     * /**
-     * SU TARGET LINUX: Esegue un comando spacciandosi per un altro utente. Questo comando presuppone
-     *                  che l'utente effettivo di esecuzione sia root e quindi in grado di eseguire 'su utente'
-     * SU TARGET WINDOWS: equivalente a command
+     * Esegue un comando spacciandosi per un altro utente. Questo comando presuppone
+     * che l'utente effettivo di esecuzione sia root e quindi in grado di eseguire 'su utente'
      *
      * @param user The user which must run the command
      * @param cmd Command or array or command parts to be joined with space
@@ -177,25 +176,36 @@ class SshSession {
     }
     /**
      * Ottiene la homeDir del sistema remoto.
-     * @param {*} nodeUser
+     * @param {*} user
      * @param {*} appsContainer Appendi questo path al valore ritornato
      */
-    async getRemoteHomeDir(nodeUser, appsContainer) {
-        const cmd = escapeCmd('console.log(require(\'path\').join(require(\'os\').homedir(),\'' + appsContainer + '\'))');
-        const hd = await this.commandAs(nodeUser, 'node -e "' + cmd + '"', false);
+    async home(user) {
+        const hd = await this.command(`getent passwd ${user} | cut -d: -f6`, false);
         return hd.output.trim();
+        /*const cmd = escapeCmd('console.log(require(\'path\').join(require(\'os\').homedir(),\'' + appsContainer + '\'))');
+        const hd = await this.commandAs(nodeUser, 'node -e "' + cmd + '"', false);
+        return hd.output.trim();*/
     }
     /**
      * Ottiene il path alla cartella temporanea del sistema remoto
      * @param {*} nodeUser
      */
-    async getRemoteTmpDir(nodeUser) {
-        const cmd = escapeCmd('console.log(require(\'path\').join(require(\'os\').tmpdir(),\'./\'))');
+    async tmp() {
+        return '/tmp';
+        // Tolgo comando via node, supporto solo linux e li è /tmp e fine.
+        /*const cmd = escapeCmd('console.log(require(\'path\').join(require(\'os\').tmpdir(),\'./\'))');
         const hd = await this.commandAs(nodeUser, 'node -e "' + cmd + '"', false);
-        return hd.output.trim();
+        return hd.output.trim();*/
     }
     /**
+     * Genera una nuova shell. La shell è un po limitata, nel senso che è possibile fare poche operazioni, ma
+     * supporta tutte le caratteristiche di colorazione, newline e clearscreen, pertanto è estremamente simile
+     * ad una shell vera.
+     * I comandi che spippolano con l'output ritornando indietro sulla stessa riga funzioneranno correttamente
+     * ad esempio i comandi docker di pull, sarano bellini e fighi da vedere.
      *
+     * La shell avrà il suo comando exec con cui daoveranno essere eseguiti i comandi. é possibile inoltre switchare
+     * utente o directory che questi vengono mantenutoi
      * @param onOpen
      */
     async openShell(onOpen) {
@@ -233,7 +243,7 @@ class SshSession {
                         // Quando lo trovo significa che il comando è finito e posso proseguire.
                         // Ulteriore trucco: ci accodo il codice di uscita per sapere come è andato il comando.
                         const endCommandTag = 'COMMAND-COMPLETED-' + crypto_1.default.createHash('md5').update(command).digest('hex');
-                        const endCommandTagMatchRegex = new RegExp(endCommandTag + '-([a-f0-1]+)$', 'm');
+                        const endCommandTagMatchRegex = new RegExp(endCommandTag + '-([-0-9]+)$', 'm');
                         const matchEndCommand = (data) => {
                             const match = data.toString().match(endCommandTagMatchRegex);
                             if (match) {
@@ -269,7 +279,7 @@ class SshSession {
         });
     }
     /**
-     * Direct ssh exec command
+     * Esegue un comando
      *
      * @param command
      * @param options
@@ -292,9 +302,11 @@ async function createSshSession(target) {
         const conn = new ssh2_1.Client();
         conn.on('ready', async function () {
             const session = new SshSession(conn, target);
-            const os = await session.osDetetcor();
+            // Supportiamo solo linux. 
+            // IV: 03-03-2024 Se mi viene chiesto di supportare windows mi licenzio. 
+            const os = await session.getOs();
             if (!os.linux) {
-                throw new Error('OS non supportato. Solo linux è supportato per ora.');
+                throw new Error('OS non supportato. Questa cli funziona solo su linux, se usi un altro OS verrai decurtato di 15 punti sulla patente.');
             }
             // intercetta SIGINT (ctrl+c) per disconnettere ssh in modo normale anzichè brutale
             process.on('SIGINT', () => {
@@ -314,7 +326,8 @@ async function createSshSession(target) {
             _t.privateKey = fs_1.default.readFileSync(target.sshKey);
         }
         else {
-            _t.password = target.password; // Non è sicuramente piu' EncryptedPassword, è già stata decriptata
+            // Non è sicuramente piu' EncryptedPassword, è già stata decriptata
+            _t.password = target.password;
         }
         conn.connect(_t);
     });

@@ -28,11 +28,10 @@ const removeMyIpAddressFromGeoDyn_1 = require("../_lib/removeMyIpAddressFromGeoD
  */
 async function disableMaintenanceDocker(session, target) {
     const appUser = target.nodeUser || 'onit';
-    const remoteTempDir = await session.getRemoteTmpDir(appUser);
-    const remoteAppDir = await session.getRemoteHomeDir(appUser, 'apps');
+    const remoteAppDir = path_1.default.posix.join(await session.home(appUser), 'apps');
     const geoDynFileName = 'geo_dyn.conf';
     const remoteNginxVolumeDir = remoteAppDir + '/nginx';
-    const remoteTempDirGeoDynFile = remoteTempDir + geoDynFileName;
+    const remoteTempDirGeoDynFile = path_1.default.posix.join(await session.tmp(), geoDynFileName);
     const remoteNginxGeoDynFile = remoteNginxVolumeDir + '/' + geoDynFileName;
     const remoteNginxMaintenanceVolumeDir = remoteNginxVolumeDir + '/maintenance';
     const remoteNginxMaintenanceModeVolumeDir = remoteNginxVolumeDir + '/maintenancemode';

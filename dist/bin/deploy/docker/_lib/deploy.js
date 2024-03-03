@@ -24,14 +24,13 @@ const ssh_1 = require("../../../../lib/ssh");
 const types_1 = require("../../../../types");
 const yaml_1 = require("yaml");
 const deployScript_1 = require("../../_lib/deployScript");
-const fatalError_1 = require("../../_lib/fatalError");
 const validateComposeConfig_1 = require("./validateComposeConfig");
 async function uploadDockerComposeFile(session, appUser, localDockerComposeFilePath, dockerComposeFileName) {
-    // path for filenames used during compose file upload
-    const remoteTempDir = await session.getRemoteTmpDir(appUser);
-    const remoteTempFile = remoteTempDir.trim() + dockerComposeFileName;
-    const remoteDockerComposeFileName = `/home/${appUser}/apps/${dockerComposeFileName}`;
     logger_1.logger.info('Upload ' + dockerComposeFileName);
+    // Carico il file in una dir temporanea per questioni di permessi, poi lo
+    // metto nella posizione definitiva e gli do i permessi giusti
+    const remoteTempFile = path_1.default.posix.join(await session.tmp(), dockerComposeFileName);
+    const remoteDockerComposeFileName = path_1.default.posix.join(await session.home(appUser), `/apps/${dockerComposeFileName}`);
     await session.uploadFile(localDockerComposeFilePath, remoteTempFile);
     await session.command(`sudo cp ${remoteTempFile} ${remoteDockerComposeFileName}`);
     await session.command(`sudo chown ${appUser}:${appUser} ${remoteDockerComposeFileName}`);
@@ -70,9 +69,11 @@ async function deploy(target, params) {
     await uploadDockerComposeFile(session, appUser, dockerComposeFile, dockerComposeFileName);
     // Call the deploy script on server to perform all the needed operations.
     // This run the docker swarm deploy using the docker-compose file uploaded before, which is expected to be in correct position
-    const result = await deployScript.call(['-o', 'deploy-docker-swarm'], true);
+    const result = await deployScript.shellCall(['-o', 'deploy-docker-swarm']);
     // throw on deployScript call error
-    (0, fatalError_1.throwOnFatalError)(result.output);
+    if (result.exitCode !== 0) {
+        throw new types_1.StringError('Deploy fallito');
+    }
     session.disconnect();
     return {
         complete: true

@@ -61,9 +61,8 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
     }
 
     const session = await createSshSession(target);
-    const remoteDeployBasePath = await session.getRemoteHomeDir(nodeUser, '.' + appsContainer);
-    const remoteTmpPath = await session.getRemoteTmpDir(nodeUser);
-    const remoteTmpFilename = remoteTmpPath + filename;
+    const remoteDeployBasePath = path.posix.join(await session.home(nodeUser), '.' + appsContainer);
+    const remoteTmpFilename = path.posix.join(await session.tmp(), filename);
     const remoteFilename = remoteDeployBasePath + filename;
 
     logger.info('Upload: ' + filename + ' in ' + remoteFilename);

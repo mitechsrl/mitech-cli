@@ -9,6 +9,33 @@ const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const tar_1 = __importDefault(require("tar"));
 const yaml_1 = require("yaml");
+/*
+type DockerEvent = {
+    status: string,
+    id: string,
+    from:string,
+    Type: string,
+    Action: string,
+    Actor: { ID: string, Attributes: { [k:string]: string } },
+    scope: string,
+    time: number,
+    timeNano: number
+};
+
+type DockerEventsAggregation = { [serviceName:string]: {
+    // Numero di istanze atteso
+    replicas: number,
+    //umero di eventi "die" per il servizio. Se >0 ma replicas=0, allora ce ne freghiamo del die.
+    // Se ci sono più die di quante repliche ci aspettiamo, allora c'è un problema
+    dieCount: number
+} };
+
+type DockerService = { ID: string, Image:string, Mode:string,Name:string,Replicas:string };
+type DockerServiceStatus = { [serviceName: string]: {
+    actualReplicas: number,
+    expectedReplicas: number,
+    processes: Set<string>
+} };*/
 // Set the current working dir to apps container
 const appsContainer = path_1.default.join(os_1.default.homedir(), '/apps/');
 process.chdir(appsContainer);
@@ -20,7 +47,7 @@ if (!fs_1.default.existsSync(path_1.default.join(appsContainer, pm2EcosystemFile
 const pm2 = isWindows ? 'pm2.cmd' : 'pm2';
 const npm = isWindows ? 'npm.cmd' : 'npm';
 const dockerBinPath = '/usr/bin/docker';
-const notationBinPath = '/usr/bin/notation';
+//const notationBinPath = '/usr/bin/notation';
 let backupDir = path_1.default.join(os_1.default.tmpdir(), './deploy-backups');
 const keepBackupsCount = 4; // keep these backups
 /**
@@ -282,9 +309,7 @@ async function deploy() {
 const spawn = (cmd, params, options) => {
     return new Promise((resolve, reject) => {
         var _a, _b;
-        const _opt = Object.assign({
-            stdio: 'pipe'
-        }, options || {});
+        const _opt = Object.assign({ stdio: 'pipe' }, options || {});
         const silent = _opt.silent || false;
         delete _opt.silent;
         if (!silent)
@@ -294,13 +319,14 @@ const spawn = (cmd, params, options) => {
         (_a = proc.stdout) === null || _a === void 0 ? void 0 : _a.on('data', (data) => {
             _data = Buffer.concat([_data, data]);
             if (!silent)
-                process.stdout.write(data.toString());
+                process.stdout.write(data);
         });
         (_b = proc.stderr) === null || _b === void 0 ? void 0 : _b.on('data', (data) => {
             _data = Buffer.concat([_data, data]);
             if (!silent)
-                process.stdout.write(data.toString());
+                process.stdout.write(data);
         });
+        // Note: with stdio inherit, the resolve will not contain data
         proc.on('close', (code) => resolve({ code: code, data: _data }));
         proc.on('error', (err) => reject(err));
     });
@@ -440,6 +466,7 @@ function parseDockerJsonOutput(data) {
  *
  */
 async function deployDockerSwarm() {
+    var _a;
     const dockerComposeFileName = 'docker-compose.yml';
     const composeFileContent = fs_1.default.readFileSync(dockerComposeFileName).toString();
     const composeConfig = (0, yaml_1.parse)(composeFileContent);
@@ -455,17 +482,17 @@ async function deployDockerSwarm() {
         }
         const found = alreadyDownloadedImages.find(i => `${i.Repository}:${i.Tag}` === image);
         if (!found) {
-            console.log('Pull preventivo di ', image, '...');
-            await spawn(dockerBinPath, ['pull', image], { silent: false });
+            console.log(`Pull preventivo di ${image}...`);
+            await spawn(dockerBinPath, ['pull', image], { stdio: 'inherit' });
         }
     }
     // Comando principlae di deploy. Questo triggera update di swarm in modo da aggiornare i servizi con le nuove immagini
     // o impostazioni. Una volta eseguito, lancia i task ncessari internamente.
     // Vedi https://docs.docker.com/engine/reference/commandline/stack_deploy/
     console.log('Eseguo deploy del file docker-compose.yml...');
-    const deployResult = await spawn(dockerBinPath, ['stack', 'deploy', '--with-registry-auth', '--prune', '--compose-file', 'docker-compose.yml', 'default_stack'], { cwd: appsContainer, silent: false });
+    const deployResult = await spawn(dockerBinPath, ['stack', 'deploy', '--with-registry-auth', '--prune', '--compose-file', 'docker-compose.yml', 'default_stack'], { cwd: appsContainer, stdio: 'inherit' });
     if (deployResult.code !== 0) {
-        throw new Error('Deploy fallito. ' + deployResult.data.toString());
+        throw new Error('Deploy fallito!');
     }
     else {
         console.log('Deploy di docker-compose.yml completato');
@@ -474,9 +501,13 @@ async function deployDockerSwarm() {
     let ok = false;
     let okCount = 0;
     let lastOkMessages = [];
+    // Monitoro per 120 secondi
     for (let i = 120; i > 0; i--) {
         lastOkMessages = [];
-        process.stdout.write(`${i} `);
+        // Trick to overwrite same line 
+        process.stdout.cursorTo(0);
+        process.stdout.write(`${['-', '\\', '|', '/'][i % 4]} ${i} `);
+        process.stdout.cursorTo(6);
         try {
             for (const service of Object.keys(composeConfig.services)) {
                 const _servicePs = await spawn(dockerBinPath, ['service', 'ps', '--format', 'json', '--filter', 'desired-state=running', 'default_stack_' + service], { silent: true });
@@ -504,7 +535,7 @@ async function deployDockerSwarm() {
             }
         }
         catch (e) {
-            process.stdout.write(e.message + ' ');
+            process.stdout.write(`${(_a = (e !== null && e !== void 0 ? e : {}).message) !== null && _a !== void 0 ? _a : ''}`.padEnd(80).substring(0, 80));
             ok = false;
             okCount = 0;
         }

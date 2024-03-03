@@ -27,10 +27,9 @@ export async function enableMaintenanceDocker(session: SshSession, target: SshTa
     
     // tmp filenames for upload
     const appUser = target.nodeUser || 'onit';
-    const remoteTempDir = await session.getRemoteTmpDir(appUser);
-    const remoteAppDir = await session.getRemoteHomeDir(appUser,'apps');
+    const remoteAppDir = path.posix.join(await session.home(appUser),'apps');
     const remoteNginxVolumeDir = remoteAppDir+'/nginx';
-    const remoteTempDirGeoDynFile = remoteTempDir+'geo_dyn.conf';
+    const remoteTempDirGeoDynFile = path.posix.join(await session.tmp(),'geo_dyn.conf');
     const remoteNginxGeoDynFile = remoteNginxVolumeDir+'/geo_dyn.conf';
     // contiene files html per pagina manutenzione
     const remoteNginxMaintenanceVolumeDir = remoteNginxVolumeDir+'/maintenance';

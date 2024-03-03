@@ -76,8 +76,7 @@ async function deploy(target, params) {
     // connect to ssh remote target
     const session = await (0, ssh_1.createSshSession)(target);
     // get destination paths from the remote target
-    const remoteTempDir = await session.getRemoteTmpDir(nodeUser);
-    const remoteTempFile = remoteTempDir.trim() + (0, uuid_1.v4)() + '.tgz';
+    const remoteTempFile = path_1.default.posix.join(await session.tmp(), (0, uuid_1.v4)() + '.tgz');
     // upload files
     logger_1.logger.info('Upload: ' + packageName + '.tgz');
     await session.uploadFile(projectTar.path, remoteTempFile);

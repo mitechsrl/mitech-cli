@@ -18,7 +18,7 @@ import { createSshSession } from '../../../lib/ssh';
 import { getTarget, printTarget } from '../../../lib/targets';
 import { CommandExecFunction } from '../../../types';
   
-const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => {
+const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>) => {
     const t = await getTarget();
     printTarget(t);
     logger.log('');
