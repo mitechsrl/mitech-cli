@@ -72,6 +72,7 @@ async function getBranch(argv: yargs.ArgumentsCamelCase<unknown>){
 */
 const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>) => {
 
+    logger.warn('ATTENZIONE: Verifica di aver eseguito pull sia di master che della branch interessata, altrimenti i risultati possono essere errati!');
     logger.log('Eseguo git fetch...');
 
     // faccio fetch per avere info sulle commit in master
@@ -126,12 +127,17 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
                 tags.push(m[1]);
             }
         });
-        logger.log('Lista di commit in master/main successive a merge:');
-        logger.log(lines.join('\n'));
-
+        if (argv.commits) {
+            logger.log('Lista di commit in master/main successive a merge:');
+            logger.log(lines.join('\n'));
+        }
         logger.log('');
         if (tags.length > 0){
-            logger.success('Ho trovato i seguenti tag che includono il merge: ' + tags.join(', '));
+            logger.error('ATTENZIONE: Funzione sperimentale. Verificala a mano!');
+            logger.success('Il primo tag successivo a merge è ' + tags.pop());
+            if (!argv.commits){
+                logger.log('Per vedere la lista delle commit successive, aggiungi il flag --commits');
+            }
         }else{
             logger.error('Non ho trovato tag dopo il merge. La merge non è inclusa in nessun tag.');
         }
