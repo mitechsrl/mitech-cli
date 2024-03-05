@@ -28,6 +28,7 @@ const exec = async () => {
     const status = await (0, spawn_1.spawn)('git', ['status'], false);
     if (status.output.indexOf('is behind') >= 0) {
         logger_1.logger.warn('Esistono commit non pullate sulla branch corrente. Fai git pull e riesegui il comando.');
+        return;
     }
     const askTags = [];
     const lastTag = await (0, spawn_1.spawn)('git', ['describe', '--tags', '--abbrev=0'], false);

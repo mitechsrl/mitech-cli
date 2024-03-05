@@ -26,6 +26,7 @@ const exec: CommandExecFunction = async () => {
     const status = await spawn('git', ['status'], false);
     if (status.output.indexOf('is behind') >= 0) {
         logger.warn('Esistono commit non pullate sulla branch corrente. Fai git pull e riesegui il comando.');
+        return; 
     }
 
     const askTags = [];

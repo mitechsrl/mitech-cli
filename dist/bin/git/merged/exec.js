@@ -33,7 +33,8 @@ const exec = async (argv) => {
     }
     if (merged) {
         const mergeHash = await (0, spawn_1.spawn)('git', ['merge-base', 'HEAD', branchName], false);
-        logger_1.logger.info('La branch è stata mergiata in precedenza ed è aggiornata, non devi fare nulla. Commit di merge: ' + mergeHash.output.trim());
+        const mergeCommit = mergeHash.output.trim();
+        logger_1.logger.info('La branch è stata mergiata in precedenza ed è aggiornata, non devi fare nulla. Commit di merge: ' + mergeCommit);
         const log = await (0, spawn_1.spawn)('git', ['log', '-1', mergeHash.output.trim()], false);
         logger_1.logger.log('');
         logger_1.logger.log(log.output);

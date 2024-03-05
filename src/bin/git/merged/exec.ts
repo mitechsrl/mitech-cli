@@ -39,10 +39,12 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
     
     if (merged) {
         const mergeHash = await spawn('git', ['merge-base', 'HEAD', branchName], false);
-        logger.info('La branch è stata mergiata in precedenza ed è aggiornata, non devi fare nulla. Commit di merge: ' + mergeHash.output.trim());
+        const mergeCommit = mergeHash.output.trim();
+        logger.info('La branch è stata mergiata in precedenza ed è aggiornata, non devi fare nulla. Commit di merge: ' + mergeCommit);
         const log = await spawn('git', ['log', '-1', mergeHash.output.trim()], false);
         logger.log('');
         logger.log(log.output);
+        
     } else if (unmerged) {
         logger.error('La branch NON è stata mergiata');
         // is unmerged now, but check if it was unmerged also in the past

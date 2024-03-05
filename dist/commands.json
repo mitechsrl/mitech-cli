@@ -88,6 +88,11 @@
         "file": "bin/git/commandConfig.js",
         "children": [
             {
+                "cmd": "merge-tag",
+                "file": "bin/git/merge-tag/commandConfig.js",
+                "children": []
+            },
+            {
                 "cmd": "merged",
                 "file": "bin/git/merged/commandConfig.js",
                 "children": []
