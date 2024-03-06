@@ -31,12 +31,12 @@ export async function enableMaintenanceDocker(session: SshSession, target: SshTa
     const remoteAppDir = await session.getRemoteHomeDir(appUser,'apps');
     const remoteNginxVolumeDir = remoteAppDir+'/nginx';
     const remoteTempDirGeoDynFile = remoteTempDir+'geo_dyn.conf';
-    const remoteNginxGeoDynFile = remoteNginxVolumeDir+'/geo_dyn.conf';
     // contiene files html per pagina manutenzione
     const remoteNginxMaintenanceVolumeDir = remoteNginxVolumeDir+'/maintenance';
     // contiene files per attivare la modalità manutenzione
     const remoteNginxMaintenanceModeVolumeDir = remoteNginxVolumeDir+'/maintenancemode';
-    
+    const remoteNginxGeoDynFile = remoteNginxMaintenanceModeVolumeDir+'/geo_dyn.conf';
+
     logger.warn('ATTENZIONE: Il maintenance mode presuppone il volume docker di nginx sia montato in  '+remoteNginxVolumeDir);
     
     logger.log('Cerco ip locale...');

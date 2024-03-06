@@ -32,10 +32,10 @@ export async function disableMaintenanceDocker(session: SshSession, target: SshT
     const geoDynFileName= 'geo_dyn.conf';
     const remoteNginxVolumeDir = remoteAppDir+'/nginx';
     const remoteTempDirGeoDynFile = remoteTempDir+geoDynFileName;
-    const remoteNginxGeoDynFile = remoteNginxVolumeDir+'/'+geoDynFileName;
     const remoteNginxMaintenanceVolumeDir = remoteNginxVolumeDir+'/maintenance';
     const remoteNginxMaintenanceModeVolumeDir = remoteNginxVolumeDir+'/maintenancemode';
-
+    const remoteNginxGeoDynFile = remoteNginxMaintenanceModeVolumeDir+'/'+geoDynFileName;
+    
     // L'ip che ha abilitato la modalità manutenzione deve essere rimosso dalla lista geo_dyn
     await removeMyIpAddressFromGeoDyn(session, geoDynFileName, remoteNginxGeoDynFile, remoteTempDirGeoDynFile );
 
