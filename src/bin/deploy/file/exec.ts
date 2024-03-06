@@ -30,6 +30,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
     printTarget(target);
 
     const nodeUser = target.nodeUser || 'node';
+    const sudoUser = target.username || 'azureuser';
 
     const toUpload = argv.s as string;
     if (!toUpload) {

@@ -33,6 +33,7 @@ const exec = async (argv) => {
         return;
     (0, targets_1.printTarget)(target);
     const nodeUser = target.nodeUser || 'node';
+    const sudoUser = target.username || 'azureuser';
     const toUpload = argv.s;
     if (!toUpload) {
         throw new types_1.StringError('Nessun file da caricare definito. Usa <-s fileOrPath>.');

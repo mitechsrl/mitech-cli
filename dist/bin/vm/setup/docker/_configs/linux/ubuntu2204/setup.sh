@@ -63,6 +63,7 @@ echo "export NODE_OPTIONS=--dns-result-order=ipv4first" >>  /home/$APPUSER/.bash
 echo "Aggiungi gruppi..."
 usermod -a -G docker $APPUSER
 usermod -a -G docker $ADMINUSER
+usermod -a -G $APPUSER $ADMINUSER
 
 # echo "Aggiungo righe sudoers"
 # L'utente ADMINUSER può ricaricare docker cons sudo senza che gli venga richiesta password

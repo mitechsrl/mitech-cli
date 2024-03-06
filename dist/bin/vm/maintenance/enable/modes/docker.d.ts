@@ -13,4 +13,9 @@
  */
 import { SshSession } from '../../../../../lib/ssh';
 import { SshTarget } from '../../../../../types';
+/**
+ * Su docker la modalità si attiva
+ * @param session
+ * @param target
+ */
 export declare function enableMaintenanceDocker(session: SshSession, target: SshTarget): Promise<void>;

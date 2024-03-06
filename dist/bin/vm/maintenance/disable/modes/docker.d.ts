@@ -14,7 +14,7 @@
 import { SshSession } from '../../../../../lib/ssh';
 import { SshTarget } from '../../../../../types';
 /**
- * * Disable modalità manutenzione per environment docker
+ * Disable modalità manutenzione per environment docker
  * @param session
  * @param target
  */
