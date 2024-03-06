@@ -9,15 +9,7 @@ const config: Command = {
         config: {
             description:'Nome branch da verificare. Opzionale, se non passata viene chiesta via prompt.'
         }
-    },
-    {
-        name:'',
-        config: {
-            alias: 'commits',
-            description:'Mostra le commit successive a merge'
-        }
-    }
-]
+    }]
 };
 
 export default config;
