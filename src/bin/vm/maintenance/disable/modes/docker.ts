@@ -51,7 +51,7 @@ export async function disableMaintenanceDocker(session: SshSession, target: SshT
     // L'ip che ha abilitato la modalità manutenzione deve essere rimosso dalla lista geo_dyn
     await removeMyIpAddressFromGeoDyn(session, geoDynFileName, remoteNginxGeoDynFile, remoteTempDirGeoDynFile );
 
-    // il maintenance mode lo si applica facendo touch di questo file.
+    // il maintenance mode si disabilita rimuovento questo file.
     // NGINX è preconfigurato per dare http 503 con redirect verso il portale di
     // maintenance se trova questo file.
     // NOTA: nginx usa l'estensione geo per lasciare attivo il portale per alcuni indirizzi ip.

@@ -27,12 +27,14 @@ async function command(session, answers) {
     const json = JSON.parse(result.output.trim());
     logger_1.logger.log('');
     logger_1.logger.log('Blocchi trovati');
+    // Il comando ha preso tutti i dispositivi, occorre filtrarli perchè tra di loro 
+    // c'è anche il disco dell'OS.... che sarebbe meglio non formattare per sbaglio.
     const sdX = json.blockdevices.filter((blockDevice) => {
         // considera solo sdX
         const isSdX = blockDevice.name.startsWith('sd');
-        // escludi i blocchi i cui figli sono montati come root (è disco or)
+        // escludi i blocchi i cui figli sono montati come root (significa che è il disco OS)
         const isOsDisk = JSON.stringify(blockDevice).indexOf('"mountpoint":"/"') >= 0;
-        // escludi i dischi già formattati (quelli montati e quelli che hanno blocchi children, cioè le partizioni)
+        // escludi i dischi già formattati (quelli già montati e quelli che hanno già blocchi children, cioè le partizioni)
         const isFormatted = blockDevice.mountpoint || (blockDevice.children && blockDevice.children.length > 0);
         // print some info
         if (isSdX) {
@@ -70,7 +72,7 @@ async function command(session, answers) {
         logger_1.logger.info('Setup completo!');
     }
     else {
-        logger_1.logger.error('Qualcosa è andato male... Il disco non è montato al termine della procedura');
+        logger_1.logger.error('Qualcosa è andato male... Il disco non è montato al termine della procedura. ATTENZIONE: Potrebbe essersi rotto qualcosa di serio. Verifica a manina!');
     }
 }
 exports.default = command;

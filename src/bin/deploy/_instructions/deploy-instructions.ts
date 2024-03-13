@@ -461,13 +461,20 @@ async function deployFiles() {
         process.exit(-1);
     }
 
+    // This is the app directory basically
     const destinationDir = path.resolve(appsContainer, destination);
-
     if (erase) {
+        // This is the destination directory (including the final folder name)
         const toDelete = path.resolve(destinationDir, erase);
-        fs.rmSync(toDelete, { recursive: true, force: true });
+        if (fs.existsSync(toDelete)) {
+            const files = fs.readdirSync(toDelete);
+            for (const file of files) {
+                fs.rmSync(path.join(toDelete, file), { recursive: true, force: true });
+            }
+        }
     }
 
+    console.log('Scompatto ' + archivePath + ' in ' + destinationDir + '...');
     fs.mkdirSync(destinationDir, { recursive: true });
     await tar.x({
         file: archivePath,

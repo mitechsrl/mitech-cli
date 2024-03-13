@@ -387,11 +387,19 @@ async function deployFiles() {
         console.error('Archivio sorgente non definito. Usa <-a path>');
         process.exit(-1);
     }
+    // This is the app directory basically
     const destinationDir = path_1.default.resolve(appsContainer, destination);
     if (erase) {
+        // This is the destination directory (including the final folder name)
         const toDelete = path_1.default.resolve(destinationDir, erase);
-        fs_1.default.rmSync(toDelete, { recursive: true, force: true });
+        if (fs_1.default.existsSync(toDelete)) {
+            const files = fs_1.default.readdirSync(toDelete);
+            for (const file of files) {
+                fs_1.default.rmSync(path_1.default.join(toDelete, file), { recursive: true, force: true });
+            }
+        }
     }
+    console.log('Scompatto ' + archivePath + ' in ' + destinationDir + '...');
     fs_1.default.mkdirSync(destinationDir, { recursive: true });
     await tar_1.default.x({
         file: archivePath,
