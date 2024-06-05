@@ -47,7 +47,7 @@ export async function getTarget(argv?: yargs.ArgumentsCamelCase<unknown>) {
 
     const mitechCliFile = getMitechCliFile();
 
-    logger.info('Uso file: ' + mitechCliFile.file);
+    logger.info('Uso files: ' + mitechCliFile.files.join(', '));
     if (mitechCliFile.content.targets.length === 0) {
         throw new StringError('Nessun target disponibile');
     }
@@ -81,7 +81,7 @@ export async function getTarget(argv?: yargs.ArgumentsCamelCase<unknown>) {
     // Convert relative ssh keys to absolute. The relative path is referred to .mitechcli file
     // This will solve the incongruence of process.cwd from the mitech cli file location
     if (_t.sshKey && !path.isAbsolute(_t.sshKey)){
-        const mitechCliFileDirectory = path.dirname(mitechCliFile.file);
+        const mitechCliFileDirectory = path.dirname(mitechCliFile.files[0]!);
         _t.sshKey = path.resolve(mitechCliFileDirectory, _t.sshKey);
     }
     

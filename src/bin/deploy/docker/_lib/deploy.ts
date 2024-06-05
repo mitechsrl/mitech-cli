@@ -22,6 +22,8 @@ import { parse } from 'yaml';
 import { uploadAndInstallDeployScript } from '../../_lib/deployScript';
 import { throwOnFatalError } from '../../_lib/fatalError';
 import { validateComposeConfig } from './validateComposeConfig';
+import { getMitechCliFile } from '../../../../lib/mitechCliFile';
+import { askAndRunCommands } from '../../../../lib/runCommands';
 
 export type DeployResult = {
     aborted?: boolean,
@@ -69,6 +71,9 @@ export async function deploy (target: SshTarget, params: yargs.ArgumentsCamelCas
     validateComposeConfig(dockerComposeConfig);
 
     const appUser = target.nodeUser || 'onit';
+
+    const mitechCliFile = await getMitechCliFile();
+    await askAndRunCommands('Seleziona le operazioni da eseguire prima del deploy:', mitechCliFile.content.beforeDeploySteps);
 
     // connect to ssh remote target
     const session = await createSshSession(target);

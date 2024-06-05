@@ -61,7 +61,7 @@ export async function getDatabase(): Promise<MitechCliFileContentDb> {
 
     const mitechCliFile = getMitechCliFile();
 
-    logger.info('Uso file: ' + mitechCliFile.file);
+    logger.info('Uso files: ' + mitechCliFile.files.join(', '));
     const databases = mitechCliFile.content.dbs ?? [];
 
     if (databases.length === 0) {

@@ -26,6 +26,8 @@ const yaml_1 = require("yaml");
 const deployScript_1 = require("../../_lib/deployScript");
 const fatalError_1 = require("../../_lib/fatalError");
 const validateComposeConfig_1 = require("./validateComposeConfig");
+const mitechCliFile_1 = require("../../../../lib/mitechCliFile");
+const runCommands_1 = require("../../../../lib/runCommands");
 async function uploadDockerComposeFile(session, appUser, localDockerComposeFilePath, dockerComposeFileName) {
     // path for filenames used during compose file upload
     const remoteTempDir = await session.getRemoteTmpDir(appUser);
@@ -62,6 +64,8 @@ async function deploy(target, params) {
     // Check file for properties correctness
     (0, validateComposeConfig_1.validateComposeConfig)(dockerComposeConfig);
     const appUser = target.nodeUser || 'onit';
+    const mitechCliFile = await (0, mitechCliFile_1.getMitechCliFile)();
+    await (0, runCommands_1.askAndRunCommands)('Seleziona le operazioni da eseguire prima del deploy:', mitechCliFile.content.beforeDeploySteps);
     // connect to ssh remote target
     const session = await (0, ssh_1.createSshSession)(target);
     // upload script deploy

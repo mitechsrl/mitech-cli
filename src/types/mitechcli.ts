@@ -52,13 +52,29 @@ export type MitechCliFileContentDb = {
     dst?: string
 };
 
+export type MitechCliFileContentStepCommand = {
+    // nome del comando
+    name?:string, 
+    // path di esecuzione
+    cwd?:string,
+    // comando da eseguire
+    cmd?: string|string[] 
+};
+
 export type MitechCliFileContent = {
     targets: SshTarget[],
     projects: MitechCliFileContentProject[],
-    dbs: MitechCliFileContentDb[]
+    dbs: MitechCliFileContentDb[],
+
+    // Set di comandi opzionali da eseguire prima del deploy. Ogni comando chiede true/false per eseguire
+    beforeDeploySteps?: MitechCliFileContentStepCommand[]
 };
 
 export type MitechCliFile = {
-    file: string,
+    // List of files loaded.
+    // This array is guaranteed to be populated with at least one item, because in case of empty array,
+    // the cli will preemptively throw an error
+    files: string[],
+
     content: MitechCliFileContent
 }; 

@@ -49,7 +49,7 @@ function recourseRegisterCommand(parentYargs: yargs.Argv, commandConfig: ScanCom
                 // command execution callback
                 const configFilePath = path.join(__dirname,commandConfig.file);
                 const execFilePath = path.join(path.dirname(configFilePath), command.exec+'.js');
-
+    
                 if (!existsSync(execFilePath)) {
                     throw new StringError('Questo comando è rotto. Verifica che commandConfig punta a un file di exec valido');
                 }

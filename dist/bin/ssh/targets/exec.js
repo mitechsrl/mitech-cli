@@ -27,7 +27,7 @@ const exec = async (argv) => {
         return logger_1.logger.error('Nessuna lista target disponibile in questa posizione');
     }
     logger_1.logger.log('');
-    logger_1.logger.info('File: ' + mitechCliFile.file);
+    logger_1.logger.info('Files: ' + mitechCliFile.files.join(', '));
     logger_1.logger.log('');
     targets.forEach(target => {
         logger_1.logger.info(target.name);

@@ -215,6 +215,24 @@ NOTA: Il comando deve essere eseguito in una directory con file **docker-compose
 
 Vedi [riferimento #docker](#docker) per maggiori dettagli
 
+Questo comando supporta l'uso di "beforeDeploySteps", opzione per definire una serie di comandi arbitrari da eseguire PRIMA del deploy:
+
+```js
+{
+    targets:...
+    beforeDeploySteps: [{
+        // nome del comando
+        name?:string, 
+        // path di esecuzione
+        cwd?:string,
+        // comando da eseguire
+        cmd?: string|string[]
+    }]
+}
+
+
+
+
 ### mitech deploy backups list
 
 Visualizza la lista di backup di apps disponibili su [target](#concetto-del-target) remoto.
@@ -312,9 +330,9 @@ Il file .mitchcli permette la configurazione di alcuni comandi.
 
 La cli accetta diversi formati e filenames per questo file:
 
-- **.mitechcli.json**: file testuale contenente un oggetto json
-- **.mitechcli**: come mitechcli.json
-- **.mitechcli.js**: file javascript, deve esportare come unico elemento un oggetto json ```module.exports = {...}```.
+- **.mitechcli.json** (con/senza punto inziale): file testuale contenente un oggetto json
+- **.mitechcli** (con/senza punto inziale): come mitechcli.json
+- **.mitechcli.js** (con/senza punto inziale) : file javascript, deve esportare come unico elemento un oggetto json ```module.exports = {...}```.
 
 La cli verifica la presenza del file nelle directory (rispettivamente, in ordine di precedenza) di esecuzione, padre e nonno.
 
@@ -327,6 +345,11 @@ Il file può essere creato in automatico (ad esempio tramite mitech ssh targets 
     "dbs":[] // vedi sotto
 }
 ```
+
+### File .mitechcli.staged
+
+Identico al file precedente. Se presente, il suo valire viene mergiato con quello del file **.mitechcli**.
+La differenza è nell staging del file: il file **.mitechcli** è sconsigliato venga tracciato da git (in quanto è destinato a includere valori privati o segreti) , mentre il file **.mitechcli.staged** è destinato a contenete valori generici che possono essere tracciati via git per condivisione e backup.
 
 ### Nota su staging/commit
 

@@ -40,12 +40,18 @@ export type MitechCliFileContentDb = {
     databaseNames?: string[];
     dst?: string;
 };
+export type MitechCliFileContentStepCommand = {
+    name?: string;
+    cwd?: string;
+    cmd?: string | string[];
+};
 export type MitechCliFileContent = {
     targets: SshTarget[];
     projects: MitechCliFileContentProject[];
     dbs: MitechCliFileContentDb[];
+    beforeDeploySteps?: MitechCliFileContentStepCommand[];
 };
 export type MitechCliFile = {
-    file: string;
+    files: string[];
     content: MitechCliFileContent;
 };

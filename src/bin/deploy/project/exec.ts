@@ -81,7 +81,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<unknown>
         throw new Error('No deployment selected');
     }
     // check if deployment ave all the needed data
-    const basePath = path.join(mitechCliFile.file, '../');
+    const basePath = path.join(mitechCliFile.files[0], '../');
     executeDeployments.forEach(d => {
         checkDeployment(basePath, mitechCliFile.content, d);
     });

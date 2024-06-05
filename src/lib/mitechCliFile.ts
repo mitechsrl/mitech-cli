@@ -15,6 +15,7 @@
 import fs from 'fs';
 import path from 'path';
 import { GenericObject, MitechCliFile, StringError } from '../types';
+import _ from 'lodash';
 
 /*
 Example of mitechcli file
@@ -57,16 +58,19 @@ Example of mitechcli file
   */
 const baseFilenames = [
     path.join(process.cwd(), '.mitechcli'),
+    path.join(process.cwd(), 'mitechcli'),
     path.join(process.cwd(), '../.mitechcli'),
-    path.join(process.cwd(), '../../.mitechcli')
+    path.join(process.cwd(), '../mitechcli'),
+    path.join(process.cwd(), '../../.mitechcli'),
+    path.join(process.cwd(), '../../mitechcli'),
 ];
 
-function loadFile() {
+function loadFile(baseFilenames: string[]) {
     for (const baseFilename of baseFilenames) {
         const jsFilename = baseFilename + '.js';
         if (fs.existsSync(jsFilename)) {
             try {
-                return { file: jsFilename, content: require(jsFilename) } as MitechCliFile;
+                return { files: [jsFilename], content: require(jsFilename) } as MitechCliFile;
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (e: any) {
                 throw new StringError(e.message.split('\n')[0]+'\nVerifica sintassi del tuo file '+jsFilename);
@@ -77,7 +81,7 @@ function loadFile() {
             const filename = baseFilename + extension;
             if (fs.existsSync(filename)) {
                 try {
-                    return { file: filename, content: JSON.parse(fs.readFileSync(filename).toString()) } as MitechCliFile;
+                    return { files: [filename], content: JSON.parse(fs.readFileSync(filename).toString()) } as MitechCliFile;
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 } catch (e: any) {
                     throw new StringError(e.message+'\nVerifica sintassi del tuo file '+jsFilename);
@@ -105,17 +109,37 @@ function ensureNameUniqueness(f: MitechCliFile) {
     });
 }
 
+let cachedMitechCliFile: MitechCliFile;
+
 /**
  * Read the mitechCli file. Searhc for different filenames, extensions and paths. The first found is the one used.
  * @returns
  */
 export function getMitechCliFile() {
 
-    const f = loadFile();
+    if (cachedMitechCliFile) return cachedMitechCliFile;
+    
+    const f = loadFile(baseFilenames);
     if (!f) {
         throw new StringError('Nessun file .mitechcli[.js|.json] trovato');
     }
 
+    const stagedFilenames = baseFilenames.map(f => f + '.staged');
+    const stagedFile = loadFile(stagedFilenames);
+    if (stagedFile) {
+        // Merge the two jsons. Array are concatenated.
+        f.content = _.mergeWith(f.content, stagedFile.content, (objValue, srcValue) => {
+            // in case of arrays merge them by concat
+            if (Array.isArray(objValue)) {
+                return objValue.concat(srcValue);
+            }
+        });
+        f.files.push(...stagedFile.files);
+    }
+
+    if (!f.files.length) {
+        throw new Error('No files found');
+    }
     ensureNameUniqueness(f);
    
     (f.content.targets ?? []).forEach(t => {
@@ -123,6 +147,8 @@ export function getMitechCliFile() {
         if (!t.nodeUser) t.nodeUser='onit';
         if (!t.port) t.port=22;
     });
+
+    cachedMitechCliFile = f;
     return f;
 }
 

@@ -80,7 +80,7 @@ const exec = async (argv) => {
         throw new Error('No deployment selected');
     }
     // check if deployment ave all the needed data
-    const basePath = path_1.default.join(mitechCliFile.file, '../');
+    const basePath = path_1.default.join(mitechCliFile.files[0], '../');
     executeDeployments.forEach(d => {
         (0, checkDeployment_1.checkDeployment)(basePath, mitechCliFile.content, d);
     });

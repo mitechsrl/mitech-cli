@@ -27,7 +27,7 @@ const exec: CommandExecFunction = async (argv: yargs.ArgumentsCamelCase<{}>) => 
     }
 
     logger.log('');
-    logger.info('File: ' + mitechCliFile.file);
+    logger.info('Files: ' + mitechCliFile.files.join(', '));
     logger.log('');
 
     targets.forEach(target => {

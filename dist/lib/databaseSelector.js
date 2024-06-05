@@ -60,7 +60,7 @@ function checkDatabase(db) {
 async function getDatabase() {
     var _a;
     const mitechCliFile = (0, mitechCliFile_1.getMitechCliFile)();
-    logger_1.logger.info('Uso file: ' + mitechCliFile.file);
+    logger_1.logger.info('Uso files: ' + mitechCliFile.files.join(', '));
     const databases = (_a = mitechCliFile.content.dbs) !== null && _a !== void 0 ? _a : [];
     if (databases.length === 0) {
         throw new types_1.StringError('Nessun database disponibile. Aggiungi al tuo file .mitechcli la sezione <dbs>.');
